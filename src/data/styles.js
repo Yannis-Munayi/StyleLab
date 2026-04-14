@@ -1,0 +1,117 @@
+export const STYLES = {
+  streetwear: {
+    id: 'streetwear',
+    name: 'Streetwear',
+    tagline: 'Bold. Loud. Culture-driven.',
+    description:
+      'You gravitate toward oversized silhouettes, graphic prints, and pieces rooted in skate, hip-hop, and urban culture. Comfort meets statement.',
+    color: '#FF6B35',
+    gradient: 'linear-gradient(135deg, #FF6B35 0%, #F7C59F 100%)',
+    icon: '🏙️',
+    icons: ['Hoodies', 'Cargos', 'Chunky sneakers', 'Graphic tees', 'Beanies'],
+    pinterest: 'https://www.pinterest.com/search/pins/?q=mens+streetwear+aesthetic+outfits',
+  },
+  preppy: {
+    id: 'preppy',
+    name: 'Smart Casual / Preppy',
+    tagline: 'Polished. Put-together. Effortless.',
+    description:
+      'Clean cuts, classic pieces, and a palette that signals you always look intentional — even when keeping it casual. Think chinos, polos, and loafers.',
+    color: '#2E86AB',
+    gradient: 'linear-gradient(135deg, #2E86AB 0%, #A8DADC 100%)',
+    icon: '⛵',
+    icons: ['Chinos', 'Oxford shirts', 'Loafers', 'Blazers', 'Polo shirts'],
+    pinterest: 'https://www.pinterest.com/search/pins/?q=mens+preppy+smart+casual+aesthetic+outfits',
+  },
+  minimalist: {
+    id: 'minimalist',
+    name: 'Minimalist',
+    tagline: 'Less is more. Always.',
+    description:
+      'Neutral tones, clean lines, and zero clutter. Your wardrobe is intentional — every piece earns its place, and nothing fights for attention.',
+    color: '#3D3D3D',
+    gradient: 'linear-gradient(135deg, #3D3D3D 0%, #9E9E9E 100%)',
+    icon: '◼',
+    icons: ['White tees', 'Slim trousers', 'Simple sneakers', 'Turtlenecks', 'Monochrome looks'],
+    pinterest: 'https://www.pinterest.com/search/pins/?q=mens+minimalist+fashion+aesthetic+outfits',
+  },
+  techwear: {
+    id: 'techwear',
+    name: 'Techwear',
+    tagline: 'Function is the aesthetic.',
+    description:
+      'Technical fabrics, utility pockets, and a dark futuristic palette. You want your clothing to work as hard as you do — performance meets edge.',
+    color: '#1A1A2E',
+    gradient: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%)',
+    icon: '⚡',
+    icons: ['Cargo pants', 'Windbreakers', 'Trail runners', 'Technical jackets', 'Crossbody bags'],
+    pinterest: 'https://www.pinterest.com/search/pins/?q=mens+techwear+aesthetic+outfits',
+  },
+  workwear: {
+    id: 'workwear',
+    name: 'Workwear / Americana',
+    tagline: 'Built to last. Rooted in craft.',
+    description:
+      'Raw denim, flannels, and boots that have a story. You\'re drawn to pieces with heritage and durability — clothing that feels earned, not bought.',
+    color: '#8B4513',
+    gradient: 'linear-gradient(135deg, #8B4513 0%, #D2691E 100%)',
+    icon: '🔧',
+    icons: ['Raw denim', 'Flannels', 'Work boots', 'Denim jackets', 'Leather belts'],
+    pinterest: 'https://www.pinterest.com/search/pins/?q=mens+workwear+americana+aesthetic+outfits',
+  },
+  oldmoney: {
+    id: 'oldmoney',
+    name: 'Old Money / Classic',
+    tagline: 'Quiet luxury. Understated wealth.',
+    description:
+      'Tailored fits, premium fabrics, and timeless silhouettes. You dress like the money was always there — no logos needed, the quality speaks.',
+    color: '#7D6B4F',
+    gradient: 'linear-gradient(135deg, #7D6B4F 0%, #C9B99A 100%)',
+    icon: '🏛️',
+    icons: ['Peacoats', 'Trench coats', 'Merino sweaters', 'Loafers', 'Dress trousers'],
+    pinterest: 'https://www.pinterest.com/search/pins/?q=mens+old+money+aesthetic+outfits',
+  },
+  vintage: {
+    id: 'vintage',
+    name: 'Y2K / Vintage',
+    tagline: 'Nostalgia with a twist.',
+    description:
+      'Throwback cuts, retro graphics, and pieces that feel like a time capsule. You raid thrift stores and wear eras as a statement.',
+    color: '#9B59B6',
+    gradient: 'linear-gradient(135deg, #9B59B6 0%, #F39C12 100%)',
+    icon: '📼',
+    icons: ['Varsity jackets', 'Wide-leg jeans', 'Retro tees', 'Bucket hats', 'Track pants'],
+    pinterest: 'https://www.pinterest.com/search/pins/?q=mens+y2k+vintage+aesthetic+outfits',
+  },
+  gorpcore: {
+    id: 'gorpcore',
+    name: 'Gorpcore / Outdoorsy',
+    tagline: 'Trail-ready, city-worn.',
+    description:
+      'Fleece, trail runners, and performance gear worn as everyday fashion. You like clothing that could take you from the city to the mountains without blinking.',
+    color: '#27AE60',
+    gradient: 'linear-gradient(135deg, #27AE60 0%, #2ECC71 100%)',
+    icon: '🏔️',
+    icons: ['Fleece jackets', 'Trail runners', 'Cargo pants', 'Puffer vests', 'Hiking boots'],
+    pinterest: 'https://www.pinterest.com/search/pins/?q=mens+gorpcore+outdoorsy+aesthetic+outfits',
+  },
+}
+
+// How each "reason" tag shifts style scores
+export const REASON_WEIGHTS = {
+  'Bold colors':        { streetwear: 2, vintage: 2, preppy: 0.5 },
+  'Neutral tones':      { minimalist: 2, oldmoney: 2, preppy: 1 },
+  'Oversized fit':      { streetwear: 3, vintage: 1 },
+  'Slim / tailored':    { preppy: 2, oldmoney: 2, minimalist: 2 },
+  'Technical fabric':   { techwear: 3, gorpcore: 2 },
+  'Natural fabric':     { workwear: 2, oldmoney: 2, preppy: 1 },
+  'Unique silhouette':  { streetwear: 2, techwear: 2, vintage: 1 },
+  'Clean design':       { minimalist: 3, oldmoney: 1 },
+  'Heritage look':      { oldmoney: 2, workwear: 2, preppy: 1 },
+  'Rugged / durable':   { workwear: 3, gorpcore: 2 },
+  'Functional details': { techwear: 3, gorpcore: 2, workwear: 1 },
+  'Retro / vintage':    { vintage: 3, workwear: 1 },
+  'Layering piece':     { gorpcore: 2, workwear: 1, preppy: 1 },
+  'Casual comfort':     { streetwear: 2, gorpcore: 1, workwear: 1 },
+  'Elevated feel':      { oldmoney: 3, minimalist: 2, preppy: 1 },
+}
