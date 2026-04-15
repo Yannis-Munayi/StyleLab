@@ -4,24 +4,23 @@ import { CLOTHING_ITEMS } from '../data/categories'
 
 const AppContext = createContext(null)
 
-const SCREENS = {
-  WELCOME: 'welcome',
-  SEASONS: 'seasons',
+export const SCREENS = {
+  AUTH:       'auth',
+  WELCOME:    'welcome',
+  SEASONS:    'seasons',
   CATEGORIES: 'categories',
-  DISCOVERY: 'discovery',
-  RESULTS: 'results',
+  DISCOVERY:  'discovery',
+  RESULTS:    'results',
+  PROFILE:    'profile',
 }
 
 const initialState = {
   screen: SCREENS.WELCOME,
   selectedSeasons: [],
   selectedCategories: [],
-  // queue of items to show during discovery
   itemQueue: [],
   currentItemIndex: 0,
-  // { itemId: { liked: true, reasons: ['Bold colors', ...] } }
   responses: {},
-  // style score accumulator
   styleScores: Object.fromEntries(Object.keys(STYLES).map((k) => [k, 0])),
 }
 
@@ -30,7 +29,6 @@ function buildItemQueue(categories, seasons) {
   for (const catId of categories) {
     const catItems = CLOTHING_ITEMS[catId] || []
     for (const item of catItems) {
-      // include item if any selected season matches (or no season filter)
       if (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s))) {
         items.push({ ...item, categoryId: catId })
       }
@@ -39,18 +37,38 @@ function buildItemQueue(categories, seasons) {
   return items
 }
 
-function addStyleWeights(scores, weights, multiplier = 1) {
-  const next = { ...scores }
-  for (const [style, weight] of Object.entries(weights)) {
-    if (next[style] !== undefined) {
-      next[style] += weight * multiplier
+// Recompute all style scores from scratch based on the responses map.
+// This ensures going back and changing a choice always produces correct scores.
+function recalculateScores(responses, itemQueue) {
+  const scores = Object.fromEntries(Object.keys(STYLES).map((k) => [k, 0]))
+  for (const item of itemQueue) {
+    const resp = responses[item.id]
+    if (!resp?.liked) continue
+    for (const [style, weight] of Object.entries(item.styleWeights)) {
+      if (scores[style] !== undefined) scores[style] += weight
+    }
+    for (const reason of resp.reasons) {
+      const rw = REASON_WEIGHTS[reason]
+      if (!rw) continue
+      for (const [style, weight] of Object.entries(rw)) {
+        if (scores[style] !== undefined) scores[style] += weight
+      }
     }
   }
-  return next
+  return scores
 }
 
 function reducer(state, action) {
   switch (action.type) {
+    case 'GO_TO_AUTH':
+      return { ...state, screen: SCREENS.AUTH }
+
+    case 'GO_TO_WELCOME':
+      return { ...state, screen: SCREENS.WELCOME }
+
+    case 'GO_TO_PROFILE':
+      return { ...state, screen: SCREENS.PROFILE }
+
     case 'GO_TO_SEASONS':
       return { ...state, screen: SCREENS.SEASONS }
 
@@ -75,34 +93,28 @@ function reducer(state, action) {
       }
     }
 
-    case 'SKIP_ITEM':
-      // User doesn't like this item — move on
-      if (state.currentItemIndex + 1 >= state.itemQueue.length) {
-        return { ...state, screen: SCREENS.RESULTS }
+    case 'PREV_ITEM':
+      if (state.currentItemIndex === 0) {
+        return { ...state, screen: SCREENS.CATEGORIES }
       }
-      return { ...state, currentItemIndex: state.currentItemIndex + 1 }
+      return { ...state, currentItemIndex: state.currentItemIndex - 1 }
+
+    case 'SKIP_ITEM': {
+      const responses = { ...state.responses, [state.itemQueue[state.currentItemIndex]?.id]: { liked: false, reasons: [] } }
+      if (state.currentItemIndex + 1 >= state.itemQueue.length) {
+        return { ...state, responses, screen: SCREENS.RESULTS }
+      }
+      return { ...state, responses, currentItemIndex: state.currentItemIndex + 1 }
+    }
 
     case 'LIKE_ITEM_WITH_REASONS': {
       const { item, reasons } = action
-      // Score: item's style weights + reasons weights
-      let scores = addStyleWeights(state.styleScores, item.styleWeights, 1)
-      for (const reason of reasons) {
-        const rw = REASON_WEIGHTS[reason]
-        if (rw) scores = addStyleWeights(scores, rw, 1)
-      }
-      const responses = {
-        ...state.responses,
-        [item.id]: { liked: true, reasons },
-      }
+      const responses = { ...state.responses, [item.id]: { liked: true, reasons } }
+      const styleScores = recalculateScores(responses, state.itemQueue)
       if (state.currentItemIndex + 1 >= state.itemQueue.length) {
-        return { ...state, styleScores: scores, responses, screen: SCREENS.RESULTS }
+        return { ...state, styleScores, responses, screen: SCREENS.RESULTS }
       }
-      return {
-        ...state,
-        styleScores: scores,
-        responses,
-        currentItemIndex: state.currentItemIndex + 1,
-      }
+      return { ...state, styleScores, responses, currentItemIndex: state.currentItemIndex + 1 }
     }
 
     case 'RESTART':

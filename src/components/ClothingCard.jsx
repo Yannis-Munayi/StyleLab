@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { REASON_TAGS } from '../data/categories'
+import { REASON_TAGS_BY_CATEGORY, REASON_TAGS } from '../data/categories'
 import { useApp } from '../context/AppContext'
-import { fetchPhotos } from '../services/unsplash'
+import { fetchPhotos } from '../services/pexels'
 import styles from './ClothingCard.module.css'
 
 function PhotoCarousel({ photos, fallbackGradient, loading }) {
@@ -26,7 +26,7 @@ function PhotoCarousel({ photos, fallbackGradient, loading }) {
     setIndex((i) => (i + 1) % photos.length)
   }
 
-  // Show gradient skeleton while we wait for the API
+  // Show gradient while loading or if no photos available
   if (loading || photos.length === 0) {
     return (
       <div
@@ -86,22 +86,26 @@ function PhotoCarousel({ photos, fallbackGradient, loading }) {
   )
 }
 
-export default function ClothingCard({ item }) {
+export default function ClothingCard({ item, existingResponse }) {
   const { dispatch } = useApp()
   const [flipped, setFlipped] = useState(false)
-  const [selectedReasons, setSelectedReasons] = useState([])
+  // Pre-populate reasons if the user previously liked this item
+  const [selectedReasons, setSelectedReasons] = useState(
+    existingResponse?.liked ? existingResponse.reasons : []
+  )
   const [photos, setPhotos] = useState([])
   const [loadingPhotos, setLoadingPhotos] = useState(true)
 
-  // Fetch all 3 photo queries in parallel, pick the first result from each
+  const reasonTags = REASON_TAGS_BY_CATEGORY[item.categoryId] ?? REASON_TAGS
+
   useEffect(() => {
     let cancelled = false
     setLoadingPhotos(true)
     setPhotos([])
 
-    Promise.all(item.photos.map((q) => fetchPhotos(q, 1))).then((results) => {
+    const query = `${item.name} men fashion outfit`
+    fetchPhotos(query, 3).then((urls) => {
       if (cancelled) return
-      const urls = results.flat().filter(Boolean)
       setPhotos(urls)
       setLoadingPhotos(false)
     })
@@ -168,6 +172,15 @@ export default function ClothingCard({ item }) {
         {/* ── BACK ── */}
         <div className={styles.back}>
           <div className={styles.backHeader}>
+            <button
+              className={styles.backFlipBtn}
+              onClick={() => setFlipped(false)}
+              aria-label="View photos"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
             <span className={styles.backEmoji}>{item.emoji}</span>
             <div>
               <h3 className={styles.backTitle}>{item.name}</h3>
@@ -176,7 +189,7 @@ export default function ClothingCard({ item }) {
           </div>
 
           <div className={styles.reasonsGrid}>
-            {REASON_TAGS.map((reason) => (
+            {reasonTags.map((reason) => (
               <button
                 key={reason}
                 className={`${styles.reasonTag} ${selectedReasons.includes(reason) ? styles.selected : ''}`}

@@ -10,8 +10,9 @@ const SEASONS = [
 ]
 
 export default function SeasonScreen() {
-  const { dispatch } = useApp()
-  const [selected, setSelected] = useState([])
+  const { state, dispatch } = useApp()
+  // Restore any previously chosen seasons when the user navigates back
+  const [selected, setSelected] = useState(state.selectedSeasons ?? [])
 
   function toggle(id) {
     setSelected((prev) =>
@@ -27,6 +28,12 @@ export default function SeasonScreen() {
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
+        <button className={styles.backBtn} onClick={() => dispatch({ type: 'GO_TO_WELCOME' })}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
         <h2 className={styles.screenTitle}>Which seasons matter most?</h2>
         <p className={styles.screenSub}>We'll tailor items to what you actually need to wear. Pick all that apply.</p>
       </div>

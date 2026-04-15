@@ -1,3 +1,7 @@
+import { useEffect, useRef } from 'react'
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { db } from '../services/firebase'
+import { useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
 import { STYLES } from '../data/styles'
 import styles from './screens.module.css'
@@ -30,8 +34,28 @@ function PinterestIcon() {
 }
 
 export default function ResultsScreen() {
+  const { user }            = useAuth()
   const { state, dispatch } = useApp()
-  const { styleScores, responses } = state
+  const { styleScores, responses, selectedSeasons, selectedCategories, itemQueue } = state
+  const savedRef = useRef(false)
+
+  // Auto-save results to Firestore if signed in
+  useEffect(() => {
+    if (!user || savedRef.current) return
+    savedRef.current = true
+
+    const likedItems = itemQueue
+      .filter((item) => responses[item.id]?.liked)
+      .map((item) => ({ id: item.id, name: item.name, categoryId: item.categoryId }))
+
+    addDoc(collection(db, 'users', user.uid, 'quizzes'), {
+      timestamp: serverTimestamp(),
+      styleScores,
+      likedItems,
+      selectedSeasons,
+      selectedCategories,
+    }).catch(() => {}) // fail silently
+  }, [user])  // eslint-disable-line
 
   const topStyles = getTopStyles(styleScores)
   const maxScore = topStyles[0]?.[1] ?? 1
@@ -172,12 +196,29 @@ export default function ResultsScreen() {
           </div>
         </section>
 
-        <button
-          className={`${styles.primaryBtn} ${styles.fullWidth}`}
-          onClick={() => dispatch({ type: 'RESTART' })}
-        >
-          Start over
-        </button>
+        <div className={styles.resultActions}>
+          {user ? (
+            <button
+              className={styles.profileBtn}
+              onClick={() => dispatch({ type: 'GO_TO_PROFILE' })}
+            >
+              View my profile
+            </button>
+          ) : (
+            <button
+              className={styles.profileBtn}
+              onClick={() => dispatch({ type: 'GO_TO_AUTH' })}
+            >
+              Save results — sign in
+            </button>
+          )}
+          <button
+            className={`${styles.primaryBtn} ${styles.fullWidth}`}
+            onClick={() => dispatch({ type: 'RESTART' })}
+          >
+            Start over
+          </button>
+        </div>
       </div>
     </div>
   )

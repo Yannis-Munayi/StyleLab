@@ -4,8 +4,9 @@ import { CATEGORIES } from '../data/categories'
 import styles from './screens.module.css'
 
 export default function CategoryScreen() {
-  const { dispatch } = useApp()
-  const [selected, setSelected] = useState([])
+  const { state, dispatch } = useApp()
+  // Restore previously chosen categories when navigating back
+  const [selected, setSelected] = useState(state.selectedCategories ?? [])
 
   function toggle(id) {
     setSelected((prev) =>
@@ -22,6 +23,12 @@ export default function CategoryScreen() {
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
+        <button className={styles.backBtn} onClick={() => dispatch({ type: 'GO_TO_SEASONS' })}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
         <h2 className={styles.screenTitle}>What do you shop for most?</h2>
         <p className={styles.screenSub}>
           Select the clothing categories you actually care about. We'll walk through each one.

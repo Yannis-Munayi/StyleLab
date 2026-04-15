@@ -5,13 +5,16 @@ import styles from './screens.module.css'
 
 export default function DiscoveryScreen() {
   const { state, dispatch } = useApp()
-  const { itemQueue, currentItemIndex } = state
+  const { itemQueue, currentItemIndex, responses } = state
 
   const item = itemQueue[currentItemIndex]
-  const progress = currentItemIndex / itemQueue.length
+  const progress = (currentItemIndex + 1) / itemQueue.length
   const categoryLabel = item
     ? CATEGORIES.find((c) => c.id === item.categoryId)?.label ?? ''
     : ''
+
+  // Pass any previous response so the card can restore selections
+  const existingResponse = item ? responses[item.id] : null
 
   if (!item) {
     return (
@@ -29,6 +32,15 @@ export default function DiscoveryScreen() {
       </div>
 
       <div className={styles.discoveryMeta}>
+        <button
+          className={styles.discoveryBackBtn}
+          onClick={() => dispatch({ type: 'PREV_ITEM' })}
+          aria-label="Previous item"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </button>
         <span className={styles.metaCategory}>{categoryLabel}</span>
         <span className={styles.metaCount}>
           {currentItemIndex + 1} / {itemQueue.length}
@@ -36,8 +48,7 @@ export default function DiscoveryScreen() {
       </div>
 
       <div className={styles.cardWrapper}>
-        {/* Animate card swap — key forces remount on item change */}
-        <ClothingCard key={item.id} item={item} />
+        <ClothingCard key={item.id} item={item} existingResponse={existingResponse} />
       </div>
 
       <p className={styles.discoverHint}>
