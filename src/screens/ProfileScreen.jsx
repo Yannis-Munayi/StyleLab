@@ -56,7 +56,41 @@ export default function ProfileScreen({ onBack }) {
 
   async function handleLogout() {
     await logout()
-    dispatch({ type: 'GO_TO_WELCOME' })
+    // onBack resets the active tab (tab-bar usage); otherwise go to welcome screen
+    if (onBack) {
+      onBack()
+    } else {
+      dispatch({ type: 'GO_TO_WELCOME' })
+    }
+  }
+
+  // Guard: no user — show sign-in prompt
+  if (!user) {
+    return (
+      <div className={styles.screen}>
+        <div className={styles.header}>
+          {onBack && (
+            <button className={styles.backBtn} onClick={onBack}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+          <p className={styles.userName} style={{ flex: 1 }}>Profile</p>
+        </div>
+        <div className={styles.body} style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: 16, padding: '80px 32px', textAlign: 'center' }}>
+          <p style={{ fontSize: 48 }}>👤</p>
+          <p className={styles.userName}>Not signed in</p>
+          <p className={styles.userEmail}>Sign in to save your style, track quiz history, and pin aesthetics.</p>
+          <button
+            className={styles.retakeBtn}
+            onClick={() => dispatch({ type: 'GO_TO_AUTH' })}
+          >
+            Sign in / Create account
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -1,5 +1,6 @@
 import { useApp } from '../context/AppContext'
 import { useAuth } from '../context/AuthContext'
+import AuthWidget from '../components/AuthWidget'
 import styles from './screens.module.css'
 
 export default function WelcomeScreen() {
@@ -10,26 +11,9 @@ export default function WelcomeScreen() {
     <div className={styles.welcomeWrapper}>
       <div className={styles.welcomeGlow} />
 
-      {/* Top-right: auth status */}
+      {/* Top-right: auth widget */}
       <div className={styles.welcomeTopBar}>
-        {user ? (
-          <button
-            className={styles.profilePill}
-            onClick={() => dispatch({ type: 'GO_TO_PROFILE' })}
-          >
-            <span className={styles.profilePillAvatar}>
-              {(user.displayName ?? user.email ?? '?')[0].toUpperCase()}
-            </span>
-            <span>{user.displayName ?? 'Profile'}</span>
-          </button>
-        ) : (
-          <button
-            className={styles.signInLink}
-            onClick={() => dispatch({ type: 'GO_TO_AUTH' })}
-          >
-            Sign in
-          </button>
-        )}
+        <AuthWidget />
       </div>
 
       <div className={styles.welcomeContent}>
@@ -55,12 +39,9 @@ export default function WelcomeScreen() {
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
         </button>
-        {!user && (
-          <p className={styles.welcomeNote}>Takes about 5 minutes · Results saved when signed in</p>
-        )}
-        {user && (
-          <p className={styles.welcomeNote}>Signed in as {user.displayName ?? user.email}</p>
-        )}
+        <p className={styles.welcomeNote}>
+          Takes about 5 minutes{user ? ' · Results auto-saved' : ' · Results saved when signed in'}
+        </p>
       </div>
     </div>
   )

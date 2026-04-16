@@ -10,6 +10,13 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .title {
   font-family: 'Playfair Display', serif;
   font-size: 28px;
@@ -114,6 +121,11 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
 }
 
 .itemPhoto {
@@ -141,8 +153,31 @@
   font-size: 18px;
   line-height: 1;
   filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
-  /* hide emoji once image loads */
   opacity: 0.7;
+}
+
+/* Hover overlay — "⋯" prompt */
+.itemOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s;
+  border-radius: 12px;
+}
+
+.item:hover .itemOverlay,
+.item:focus-visible .itemOverlay {
+  opacity: 1;
+}
+
+.itemOverlayIcon {
+  font-size: 22px;
+  color: #fff;
+  letter-spacing: 2px;
 }
 
 .itemName {

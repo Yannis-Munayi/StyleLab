@@ -8,14 +8,30 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.07);
-  display: flex;
-  align-items: stretch;
   z-index: 100;
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Horizontally scrollable container */
+.tabScroll {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  scroll-snap-type: x mandatory;
+}
+
+.tabScroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* ── Tab base ── */
 .tab {
-  flex: 1;
+  flex: 0 0 auto;
+  min-width: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,14 +41,16 @@
   border: none;
   cursor: pointer;
   color: rgba(255, 255, 255, 0.35);
-  font-size: 11px;
+  font-size: 10px;
   font-family: inherit;
   font-weight: 500;
   letter-spacing: 0.3px;
   transition: color 0.18s;
-  padding: 0;
+  padding: 0 10px;
+  scroll-snap-align: start;
 }
 
+/* Regular main tabs take equal space up to a point */
 .tab:hover {
   color: rgba(255, 255, 255, 0.65);
 }
@@ -41,6 +59,55 @@
   color: #fff;
 }
 
+/* ── Aesthetic tabs ── */
+.tabTemp {
+  position: relative;
+  border-left: 1px dashed rgba(255, 255, 255, 0.12);
+  border-right: 1px dashed rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.tabTemp.active {
+  color: #fff;
+}
+
+/* Small dot indicator for temp tabs */
+.tabTemp::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.tabSaved {
+  border-left: 1px solid rgba(255, 107, 53, 0.18);
+  color: rgba(255, 107, 53, 0.55);
+}
+
+.tabSaved.active {
+  color: #FF6B35;
+}
+
+/* ── Aesthetic tab content ── */
+.aestheticTabIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.aestheticTabLabel {
+  font-size: 9px;
+  font-weight: 600;
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Profile avatar ── */
 .avatar {
   width: 24px;
   height: 24px;
@@ -58,4 +125,30 @@
 .avatarActive {
   background: linear-gradient(135deg, #FF6B35, #F7C59F);
   color: #fff;
+}
+
+/* ── Shop badge ── */
+.shopIconWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: #FF6B35;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }

@@ -41,6 +41,10 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     await signOut(auth)
+    // Remove any keys that were written by old code versions to prevent
+    // them from leaking into the next user's session
+    localStorage.removeItem('stylelab_saved_aesthetics')
+    localStorage.removeItem('stylelab_shoplist')
   }
 
   return (

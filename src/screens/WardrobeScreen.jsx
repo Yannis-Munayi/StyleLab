@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
 import { fetchPhotos } from '../services/pexels'
 import { CLOTHING_ITEMS, CATEGORIES } from '../data/categories'
+import ItemActionSheet from '../components/ItemActionSheet'
+import ShopPanel from '../components/ShopPanel'
+import AuthWidget from '../components/AuthWidget'
 import styles from './WardrobeScreen.module.css'
 
 // Flat lookup of every item by id
@@ -16,9 +19,9 @@ const ITEM_LOOKUP = (() => {
   return map
 })()
 
-function WardrobeItem({ item }) {
-  const [photo, setPhoto]     = useState(null)
-  const [loaded, setLoaded]   = useState(false)
+function WardrobeItem({ item, onSelect }) {
+  const [photo, setPhoto]   = useState(null)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -29,7 +32,7 @@ function WardrobeItem({ item }) {
   }, [item.id])
 
   return (
-    <div className={styles.item}>
+    <button className={styles.item} onClick={() => onSelect(item)}>
       <div className={styles.itemPhoto} style={{ background: item.gradient }}>
         {photo && (
           <img
@@ -42,9 +45,12 @@ function WardrobeItem({ item }) {
           />
         )}
         <span className={styles.itemEmoji}>{item.emoji}</span>
+        <div className={styles.itemOverlay}>
+          <span className={styles.itemOverlayIcon}>⋯</span>
+        </div>
       </div>
       <p className={styles.itemName}>{item.name}</p>
-    </div>
+    </button>
   )
 }
 
@@ -53,8 +59,10 @@ export default function WardrobeScreen() {
   const { state }          = useApp()
   const { itemQueue, responses } = state
 
-  const [pastItems, setPastItems] = useState([])
-  const [loadingPast, setLoadingPast] = useState(false)
+  const [pastItems,    setPastItems]    = useState([])
+  const [loadingPast,  setLoadingPast]  = useState(false)
+  const [activeItem,   setActiveItem]   = useState(null)   // action sheet
+  const [shopItem,     setShopItem]     = useState(null)   // shop panel
 
   // Load liked items from past quiz sessions if signed in
   useEffect(() => {
@@ -62,7 +70,7 @@ export default function WardrobeScreen() {
     setLoadingPast(true)
     const q = query(collection(db, 'users', user.uid, 'quizzes'), orderBy('timestamp', 'desc'))
     getDocs(q).then((snap) => {
-      const seen = new Set()
+      const seen  = new Set()
       const items = []
       for (const doc of snap.docs) {
         for (const li of doc.data().likedItems ?? []) {
@@ -82,7 +90,7 @@ export default function WardrobeScreen() {
     [itemQueue, responses]
   )
 
-  // Merge: session items take precedence (they're more recent), then past
+  // Merge: session items take precedence, then past
   const allLiked = useMemo(() => {
     const sessionIds = new Set(sessionItems.map((i) => i.id))
     const past = pastItems.filter((i) => !sessionIds.has(i.id))
@@ -97,7 +105,6 @@ export default function WardrobeScreen() {
       if (!map[catId]) map[catId] = []
       map[catId].push(item)
     }
-    // Return in CATEGORIES order
     return CATEGORIES
       .filter((cat) => map[cat.id])
       .map((cat) => ({ cat, items: map[cat.id] }))
@@ -105,13 +112,27 @@ export default function WardrobeScreen() {
 
   const totalCount = allLiked.length
 
+  function handleSelectItem(item) {
+    setActiveItem(item)
+  }
+
+  function handleOpenShop() {
+    setShopItem(activeItem)
+    setActiveItem(null)
+  }
+
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
-        <h1 className={styles.title}>My Wardrobe</h1>
-        {totalCount > 0 && (
-          <p className={styles.sub}>{totalCount} piece{totalCount !== 1 ? 's' : ''} saved</p>
-        )}
+        <div className={styles.headerTop}>
+          <div>
+            <h1 className={styles.title}>My Wardrobe</h1>
+            {totalCount > 0 && (
+              <p className={styles.sub}>{totalCount} piece{totalCount !== 1 ? 's' : ''} saved</p>
+            )}
+          </div>
+          <AuthWidget />
+        </div>
       </div>
 
       {totalCount === 0 && !loadingPast && (
@@ -140,12 +161,29 @@ export default function WardrobeScreen() {
             </div>
             <div className={styles.grid}>
               {items.map((item) => (
-                <WardrobeItem key={item.id} item={item} />
+                <WardrobeItem key={item.id} item={item} onSelect={handleSelectItem} />
               ))}
             </div>
           </section>
         ))}
       </div>
+
+      {/* Item action sheet */}
+      {activeItem && (
+        <ItemActionSheet
+          item={activeItem}
+          onShop={handleOpenShop}
+          onClose={() => setActiveItem(null)}
+        />
+      )}
+
+      {/* Shop panel (full-screen slide) */}
+      {shopItem && (
+        <ShopPanel
+          item={shopItem}
+          onClose={() => setShopItem(null)}
+        />
+      )}
     </div>
   )
 }
