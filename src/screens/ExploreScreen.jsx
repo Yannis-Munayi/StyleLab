@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { STYLES } from '../data/styles'
 import { useExplore } from '../context/ExploreContext'
+import { fetchPhotos } from '../services/pexels'
 import AestheticScreen from './AestheticScreen'
 import AuthWidget from '../components/AuthWidget'
 import styles from './ExploreScreen.module.css'
@@ -36,16 +37,98 @@ const GROUPS = [
 ]
 
 function AestheticCard({ style, onOpen, pinned }) {
+  const [photos, setPhotos]     = useState([])
+  const [imgIdx, setImgIdx]     = useState(0)
+  const [imgLoaded, setImgLoaded] = useState(false)
+  const cardRef  = useRef(null)
+  const fetchedRef = useRef(false)
+
+  // Lazy-load: fetch 4 photos only when card enters the viewport
+  useEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !fetchedRef.current) {
+          fetchedRef.current = true
+          fetchPhotos(`${style.name} men outfit aesthetic`, 4).then((urls) => {
+            setPhotos(urls ?? [])
+            setImgLoaded(false)
+          })
+          obs.disconnect()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [style.id, style.name])
+
+  function prev(e) {
+    e.stopPropagation()
+    setImgLoaded(false)
+    setImgIdx((i) => (i - 1 + photos.length) % photos.length)
+  }
+
+  function next(e) {
+    e.stopPropagation()
+    setImgLoaded(false)
+    setImgIdx((i) => (i + 1) % photos.length)
+  }
+
+  const photo = photos[imgIdx] ?? null
+
   return (
-    <button
+    <div
+      ref={cardRef}
       className={`${styles.card} ${pinned ? styles.cardPinned : ''}`}
-      style={{ background: style.gradient }}
-      onClick={() => onOpen(style.id)}
     >
-      <span className={styles.cardIcon}>{style.icon}</span>
-      <span className={styles.cardName}>{style.name}</span>
-      {pinned && <span className={styles.pinBadge}>📌</span>}
-    </button>
+      {/* Background: photo or gradient fallback */}
+      <div className={styles.cardBg} style={{ background: style.gradient }}>
+        {photo && (
+          <img
+            key={photo}
+            src={photo}
+            alt={style.name}
+            className={styles.cardImg}
+            style={{ opacity: imgLoaded ? 1 : 0 }}
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgLoaded(true)}
+          />
+        )}
+      </div>
+
+      {/* Clickable overlay opens the aesthetic (covers whole card except nav buttons) */}
+      <div className={styles.cardOverlay} onClick={() => onOpen(style.id)} />
+
+      {/* Prev / Next arrows */}
+      {photos.length > 1 && (
+        <>
+          <button className={`${styles.cardNav} ${styles.cardNavPrev}`} onClick={prev} aria-label="Previous">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <button className={`${styles.cardNav} ${styles.cardNavNext}`} onClick={next} aria-label="Next">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+          {/* Dot indicators */}
+          <div className={styles.cardDots}>
+            {photos.map((_, i) => (
+              <span key={i} className={`${styles.dot} ${i === imgIdx ? styles.dotActive : ''}`} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Name + pin — also opens the aesthetic on click */}
+      <div className={styles.cardFooter} onClick={() => onOpen(style.id)}>
+        <span className={styles.cardName}>{style.name}</span>
+        {pinned && <span className={styles.pinBadge}>📌</span>}
+      </div>
+    </div>
   )
 }
 

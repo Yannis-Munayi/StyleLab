@@ -1,10 +1,19 @@
 import { useAuth } from '../context/AuthContext'
 import { useShop } from '../context/ShopContext'
-import { useExplore } from '../context/ExploreContext'
-import { STYLES } from '../data/styles'
+import { useWishlist } from '../context/WishlistContext'
 import styles from './TabBar.module.css'
 
 /* ── Icons ── */
+function HomeIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}>
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" />
+      <path d="M9 21V12h6v9" />
+    </svg>
+  )
+}
+
 function ExploreIcon({ active }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -38,6 +47,15 @@ function WardrobeIcon({ active }) {
   )
 }
 
+function WishlistIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}>
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+    </svg>
+  )
+}
+
 function ShopIcon({ active }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -61,88 +79,64 @@ function ProfileIcon({ active }) {
 
 /* ── TabBar ── */
 export default function TabBar({ activeTab, setActiveTab }) {
-  const { user }                                = useAuth()
-  const { shopList }                            = useShop()
-  const { savedAesthetics, openAesthetic, isSaved, handleMainTabSwitch } = useExplore()
-
-  // Temporary tab: open aesthetic that is NOT yet saved
-  const tempAesthetic =
-    openAesthetic && !savedAesthetics.includes(openAesthetic) ? openAesthetic : null
-
-  function handleTabClick(tabId) {
-    handleMainTabSwitch(tabId) // close unsaved aesthetic if navigating away
-    setActiveTab(tabId)
-  }
-
-  const aestheticTabId = (id) => `aesthetic:${id}`
+  const { user }     = useAuth()
+  const { shopList } = useShop()
+  const { wishlist } = useWishlist()
 
   return (
     <nav className={styles.tabBar}>
       <div className={styles.tabScroll}>
 
-        {/* ── Explore ── */}
+        <button
+          className={`${styles.tab} ${activeTab === 'home' ? styles.active : ''}`}
+          onClick={() => setActiveTab('home')}
+        >
+          <HomeIcon active={activeTab === 'home'} />
+          <span>Home</span>
+        </button>
+
         <button
           className={`${styles.tab} ${activeTab === 'explore' ? styles.active : ''}`}
-          onClick={() => handleTabClick('explore')}
+          onClick={() => setActiveTab('explore')}
         >
           <ExploreIcon active={activeTab === 'explore'} />
           <span>Explore</span>
         </button>
 
-        {/* ── Temporary aesthetic tab ── */}
-        {tempAesthetic && (
-          <button
-            className={`${styles.tab} ${styles.tabTemp} ${activeTab === aestheticTabId(tempAesthetic) ? styles.active : ''}`}
-            onClick={() => handleTabClick(aestheticTabId(tempAesthetic))}
-          >
-            <span className={styles.aestheticTabIcon}>{STYLES[tempAesthetic]?.icon ?? '★'}</span>
-            <span className={styles.aestheticTabLabel}>
-              {(STYLES[tempAesthetic]?.name ?? tempAesthetic).split(' ')[0]}
-            </span>
-          </button>
-        )}
-
-        {/* ── Saved aesthetic tabs ── */}
-        {savedAesthetics.map((id) => {
-          const tabId = aestheticTabId(id)
-          const s     = STYLES[id]
-          if (!s) return null
-          return (
-            <button
-              key={id}
-              className={`${styles.tab} ${styles.tabSaved} ${activeTab === tabId ? styles.active : ''}`}
-              onClick={() => handleTabClick(tabId)}
-            >
-              <span className={styles.aestheticTabIcon}>{s.icon}</span>
-              <span className={styles.aestheticTabLabel}>
-                {s.name.split(' ')[0].replace(/[^a-zA-Z]/g, '').slice(0, 9) || s.name.slice(0, 9)}
-              </span>
-            </button>
-          )
-        })}
-
-        {/* ── Discover ── */}
         <button
           className={`${styles.tab} ${activeTab === 'quiz' ? styles.active : ''}`}
-          onClick={() => handleTabClick('quiz')}
+          onClick={() => setActiveTab('quiz')}
         >
           <QuizIcon active={activeTab === 'quiz'} />
           <span>Discover</span>
         </button>
 
-        {/* ── Wardrobe ── */}
         <button
           className={`${styles.tab} ${activeTab === 'wardrobe' ? styles.active : ''}`}
-          onClick={() => handleTabClick('wardrobe')}
+          onClick={() => setActiveTab('wardrobe')}
         >
           <WardrobeIcon active={activeTab === 'wardrobe'} />
-          <span>Wardrobe</span>
+          <span>Liked</span>
         </button>
 
-        {/* ── Shop ── */}
+        <button
+          className={`${styles.tab} ${activeTab === 'wishlist' ? styles.active : ''}`}
+          onClick={() => setActiveTab('wishlist')}
+        >
+          <div className={styles.shopIconWrap}>
+            <WishlistIcon active={activeTab === 'wishlist'} />
+            {wishlist.length > 0 && (
+              <span className={styles.badge}>
+                {wishlist.length > 9 ? '9+' : wishlist.length}
+              </span>
+            )}
+          </div>
+          <span>Wishlist</span>
+        </button>
+
         <button
           className={`${styles.tab} ${activeTab === 'shop' ? styles.active : ''}`}
-          onClick={() => handleTabClick('shop')}
+          onClick={() => setActiveTab('shop')}
         >
           <div className={styles.shopIconWrap}>
             <ShopIcon active={activeTab === 'shop'} />
@@ -155,10 +149,9 @@ export default function TabBar({ activeTab, setActiveTab }) {
           <span>Shop</span>
         </button>
 
-        {/* ── Profile ── */}
         <button
           className={`${styles.tab} ${activeTab === 'profile' ? styles.active : ''}`}
-          onClick={() => handleTabClick('profile')}
+          onClick={() => setActiveTab('profile')}
         >
           {user ? (
             <div className={`${styles.avatar} ${activeTab === 'profile' ? styles.avatarActive : ''}`}>

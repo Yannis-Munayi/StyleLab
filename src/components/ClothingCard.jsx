@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { REASON_TAGS_BY_CATEGORY, REASON_TAGS } from '../data/categories'
 import { useApp } from '../context/AppContext'
+import { useWishlist } from '../context/WishlistContext'
 import { fetchPhotos } from '../services/pexels'
 import styles from './ClothingCard.module.css'
 
@@ -88,6 +89,8 @@ function PhotoCarousel({ photos, fallbackGradient, loading }) {
 
 export default function ClothingCard({ item, existingResponse }) {
   const { dispatch } = useApp()
+  const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist()
+  const wishlisted = isWishlisted(item.id)
   const [flipped, setFlipped] = useState(false)
   // Pre-populate reasons if the user previously liked this item
   const [selectedReasons, setSelectedReasons] = useState(
@@ -151,6 +154,29 @@ export default function ClothingCard({ item, existingResponse }) {
             fallbackGradient={item.gradient}
             loading={loadingPhotos}
           />
+
+          {/* Wishlist heart button */}
+          <button
+            className={`${styles.wishlistBtn} ${wishlisted ? styles.wishlistBtnActive : ''}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              if (wishlisted) {
+                removeFromWishlist(item.id)
+              } else {
+                addToWishlist({
+                  id: item.id, type: 'item',
+                  name: item.name, emoji: item.emoji, gradient: item.gradient,
+                  categoryId: item.categoryId, seasons: item.seasons, description: item.description,
+                })
+              }
+            }}
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={wishlisted ? 'currentColor' : 'none'}
+              stroke="currentColor" strokeWidth="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+            </svg>
+          </button>
 
           <div className={styles.frontInfo}>
             <div className={styles.seasonTags}>

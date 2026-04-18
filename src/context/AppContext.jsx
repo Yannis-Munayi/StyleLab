@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer } from 'react'
 import { STYLES, REASON_WEIGHTS } from '../data/styles'
 import { CLOTHING_ITEMS } from '../data/categories'
+import { AESTHETIC_QUIZ_ITEMS } from '../data/aestheticItems'
 
 const AppContext = createContext(null)
 
@@ -25,15 +26,23 @@ const initialState = {
 }
 
 function buildItemQueue(categories, seasons) {
-  const items = []
+  const catSet = new Set(categories)
+  const items  = []
+
   for (const catId of categories) {
-    const catItems = CLOTHING_ITEMS[catId] || []
-    for (const item of catItems) {
+    for (const item of (CLOTHING_ITEMS[catId] || [])) {
       if (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s))) {
         items.push({ ...item, categoryId: catId })
       }
     }
   }
+
+  for (const item of AESTHETIC_QUIZ_ITEMS) {
+    if (catSet.has(item._category) && (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s)))) {
+      items.push({ ...item, categoryId: item._category })
+    }
+  }
+
   return items
 }
 
@@ -119,6 +128,9 @@ function reducer(state, action) {
 
     case 'RESTART':
       return { ...initialState }
+
+    case 'RESTART_QUIZ':
+      return { ...initialState, screen: SCREENS.SEASONS }
 
     default:
       return state

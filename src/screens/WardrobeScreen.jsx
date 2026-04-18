@@ -126,7 +126,7 @@ export default function WardrobeScreen() {
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <div>
-            <h1 className={styles.title}>My Wardrobe</h1>
+            <h1 className={styles.title}>Liked Pieces</h1>
             {totalCount > 0 && (
               <p className={styles.sub}>{totalCount} piece{totalCount !== 1 ? 's' : ''} saved</p>
             )}

@@ -123,60 +123,123 @@
 
 /* ── Card ── */
 .card {
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 4;
   border-radius: 16px;
   border: none;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px;
   position: relative;
   overflow: hidden;
-  transition: transform 0.16s, opacity 0.16s;
+  padding: 0;
+  background: transparent;
+  transition: transform 0.16s;
 }
 
-.card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 16px;
-}
-
-.card:hover {
-  transform: scale(1.03);
-  opacity: 0.95;
-}
-
-.card:active {
-  transform: scale(0.97);
-}
+.card:hover  { transform: scale(1.02); }
+.card:active { transform: scale(0.97); }
 
 .cardPinned {
-  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline: 2px solid rgba(255, 255, 255, 0.55);
   outline-offset: -2px;
 }
 
-.cardIcon {
-  font-size: 28px;
-  line-height: 1;
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+/* Photo / gradient background */
+.cardBg {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+}
+
+.cardImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s;
+}
+
+/* Dark gradient + click target to open aesthetic */
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.08) 0%,
+    rgba(0,0,0,0.0)  40%,
+    rgba(0,0,0,0.65) 100%
+  );
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+/* Prev / next arrow buttons */
+.cardNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  background: rgba(0,0,0,0.35);
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.14s;
+}
+.cardNav:hover  { background: rgba(0,0,0,0.6); }
+.cardNavPrev    { left: 6px; }
+.cardNavNext    { right: 6px; }
+
+/* Dot indicators */
+.cardDots {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 3;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transition: background 0.15s, transform 0.15s;
+}
+.dotActive {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+/* Name row at the bottom */
+.cardFooter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 10px 10px 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  cursor: pointer;
 }
 
 .cardName {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
-  text-align: center;
+  text-align: left;
   line-height: 1.3;
-  position: relative;
-  z-index: 1;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -184,9 +247,7 @@
 }
 
 .pinBadge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   font-size: 12px;
-  z-index: 2;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
 }
