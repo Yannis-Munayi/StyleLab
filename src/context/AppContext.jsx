@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
-import { STYLES, REASON_WEIGHTS } from '../data/styles'
+import { STYLES } from '../data/styles'
 import { CLOTHING_ITEMS } from '../data/categories'
 import { AESTHETIC_QUIZ_ITEMS } from '../data/aestheticItems'
+import { LABEL_WEIGHTS, getItemLabels } from '../data/labels'
 
 const AppContext = createContext(null)
 
@@ -26,8 +27,6 @@ const initialState = {
   gender: localStorage.getItem('fashionGender') ?? 'both', // 'men' | 'women' | 'both'
 }
 
-// Returns true if an item's gender is compatible with the user's preference.
-// Items without a gender field are treated as 'unisex'.
 function matchesGender(itemGender, preference) {
   if (preference === 'both') return true
   const g = itemGender || 'unisex'
@@ -36,7 +35,7 @@ function matchesGender(itemGender, preference) {
 
 function buildItemQueue(categories, seasons, gender) {
   const catSet = new Set(categories)
-  const items  = []
+  const all    = []
 
   for (const catId of categories) {
     for (const item of (CLOTHING_ITEMS[catId] || [])) {
@@ -44,7 +43,7 @@ function buildItemQueue(categories, seasons, gender) {
         (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s))) &&
         matchesGender(item.gender, gender)
       ) {
-        items.push({ ...item, categoryId: catId })
+        all.push({ ...item, categoryId: catId })
       }
     }
   }
@@ -55,27 +54,43 @@ function buildItemQueue(categories, seasons, gender) {
       (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s))) &&
       matchesGender(item.gender, gender)
     ) {
-      items.push({ ...item, categoryId: item._category })
+      all.push({ ...item, categoryId: item._category })
     }
   }
 
-  return items
+  // Deduplicate by normalised name. Merge styleWeights across duplicates so
+  // an item shared by multiple aesthetics still signals all of them in scoring.
+  const seen = new Map()
+  for (const item of all) {
+    const key = item.name.toLowerCase().trim()
+    if (!seen.has(key)) {
+      seen.set(key, { ...item, styleWeights: { ...item.styleWeights } })
+    } else {
+      const kept = seen.get(key)
+      for (const [style, w] of Object.entries(item.styleWeights || {})) {
+        kept.styleWeights[style] = Math.max(kept.styleWeights[style] || 0, w)
+      }
+    }
+  }
+
+  return [...seen.values()]
 }
 
-// Recompute all style scores from scratch based on the responses map.
-// This ensures going back and changing a choice always produces correct scores.
+// Recompute scores using item-embedded labels (no manual reason selection needed).
 function recalculateScores(responses, itemQueue) {
   const scores = Object.fromEntries(Object.keys(STYLES).map((k) => [k, 0]))
   for (const item of itemQueue) {
     const resp = responses[item.id]
     if (!resp?.liked) continue
-    for (const [style, weight] of Object.entries(item.styleWeights)) {
+    // Primary signal: item's aesthetic weights
+    for (const [style, weight] of Object.entries(item.styleWeights || {})) {
       if (scores[style] !== undefined) scores[style] += weight
     }
-    for (const reason of resp.reasons) {
-      const rw = REASON_WEIGHTS[reason]
-      if (!rw) continue
-      for (const [style, weight] of Object.entries(rw)) {
+    // Secondary signal: auto-inferred labels for the item
+    for (const label of getItemLabels(item)) {
+      const lw = LABEL_WEIGHTS[label]
+      if (!lw) continue
+      for (const [style, weight] of Object.entries(lw)) {
         if (scores[style] !== undefined) scores[style] += weight
       }
     }
@@ -122,22 +137,20 @@ function reducer(state, action) {
     }
 
     case 'PREV_ITEM':
-      if (state.currentItemIndex === 0) {
-        return { ...state, screen: SCREENS.CATEGORIES }
-      }
+      if (state.currentItemIndex === 0) return state
       return { ...state, currentItemIndex: state.currentItemIndex - 1 }
 
     case 'SKIP_ITEM': {
-      const responses = { ...state.responses, [state.itemQueue[state.currentItemIndex]?.id]: { liked: false, reasons: [] } }
+      const responses = { ...state.responses, [state.itemQueue[state.currentItemIndex]?.id]: { liked: false } }
       if (state.currentItemIndex + 1 >= state.itemQueue.length) {
         return { ...state, responses, screen: SCREENS.RESULTS }
       }
       return { ...state, responses, currentItemIndex: state.currentItemIndex + 1 }
     }
 
-    case 'LIKE_ITEM_WITH_REASONS': {
-      const { item, reasons } = action
-      const responses = { ...state.responses, [item.id]: { liked: true, reasons } }
+    case 'LIKE_ITEM': {
+      const { item } = action
+      const responses = { ...state.responses, [item.id]: { liked: true } }
       const styleScores = recalculateScores(responses, state.itemQueue)
       if (state.currentItemIndex + 1 >= state.itemQueue.length) {
         return { ...state, styleScores, responses, screen: SCREENS.RESULTS }
@@ -159,7 +172,6 @@ function reducer(state, action) {
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  // Persist gender preference to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('fashionGender', state.gender)
   }, [state.gender])

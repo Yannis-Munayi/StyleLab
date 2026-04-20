@@ -13,9 +13,6 @@ export default function DiscoveryScreen() {
     ? CATEGORIES.find((c) => c.id === item.categoryId)?.label ?? ''
     : ''
 
-  // Pass any previous response so the card can restore selections
-  const existingResponse = item ? responses[item.id] : null
-
   if (!item) {
     return (
       <div className={styles.screen} style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -48,19 +45,8 @@ export default function DiscoveryScreen() {
       </div>
 
       <div className={styles.cardWrapper}>
-        <ClothingCard key={item.id} item={item} existingResponse={existingResponse} />
+        <ClothingCard key={item.id} item={item} />
       </div>
-
-      <p className={styles.discoverHint}>
-        Tap the card to flip it — then tell us what you love about it.
-      </p>
-
-      <button
-        className={styles.ghostBtn}
-        onClick={() => dispatch({ type: 'SKIP_ITEM' })}
-      >
-        Skip →
-      </button>
     </div>
   )
 }

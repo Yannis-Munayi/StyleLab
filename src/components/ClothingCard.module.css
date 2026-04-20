@@ -1,51 +1,29 @@
+/* ── Scene wrapper (holds card + action buttons) ── */
 .scene {
   width: 100%;
   max-width: 420px;
-  height: 560px;
-  perspective: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
+/* ── Swipe card ── */
 .card {
   position: relative;
   width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card.flipped {
-  transform: rotateY(180deg);
-}
-
-.front,
-.back {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  height: 520px;
   border-radius: 24px;
   overflow: hidden;
-}
-
-/* ── FRONT ── */
-.front {
-  cursor: pointer;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   background: #1a1a1a;
+  will-change: transform;
+  touch-action: none;
+  user-select: none;
 }
 
-.front:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
-}
-
-.front:active {
-  transform: translateY(-2px);
-}
-
-/* ── Carousel ── */
+/* ── Photo carousel ── */
 .carousel {
   position: absolute;
   inset: 0;
@@ -79,77 +57,79 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0) 30%,
-    rgba(0, 0, 0, 0.75) 100%
+    rgba(0, 0, 0, 0) 25%,
+    rgba(0, 0, 0, 0.82) 100%
   );
   pointer-events: none;
 }
 
-/* Arrow buttons */
-.arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 50%;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: background 0.18s ease, transform 0.18s ease;
-  /* keep above the photo overlay but below text */
-}
-
-.arrow:hover {
-  background: rgba(0, 0, 0, 0.7);
-  transform: translateY(-50%) scale(1.08);
-}
-
-.arrowLeft  { left: 12px; }
-.arrowRight { right: 12px; }
-
 /* Dot indicators */
 .dots {
   position: absolute;
-  bottom: 90px;      /* sits above the text overlay */
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  gap: 5px;
   z-index: 10;
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.35);
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: background 0.18s ease, transform 0.18s ease;
+  transition: background 0.18s, transform 0.18s;
 }
 
-.dot:hover    { background: rgba(255, 255, 255, 0.7); }
-.dotActive    { background: #fff; transform: scale(1.3); }
+.dotActive { background: #fff; transform: scale(1.4); }
 
-/* Text overlay at bottom of front */
-/* ── Wishlist heart button on card front ── */
+/* ── Swipe overlays ── */
+.likeOverlay,
+.skipOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.likeOverlay { background: rgba(76, 175, 80, 0.55); }
+.skipOverlay { background: rgba(244, 67, 54, 0.55); }
+
+.swipeStamp {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 8px 20px;
+  transform: rotate(-15deg);
+}
+
+.skipOverlay .swipeStamp {
+  transform: rotate(15deg);
+}
+
+/* ── Wishlist button ── */
 .wishlistBtn {
   position: absolute;
   top: 14px;
   right: 14px;
-  z-index: 6;
+  z-index: 10;
   width: 36px;
   height: 36px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
   border: none;
   cursor: pointer;
   display: flex;
@@ -159,20 +139,21 @@
   padding: 0;
   transition: background 0.15s, color 0.15s, transform 0.15s;
 }
-.wishlistBtn:hover { background: rgba(0, 0, 0, 0.65); transform: scale(1.1); }
-.wishlistBtnActive { color: #FF6B35; background: rgba(255, 107, 53, 0.2); }
-.wishlistBtnActive:hover { background: rgba(255, 107, 53, 0.3); }
 
+.wishlistBtn:hover    { background: rgba(0, 0, 0, 0.65); transform: scale(1.1); }
+.wishlistBtnActive    { color: #FF6B35; background: rgba(255, 107, 53, 0.2); }
+
+/* ── Item info overlay ── */
 .frontInfo {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 20px 22px 22px;
+  padding: 18px 20px 20px;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .seasonTags {
@@ -184,9 +165,9 @@
 .seasonTag {
   background: rgba(255, 255, 255, 0.18);
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 20px;
@@ -194,7 +175,7 @@
 }
 
 .itemName {
-  font-size: 1.55rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #fff;
   margin: 0;
@@ -204,158 +185,66 @@
 }
 
 .itemDesc {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
   line-height: 1.4;
 }
 
-.tapHint {
+/* ── Label chips ── */
+.labelChips {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 5px;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
-/* ── BACK ── */
-.back {
-  background: #0f0f0f;
-  transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  gap: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+.labelChip {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  padding: 3px 9px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(6px);
+  text-transform: lowercase;
 }
 
-.backHeader {
+/* ── Action buttons (skip / like) ── */
+.actionRow {
   display: flex;
+  justify-content: center;
+  gap: 40px;
   align-items: center;
-  gap: 14px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.backFlipBtn {
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
+.actionBtn {
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.6);
-  flex-shrink: 0;
-  transition: background 0.15s, color 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-.backFlipBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
-.backEmoji {
-  font-size: 32px;
-}
-
-.backTitle {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 4px;
-}
-
-.backSubtitle {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.45);
-  margin: 0;
-}
-
-.reasonsGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  flex: 1;
-  align-content: flex-start;
-}
-
-.reasonTag {
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 6px 13px;
-  font-size: 0.78rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.reasonTag:hover {
-  background: rgba(255, 255, 255, 0.13);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-.reasonTag.selected {
-  background: #fff;
-  color: #0f0f0f;
-  border-color: #fff;
-  font-weight: 600;
-}
-
-.backActions {
-  display: flex;
-  gap: 10px;
-}
+.actionBtn:hover  { transform: scale(1.1); }
+.actionBtn:active { transform: scale(0.95); }
 
 .skipBtn {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: transparent;
-  color: rgba(255, 255, 255, 0.5);
-  border-radius: 14px;
-  font-size: 0.83rem;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s ease;
+  background: #1e1e1e;
+  color: rgba(255, 255, 255, 0.55);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
 }
 
-.skipBtn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.confirmBtn {
-  flex: 2;
-  padding: 12px;
-  background: #fff;
-  color: #0f0f0f;
-  border: none;
-  border-radius: 14px;
-  font-size: 0.83rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s ease;
-}
-
-.confirmBtn:hover:not(:disabled) {
-  background: #e8e8e8;
-  transform: translateY(-1px);
-}
-
-.confirmBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.likeBtn {
+  background: #FF6B35;
+  color: #fff;
+  width: 72px;
+  height: 72px;
 }
