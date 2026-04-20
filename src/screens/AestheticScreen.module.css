@@ -130,39 +130,38 @@
 
 /* ── Sub-tab bar ── */
 .subTabBar {
-  position: relative;
   display: flex;
+  justify-content: center;
+  padding: 12px 20px;
   background: rgba(255, 255, 255, 0.03);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
+.subTabGroup {
+  display: flex;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 24px;
+  padding: 3px;
+  gap: 2px;
+}
+
 .subTab {
-  flex: 1;
-  padding: 14px 0;
+  padding: 7px 18px;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.45);
   font-size: 13px;
   font-family: inherit;
   font-weight: 600;
   cursor: pointer;
-  transition: color 0.18s;
-  position: relative;
-  z-index: 1;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
 }
 
 .subTabActive {
+  background: rgba(255, 255, 255, 0.15);
   color: #fff;
-}
-
-.subTabIndicator {
-  position: absolute;
-  bottom: 0;
-  width: calc(100% / 3);
-  height: 2px;
-  background: #FF6B35;
-  border-radius: 1px;
-  transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── Tab content ── */
@@ -171,6 +170,31 @@
 }
 
 /* ── Item section (Core / Statement / Accessories grouping) ── */
+.genderFilter {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 20px;
+}
+
+.genderPill {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.genderPillActive {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
 .itemSection {
   margin-bottom: 28px;
 }
@@ -564,4 +588,127 @@
 .guideIconicLabel {
   font-weight: 600;
   color: rgba(255, 255, 255, 0.45);
+}
+
+/* ── Story tab ── */
+.storyTab {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.storyMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.storyPill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.3px;
+}
+
+.storySection {
+  padding: 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.storySectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.storySectionEmoji {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.storySectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.storyBody {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Key garments */
+.garmentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.garmentRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.garmentRow:last-child {
+  border-bottom: none;
+}
+
+.garmentName {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.garmentDesc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  flex: 1;
+}
+
+/* People (icons / modern reps) */
+.personList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.personCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.personName {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.personMeta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: right;
+  flex-shrink: 0;
 }

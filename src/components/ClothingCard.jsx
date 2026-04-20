@@ -88,7 +88,8 @@ function PhotoCarousel({ photos, fallbackGradient, loading }) {
 }
 
 export default function ClothingCard({ item, existingResponse }) {
-  const { dispatch } = useApp()
+  const { state, dispatch } = useApp()
+  const gender = state.gender
   const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist()
   const wishlisted = isWishlisted(item.id)
   const [flipped, setFlipped] = useState(false)
@@ -106,7 +107,10 @@ export default function ClothingCard({ item, existingResponse }) {
     setLoadingPhotos(true)
     setPhotos([])
 
-    const query = `${item.name} men fashion outfit`
+    // Use item's own gender field if specific, otherwise fall back to user preference
+    const itemGender = item.gender && item.gender !== 'unisex' ? item.gender : gender
+    const genderHint = itemGender === 'women' ? 'women' : itemGender === 'men' ? 'men' : ''
+    const query = `${item.name} ${genderHint} fashion outfit`.trim()
     fetchPhotos(query, 3).then((urls) => {
       if (cancelled) return
       setPhotos(urls)
@@ -114,7 +118,7 @@ export default function ClothingCard({ item, existingResponse }) {
     })
 
     return () => { cancelled = true }
-  }, [item.id])
+  }, [item.id, gender])
 
   function handleCardClick() {
     if (!flipped) setFlipped(true)

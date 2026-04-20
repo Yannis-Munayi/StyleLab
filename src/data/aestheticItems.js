@@ -23,10 +23,18 @@ export function inferSeasons(name) {
 
 export const TYPE_EMOJI = { core: '👕', statement: '⭐', accessory: '💎' }
 
-// ── Aesthetic items data ──────────────────────────────────────────────────────
-// Each entry: { id, name, desc, type: 'core' | 'statement' | 'accessory' }
+// Infer gender from item name. Items with dresses/skirts are women-specific;
+// everything else defaults to unisex (shown for all preferences).
+export function inferGender(name) {
+  const n = name.toLowerCase()
+  if (/\bskirt\b|\bdress\b|\bgown\b|blouse|corset|\bbra\b|bustier|sundress|babydoll/.test(n)) return 'women'
+  return 'unisex'
+}
 
-export const AESTHETIC_ITEMS = {
+// ── Base items (largely unisex / men-oriented) ────────────────────────────────
+// gender field is optional — absent = 'unisex' (shown for all preferences).
+
+const BASE_ITEMS = {
 
   // ── Old Money / Quiet Luxury ──────────────────────────────────────────────
   oldmoney: [
@@ -1470,6 +1478,371 @@ export const AESTHETIC_ITEMS = {
 
 }
 
+// ── Women's items (gender: 'women') ──────────────────────────────────────────
+// These extend each aesthetic with feminine silhouettes: dresses, skirts, etc.
+
+const WOMEN_ITEMS = {
+  oldmoney: [
+    { id: 'om-w-wrap-dress',        name: 'Silk Wrap Dress',              desc: 'midi length, understated print',      type: 'core',      gender: 'women' },
+    { id: 'om-w-silk-blouse',       name: 'Silk Blouse',                  desc: 'tailored, ivory or cream',            type: 'core',      gender: 'women' },
+    { id: 'om-w-midi-skirt',        name: 'Tailored Midi Skirt',          desc: 'a-line, neutral wool',                type: 'core',      gender: 'women' },
+    { id: 'om-w-cashmere-midi',     name: 'Cashmere Midi Skirt',          desc: 'premium knit, slim cut',              type: 'statement', gender: 'women' },
+    { id: 'om-w-pearl-blouse',      name: 'Pearl-Button Blouse',          desc: 'crisp, refined collar',               type: 'accessory', gender: 'women' },
+  ],
+  knitwearaesthetic: [
+    { id: 'kw-w-ribbed-midi-skirt', name: 'Ribbed Knit Midi Skirt',       desc: 'stretchy, form-fitting',              type: 'core',      gender: 'women' },
+    { id: 'kw-w-knit-mini-dress',   name: 'Knit Mini Dress',              desc: 'cable or rib texture',                type: 'core',      gender: 'women' },
+    { id: 'kw-w-crochet-crop',      name: 'Crochet Crop Top',             desc: 'open-weave, handmade feel',           type: 'statement', gender: 'women' },
+    { id: 'kw-w-knit-bodysuit',     name: 'Knit Bodysuit',                desc: 'fitted, seamless silhouette',         type: 'core',      gender: 'women' },
+    { id: 'kw-w-wrap-cardigan-dress',name: 'Wrap Knit Cardigan Dress',    desc: 'relaxed, belted',                     type: 'statement', gender: 'women' },
+  ],
+  linencore: [
+    { id: 'ln-w-linen-midi-dress',  name: 'Linen Midi Dress',             desc: 'relaxed silhouette, breathable',      type: 'core',      gender: 'women' },
+    { id: 'ln-w-linen-culottes',    name: 'Linen Wide-Leg Culottes',      desc: 'cropped, flowing',                    type: 'core',      gender: 'women' },
+    { id: 'ln-w-linen-wrap-skirt',  name: 'Linen Wrap Skirt',             desc: 'tied waist, midi length',             type: 'core',      gender: 'women' },
+    { id: 'ln-w-linen-romper',      name: 'Linen Romper',                 desc: 'one-piece, easy warm-weather wear',   type: 'statement', gender: 'women' },
+    { id: 'ln-w-linen-shirt-dress', name: 'Linen Shirt Dress',            desc: 'oversized, belted or loose',          type: 'statement', gender: 'women' },
+  ],
+  denimcore: [
+    { id: 'dn-w-denim-mini-skirt',  name: 'Denim Mini Skirt',             desc: 'raw hem or classic cut',              type: 'core',      gender: 'women' },
+    { id: 'dn-w-denim-midi-skirt',  name: 'Denim Midi Skirt',             desc: 'a-line, straight or slit',            type: 'core',      gender: 'women' },
+    { id: 'dn-w-denim-corset',      name: 'Denim Corset Top',             desc: 'boned, structured top',               type: 'statement', gender: 'women' },
+    { id: 'dn-w-denim-pinafore',    name: 'Denim Pinafore Dress',         desc: 'casual, layerable',                   type: 'core',      gender: 'women' },
+    { id: 'dn-w-denim-maxi-skirt',  name: 'Denim Maxi Skirt',            desc: '70s-inspired flare',                  type: 'statement', gender: 'women' },
+  ],
+  leatheraesthetic: [
+    { id: 'la-w-leather-mini-skirt',name: 'Leather Mini Skirt',           desc: 'sleek, edgy silhouette',              type: 'core',      gender: 'women' },
+    { id: 'la-w-leather-midi-skirt',name: 'Leather Midi Skirt',           desc: 'slit detail, structured',             type: 'core',      gender: 'women' },
+    { id: 'la-w-leather-corset',    name: 'Leather Corset',               desc: 'boned, statement piece',              type: 'statement', gender: 'women' },
+    { id: 'la-w-leather-bodysuit',  name: 'Leather Bodysuit',             desc: 'second-skin silhouette',              type: 'statement', gender: 'women' },
+    { id: 'la-w-leather-blazer-dress',name: 'Leather Blazer Dress',       desc: 'structured, bold',                    type: 'statement', gender: 'women' },
+  ],
+  silksatin: [
+    { id: 'ss-w-slip-dress',        name: 'Silk Slip Dress',              desc: 'bias cut, midi or maxi',              type: 'core',      gender: 'women' },
+    { id: 'ss-w-satin-midi-skirt',  name: 'Satin Midi Skirt',             desc: 'high waist, flowing',                 type: 'core',      gender: 'women' },
+    { id: 'ss-w-silk-wrap-dress',   name: 'Silk Wrap Dress',              desc: 'elegant drape, v-neckline',           type: 'statement', gender: 'women' },
+    { id: 'ss-w-cami-dress',        name: 'Silk Cami Dress',              desc: 'thin straps, fluid fall',             type: 'core',      gender: 'women' },
+    { id: 'ss-w-satin-mini',        name: 'Satin Mini Dress',             desc: 'party-ready, rich sheen',             type: 'statement', gender: 'women' },
+  ],
+  steampunk: [
+    { id: 'sp-w-corset-bustle',     name: 'Corset with Bustle Skirt',     desc: 'Victorian silhouette, geared detail', type: 'statement', gender: 'women' },
+    { id: 'sp-w-ruffled-blouse',    name: 'Ruffled Blouse with Corset',   desc: 'high neck, lace trim',                type: 'core',      gender: 'women' },
+    { id: 'sp-w-steampunk-gown',    name: 'Steampunk Gown',               desc: 'layered, dramatic',                   type: 'statement', gender: 'women' },
+    { id: 'sp-w-bustle-skirt',      name: 'Bustle Skirt',                 desc: 'tiered, ornate detail',               type: 'core',      gender: 'women' },
+    { id: 'sp-w-lace-up-dress',     name: 'Lace-Up Corset Dress',         desc: 'boned bodice, full skirt',            type: 'statement', gender: 'women' },
+  ],
+  cyberpunk: [
+    { id: 'cp-w-cyber-mini-dress',  name: 'Cyber Mini Dress',             desc: 'cutout panels, futuristic',           type: 'statement', gender: 'women' },
+    { id: 'cp-w-vinyl-bodysuit',    name: 'Vinyl Bodysuit',               desc: 'high shine, second-skin',             type: 'statement', gender: 'women' },
+    { id: 'cp-w-cyber-skirt',       name: 'Cyber Latex Mini Skirt',       desc: 'sleek, PVC finish',                   type: 'core',      gender: 'women' },
+    { id: 'cp-w-holographic-skirt', name: 'Holographic Mini Skirt',       desc: 'iridescent, futuristic',              type: 'statement', gender: 'women' },
+    { id: 'cp-w-cyber-bodysuit',    name: 'Mesh Cyber Bodysuit',          desc: 'cut-out, layerable',                  type: 'core',      gender: 'women' },
+  ],
+  workwear: [
+    { id: 'ww-w-pencil-skirt',      name: 'Pencil Skirt',                 desc: 'structured, knee length',             type: 'core',      gender: 'women' },
+    { id: 'ww-w-wrap-dress',        name: 'Wrap Dress',                   desc: 'professional, polished',              type: 'core',      gender: 'women' },
+    { id: 'ww-w-blazer-dress',      name: 'Blazer Dress',                 desc: 'double-breasted, tailored',           type: 'statement', gender: 'women' },
+    { id: 'ww-w-tailored-midi',     name: 'Tailored Midi Dress',          desc: 'clean lines, office-appropriate',     type: 'core',      gender: 'women' },
+    { id: 'ww-w-ponte-skirt',       name: 'Ponte Skirt Suit',             desc: 'matching set, structured',            type: 'statement', gender: 'women' },
+  ],
+  military: [
+    { id: 'ml-w-shirt-dress',       name: 'Military Shirt Dress',         desc: 'belted, olive or khaki',              type: 'core',      gender: 'women' },
+    { id: 'ml-w-cargo-mini',        name: 'Cargo Mini Skirt',             desc: 'utility pockets, relaxed',            type: 'core',      gender: 'women' },
+    { id: 'ml-w-utility-midi',      name: 'Utility Midi Skirt',           desc: 'A-line, cargo details',               type: 'core',      gender: 'women' },
+    { id: 'ml-w-camo-dress',        name: 'Camo Print Dress',             desc: 'military-inspired print',             type: 'statement', gender: 'women' },
+    { id: 'ml-w-cargo-jumpsuit',    name: 'Military Cargo Jumpsuit',      desc: 'one-piece, structured',               type: 'statement', gender: 'women' },
+  ],
+  western: [
+    { id: 'wt-w-prairie-skirt',     name: 'Denim Prairie Skirt',          desc: 'tiered, western flair',               type: 'core',      gender: 'women' },
+    { id: 'wt-w-western-dress',     name: 'Western-Inspired Dress',       desc: 'pearl snaps, yoke detail',            type: 'core',      gender: 'women' },
+    { id: 'wt-w-fringe-skirt',      name: 'Fringe Midi Skirt',            desc: 'suede or denim, movement',            type: 'statement', gender: 'women' },
+    { id: 'wt-w-western-midi',      name: 'Floral Western Midi Dress',    desc: 'feminine meets cowgirl',              type: 'statement', gender: 'women' },
+    { id: 'wt-w-suede-mini',        name: 'Suede Mini Skirt',             desc: 'buttery texture, western detail',     type: 'core',      gender: 'women' },
+  ],
+  outdoor: [
+    { id: 'od-w-hiking-skort',      name: 'Hiking Skort',                 desc: 'skirt over shorts, active',           type: 'core',      gender: 'women' },
+    { id: 'od-w-fleece-dress',      name: 'Fleece Midi Dress',            desc: 'warm, cozy outdoor dress',            type: 'core',      gender: 'women' },
+    { id: 'od-w-trail-skirt',       name: 'Trail Running Skirt',          desc: 'performance, lightweight',            type: 'core',      gender: 'women' },
+    { id: 'od-w-performance-dress', name: 'Active Performance Dress',     desc: 'moisture-wicking, functional',        type: 'statement', gender: 'women' },
+    { id: 'od-w-tech-fleece-dress', name: 'Technical Fleece Dress',       desc: 'outdoor ready, cozy',                 type: 'statement', gender: 'women' },
+  ],
+  cottagecore: [
+    { id: 'cc-w-prairie-dress',     name: 'Floral Prairie Dress',         desc: 'puff sleeves, midi length',           type: 'core',      gender: 'women' },
+    { id: 'cc-w-milkmaid-dress',    name: 'Milkmaid Dress',               desc: 'laced bodice, full skirt',            type: 'statement', gender: 'women' },
+    { id: 'cc-w-floral-skirt',      name: 'Floral Midi Skirt',            desc: 'gathered, cottagecore print',         type: 'core',      gender: 'women' },
+    { id: 'cc-w-smocked-dress',     name: 'Smocked Floral Dress',         desc: 'delicate, handcrafted feel',          type: 'statement', gender: 'women' },
+    { id: 'cc-w-linen-pinafore',    name: 'Linen Pinafore Dress',         desc: 'over a blouse, layered',              type: 'core',      gender: 'women' },
+  ],
+  baddie: [
+    { id: 'bd-w-bodycon-mini',      name: 'Bodycon Mini Dress',           desc: 'figure-hugging, night out',           type: 'core',      gender: 'women' },
+    { id: 'bd-w-cutout-dress',      name: 'Cutout Bodycon Dress',         desc: 'strategic cutouts, bold',             type: 'statement', gender: 'women' },
+    { id: 'bd-w-mini-skirt-set',    name: 'Mini Skirt Co-ord Set',        desc: 'matching crop top and skirt',         type: 'statement', gender: 'women' },
+    { id: 'bd-w-bandage-dress',     name: 'Bandage Dress',                desc: 'structured, sculpting fit',           type: 'statement', gender: 'women' },
+    { id: 'bd-w-bodycon-midi',      name: 'Bodycon Midi Dress',           desc: 'sleek from hip to knee',              type: 'core',      gender: 'women' },
+  ],
+  romantic: [
+    { id: 'rm-w-lace-midi',         name: 'Lace Midi Dress',              desc: 'delicate lace overlay',               type: 'statement', gender: 'women' },
+    { id: 'rm-w-floral-wrap',       name: 'Floral Wrap Dress',            desc: 'feminine, flowing',                   type: 'core',      gender: 'women' },
+    { id: 'rm-w-ruffle-blouse',     name: 'Ruffle Blouse',                desc: 'cascading ruffles, soft fabric',      type: 'core',      gender: 'women' },
+    { id: 'rm-w-romantic-skirt',    name: 'Romantic Midi Skirt',          desc: 'chiffon, floral or solid',            type: 'core',      gender: 'women' },
+    { id: 'rm-w-satin-slip',        name: 'Satin Slip Dress',             desc: 'lingerie-inspired, elegant',          type: 'statement', gender: 'women' },
+  ],
+  edgy: [
+    { id: 'eg-w-asym-skirt',        name: 'Asymmetric Mini Skirt',        desc: 'raw hem, unexpected cut',             type: 'statement', gender: 'women' },
+    { id: 'eg-w-mesh-dress',        name: 'Mesh Overlay Dress',           desc: 'sheer, layered',                      type: 'statement', gender: 'women' },
+    { id: 'eg-w-faux-leather-mini', name: 'Faux Leather Mini Skirt',      desc: 'sleek, edgy staple',                  type: 'core',      gender: 'women' },
+    { id: 'eg-w-cutout-dress',      name: 'Cutout Mini Dress',            desc: 'bold openings, statement',            type: 'statement', gender: 'women' },
+    { id: 'eg-w-distressed-mini',   name: 'Distressed Mini Dress',        desc: 'raw, deconstructed',                  type: 'core',      gender: 'women' },
+  ],
+  arthoe: [
+    { id: 'ah-w-floral-maxi',       name: 'Floral Maxi Dress',            desc: 'artistic print, flowing',             type: 'core',      gender: 'women' },
+    { id: 'ah-w-print-dress',       name: 'Artistic Print Wrap Dress',    desc: 'bold pattern, midi',                  type: 'statement', gender: 'women' },
+    { id: 'ah-w-vintage-midi',      name: 'Vintage-Inspired Midi Dress',  desc: 'thrifted aesthetic',                  type: 'core',      gender: 'women' },
+    { id: 'ah-w-smock-dress',       name: 'Smock Dress',                  desc: 'relaxed, artistic vibe',              type: 'core',      gender: 'women' },
+    { id: 'ah-w-linen-skirt',       name: 'Linen A-Line Midi Skirt',      desc: 'earthy, art-student staple',          type: 'core',      gender: 'women' },
+  ],
+  kpop: [
+    { id: 'kp-w-idol-mini-skirt',   name: 'Pleated Idol Mini Skirt',      desc: 'school-girl inspired',                type: 'core',      gender: 'women' },
+    { id: 'kp-w-mini-dress',        name: 'K-pop Mini Dress',             desc: 'stage-ready, cute detail',            type: 'statement', gender: 'women' },
+    { id: 'kp-w-ruffle-mini',       name: 'Ruffle Mini Dress',            desc: 'feminine, idol energy',               type: 'statement', gender: 'women' },
+    { id: 'kp-w-cute-set-dress',    name: 'Cute Matching Dress Set',      desc: 'two-piece coordinated',               type: 'core',      gender: 'women' },
+    { id: 'kp-w-tennis-skirt',      name: 'K-pop Tennis Skirt',           desc: 'pleated, sporty cute',                type: 'core',      gender: 'women' },
+  ],
+  harajuku: [
+    { id: 'hj-w-lolita-dress',      name: 'Harajuku Lolita Dress',        desc: 'petticoat, lace trim',                type: 'statement', gender: 'women' },
+    { id: 'hj-w-frilly-mini',       name: 'Frilly Mini Dress',            desc: 'ruffles, cartoon print',              type: 'core',      gender: 'women' },
+    { id: 'hj-w-layered-skirt',     name: 'Harajuku Layered Skirt',       desc: 'tutu layers, bold colour',            type: 'statement', gender: 'women' },
+    { id: 'hj-w-sweet-dress',       name: 'Sweet Lolita Dress',           desc: 'pastel, oversized bow',               type: 'statement', gender: 'women' },
+    { id: 'hj-w-babydoll',          name: 'Harajuku Babydoll Dress',      desc: 'loose, oversized cute',               type: 'core',      gender: 'women' },
+  ],
+  boho: [
+    { id: 'bh-w-boho-maxi',         name: 'Boho Maxi Dress',              desc: 'flowy, embroidered detail',           type: 'core',      gender: 'women' },
+    { id: 'bh-w-peasant-skirt',     name: 'Peasant Maxi Skirt',           desc: 'tiered, earthy tones',                type: 'core',      gender: 'women' },
+    { id: 'bh-w-wrap-dress',        name: 'Boho Wrap Dress',              desc: 'mixed print, flowy',                  type: 'statement', gender: 'women' },
+    { id: 'bh-w-embroidered-maxi',  name: 'Embroidered Maxi Dress',       desc: 'folk detail, festival-ready',         type: 'statement', gender: 'women' },
+    { id: 'bh-w-romper',            name: 'Boho Floral Romper',           desc: 'easy one-piece, warm weather',        type: 'core',      gender: 'women' },
+  ],
+  fairycore: [
+    { id: 'fc-w-fairy-dress',       name: 'Fairy Midi Dress',             desc: 'sheer layers, floral embroidery',     type: 'statement', gender: 'women' },
+    { id: 'fc-w-floral-maxi',       name: 'Floral Maxi Dress',            desc: 'cottagecore adjacent, dreamy',        type: 'core',      gender: 'women' },
+    { id: 'fc-w-sheer-dress',       name: 'Sheer Layered Dress',          desc: 'ethereal, fairy-like',                type: 'statement', gender: 'women' },
+    { id: 'fc-w-slip-dress',        name: 'Fairy Slip Dress',             desc: 'lace trim, delicate',                 type: 'core',      gender: 'women' },
+    { id: 'fc-w-tiered-skirt',      name: 'Tiered Floral Skirt',          desc: 'whimsical, garden fairy',             type: 'core',      gender: 'women' },
+  ],
+  eboy: [
+    { id: 'eb-w-plaid-mini',        name: 'Plaid Pleated Mini Skirt',     desc: 'e-girl staple, checkered',            type: 'core',      gender: 'women' },
+    { id: 'eb-w-layered-dress',     name: 'Layered Mini Dress',           desc: 't-shirt dress over long sleeve',      type: 'core',      gender: 'women' },
+    { id: 'eb-w-tartan-mini',       name: 'Tartan Mini Skirt',            desc: 'punk-adjacent, e-girl must-have',     type: 'statement', gender: 'women' },
+    { id: 'eb-w-egirl-skirt-set',   name: 'E-Girl Crop and Skirt Set',    desc: 'matching, graphic print',             type: 'statement', gender: 'women' },
+    { id: 'eb-w-mesh-skirt',        name: 'Mesh Overlay Mini Skirt',      desc: 'sheer layer, alt aesthetic',          type: 'core',      gender: 'women' },
+  ],
+  indie: [
+    { id: 'in-w-indie-midi',        name: 'Indie Midi Dress',             desc: 'thrift-store charm, prints',          type: 'core',      gender: 'women' },
+    { id: 'in-w-floral-sundress',   name: 'Floral Sundress',              desc: 'warm weather, relaxed',               type: 'core',      gender: 'women' },
+    { id: 'in-w-vintage-dress',     name: 'Vintage-Inspired Shirt Dress', desc: 'retro silhouette, indie feel',        type: 'statement', gender: 'women' },
+    { id: 'in-w-wrap-dress',        name: 'Indie Wrap Dress',             desc: 'mixed textures, artistic',            type: 'core',      gender: 'women' },
+    { id: 'in-w-slip-dress',        name: 'Floral Slip Dress',            desc: 'effortless, indie layered',           type: 'statement', gender: 'women' },
+  ],
+  skater: [
+    { id: 'sk-w-skater-mini',       name: 'Skater Mini Skirt',            desc: 'A-line, flared',                      type: 'core',      gender: 'women' },
+    { id: 'sk-w-skater-dress',      name: 'Skater Dress',                 desc: 'fit and flare, sporty',               type: 'core',      gender: 'women' },
+    { id: 'sk-w-plaid-mini',        name: 'Plaid Mini Skirt',             desc: 'skateboard culture staple',           type: 'statement', gender: 'women' },
+    { id: 'sk-w-pleated-skirt',     name: 'Pleated Mini Skirt',           desc: 'sporty, school-girl vibe',            type: 'core',      gender: 'women' },
+    { id: 'sk-w-graphic-dress',     name: 'Graphic Tee Mini Dress',       desc: 'oversized, skate brand print',        type: 'statement', gender: 'women' },
+  ],
+  softboy: [
+    { id: 'sb-w-pastel-midi',       name: 'Pastel Midi Dress',            desc: 'soft lavender or mint',               type: 'core',      gender: 'women' },
+    { id: 'sb-w-soft-floral',       name: 'Soft Floral Dress',            desc: 'dreamy, romantic detail',             type: 'core',      gender: 'women' },
+    { id: 'sb-w-pastel-slip',       name: 'Pastel Slip Dress',            desc: 'satin, soft colour palette',          type: 'statement', gender: 'women' },
+    { id: 'sb-w-mini-skirt',        name: 'Soft Girl Mini Skirt',         desc: 'pastel, cosy aesthetic',              type: 'core',      gender: 'women' },
+    { id: 'sb-w-sundress',          name: 'Pastel Sundress',              desc: 'breezy, soft girl energy',            type: 'statement', gender: 'women' },
+  ],
+  hiphop: [
+    { id: 'hh-w-streetwear-skirt',  name: 'Streetwear Mini Skirt',        desc: 'baggy top pairing, urban',            type: 'core',      gender: 'women' },
+    { id: 'hh-w-graphic-dress',     name: 'Oversized Graphic Sweat Dress',desc: 'band or logo print, casual',          type: 'core',      gender: 'women' },
+    { id: 'hh-w-jersey-mini',       name: 'Jersey Mini Dress',            desc: 'athletic fabric, street-ready',       type: 'statement', gender: 'women' },
+    { id: 'hh-w-crop-skirt-set',    name: 'Crop and Skirt Co-ord',        desc: 'matching set, hip-hop flair',         type: 'statement', gender: 'women' },
+    { id: 'hh-w-track-skirt',       name: 'Track Stripe Mini Skirt',      desc: 'sporty, athleisure-adjacent',         type: 'core',      gender: 'women' },
+  ],
+  rockstar: [
+    { id: 'rs-w-rocker-mini',       name: 'Rocker Mini Dress',            desc: 'band tee dress, edgy',                type: 'core',      gender: 'women' },
+    { id: 'rs-w-leather-mini',      name: 'Leather Mini Skirt',           desc: 'rock staple, sleek',                  type: 'core',      gender: 'women' },
+    { id: 'rs-w-rock-corset',       name: 'Rock Corset Dress',            desc: 'boned, fishnet detail',               type: 'statement', gender: 'women' },
+    { id: 'rs-w-band-dress',        name: 'Band T-Shirt Dress',           desc: 'oversized tee as a dress',            type: 'statement', gender: 'women' },
+    { id: 'rs-w-sequin-mini',       name: 'Sequin Mini Dress',            desc: 'glam rock, stage energy',             type: 'statement', gender: 'women' },
+  ],
+  royalcore: [
+    { id: 'rc-w-ballgown-skirt',    name: 'Ball Skirt',                   desc: 'tulle, full volume',                  type: 'statement', gender: 'women' },
+    { id: 'rc-w-royal-midi',        name: 'Royal Midi Dress',             desc: 'structured bodice, regal palette',    type: 'core',      gender: 'women' },
+    { id: 'rc-w-corset-skirt',      name: 'Corset Bodice with Full Skirt',desc: 'princess silhouette',                 type: 'statement', gender: 'women' },
+    { id: 'rc-w-velvet-gown',       name: 'Velvet Gown',                  desc: 'deep jewel tone, floor-length',       type: 'statement', gender: 'women' },
+    { id: 'rc-w-brocade-dress',     name: 'Brocade Mini Dress',           desc: 'ornate fabric, royal detail',         type: 'core',      gender: 'women' },
+  ],
+  grunge: [
+    { id: 'gr-w-slip-dress',        name: 'Grunge Slip Dress',            desc: 'over a long sleeve, layered',         type: 'statement', gender: 'women' },
+    { id: 'gr-w-plaid-mini',        name: 'Plaid Mini Skirt',             desc: 'flannel check, 90s staple',           type: 'core',      gender: 'women' },
+    { id: 'gr-w-flannel-dress',     name: 'Flannel Shirt Dress',          desc: 'oversized, belted or loose',          type: 'core',      gender: 'women' },
+    { id: 'gr-w-midi-skirt',        name: 'Grunge Midi Skirt',            desc: 'velvet or floral, dark palette',      type: 'core',      gender: 'women' },
+    { id: 'gr-w-babydoll',          name: 'Grunge Babydoll Dress',        desc: 'loose fit, printed or floral',        type: 'statement', gender: 'women' },
+  ],
+  punk: [
+    { id: 'pk-w-punk-mini',         name: 'Punk Mini Skirt',              desc: 'plaid, safety pins, edge',            type: 'core',      gender: 'women' },
+    { id: 'pk-w-tartan-kilt',       name: 'Tartan Kilt Skirt',            desc: 'buckles and chain detail',            type: 'statement', gender: 'women' },
+    { id: 'pk-w-babydoll',          name: 'Punk Babydoll Dress',          desc: 'sheer, distressed lace',              type: 'statement', gender: 'women' },
+    { id: 'pk-w-plaid-mini-dress',  name: 'Plaid Mini Dress',             desc: 'structured, punk-adjacent',           type: 'core',      gender: 'women' },
+    { id: 'pk-w-corset-skirt',      name: 'Corset with Mini Skirt',       desc: 'boned top, punk layering',            type: 'statement', gender: 'women' },
+  ],
+  goth: [
+    { id: 'gt-w-maxi-dress',        name: 'Goth Maxi Dress',              desc: 'floor-length, all black',             type: 'core',      gender: 'women' },
+    { id: 'gt-w-velvet-midi',       name: 'Velvet Midi Dress',            desc: 'deep colour, gothic romance',         type: 'statement', gender: 'women' },
+    { id: 'gt-w-corset-dress',      name: 'Goth Corset Dress',            desc: 'boned, lace-up back',                 type: 'statement', gender: 'women' },
+    { id: 'gt-w-lace-skirt',        name: 'Lace Overlay Midi Skirt',      desc: 'transparent lace, dark base',         type: 'core',      gender: 'women' },
+    { id: 'gt-w-mini-skirt',        name: 'Gothic Mini Skirt',            desc: 'PVC or velvet, bold detail',          type: 'core',      gender: 'women' },
+  ],
+  emo: [
+    { id: 'em-w-plaid-skirt',       name: 'Plaid Emo Skirt',              desc: 'dark check, micro length',            type: 'core',      gender: 'women' },
+    { id: 'em-w-tutu-skirt',        name: 'Layered Tutu Skirt',           desc: 'black tulle, asymmetric',             type: 'statement', gender: 'women' },
+    { id: 'em-w-asym-dress',        name: 'Asymmetric Mini Dress',        desc: 'diagonal hem, emo cut',               type: 'statement', gender: 'women' },
+    { id: 'em-w-mini-skirt',        name: 'Striped Mini Skirt',           desc: 'dark stripes, tight or flared',       type: 'core',      gender: 'women' },
+    { id: 'em-w-corset-skirt',      name: 'Corset Mini Skirt Set',        desc: 'boned corset, matching skirt',        type: 'statement', gender: 'women' },
+  ],
+  scene: [
+    { id: 'sc-w-mini-dress',        name: 'Scene Mini Dress',             desc: 'neon print, bold collar',             type: 'statement', gender: 'women' },
+    { id: 'sc-w-tutu-skirt',        name: 'Scene Tutu Skirt',             desc: 'teased layered tulle',                type: 'statement', gender: 'women' },
+    { id: 'sc-w-neon-dress',        name: 'Neon Mini Dress',              desc: 'electric colour, scene party',        type: 'statement', gender: 'women' },
+    { id: 'sc-w-scene-skirt',       name: 'Scene Print Mini Skirt',       desc: 'cartoon graphics, fun',               type: 'core',      gender: 'women' },
+    { id: 'sc-w-party-dress',       name: 'Scene Party Dress',            desc: 'glitter, layered, maximalist',        type: 'statement', gender: 'women' },
+  ],
+  darkacademia: [
+    { id: 'da-w-wool-midi',         name: 'Wool Midi Skirt',              desc: 'A-line, structured, dark tone',       type: 'core',      gender: 'women' },
+    { id: 'da-w-plaid-pleated',     name: 'Plaid Pleated Midi Skirt',     desc: 'tartan, scholarly',                   type: 'core',      gender: 'women' },
+    { id: 'da-w-da-dress',          name: 'Dark Academia Midi Dress',     desc: 'poet sleeves, moody palette',         type: 'statement', gender: 'women' },
+    { id: 'da-w-tweed-skirt',       name: 'Tweed Midi Skirt',             desc: 'heritage texture, dark',             type: 'statement', gender: 'women' },
+    { id: 'da-w-pinafore',          name: 'Corduroy Pinafore Dress',      desc: 'scholarly, layered',                  type: 'core',      gender: 'women' },
+  ],
+  lightacademia: [
+    { id: 'la2-w-linen-dress',      name: 'Linen Midi Dress',             desc: 'cream or blush, scholarly',           type: 'core',      gender: 'women' },
+    { id: 'la2-w-floral-sundress',  name: 'Floral Sundress',              desc: 'garden academia, soft',               type: 'core',      gender: 'women' },
+    { id: 'la2-w-cotton-skirt',     name: 'Cotton Midi Skirt',            desc: 'light palette, flowing',              type: 'core',      gender: 'women' },
+    { id: 'la2-w-la-dress',         name: 'Light Academia Dress',         desc: 'poet collar, romantic',               type: 'statement', gender: 'women' },
+    { id: 'la2-w-wrap-dress',       name: 'Floral Wrap Dress',            desc: 'soft, refined, campus-ready',         type: 'statement', gender: 'women' },
+  ],
+  businesscasual: [
+    { id: 'bc-w-sheath-dress',      name: 'Sheath Dress',                 desc: 'classic office-appropriate silhouette', type: 'core',   gender: 'women' },
+    { id: 'bc-w-pencil-suit',       name: 'Pencil Skirt Suit',            desc: 'matching blazer, polished',           type: 'statement', gender: 'women' },
+    { id: 'bc-w-midi-wrap',         name: 'Midi Wrap Dress',              desc: 'universally flattering, professional', type: 'core',    gender: 'women' },
+    { id: 'bc-w-ponte-dress',       name: 'Tailored Ponte Dress',         desc: 'structured, workday-ready',           type: 'core',      gender: 'women' },
+    { id: 'bc-w-blazer-skirt',      name: 'Blazer and Midi Skirt Set',    desc: 'coordinated, smart casual',           type: 'statement', gender: 'women' },
+  ],
+  eurochic: [
+    { id: 'ec-w-euro-dress',        name: 'Euro Midi Dress',              desc: 'Parisian silhouette, effortless',     type: 'core',      gender: 'women' },
+    { id: 'ec-w-french-wrap',       name: 'French Wrap Dress',            desc: 'je ne sais quoi, classic',           type: 'statement', gender: 'women' },
+    { id: 'ec-w-silk-blouse-skirt', name: 'Silk Blouse and Midi Skirt',   desc: 'coordinated European chic',           type: 'statement', gender: 'women' },
+    { id: 'ec-w-parisian-skirt',    name: 'Parisian Midi Skirt',          desc: 'A-line, neutral or bold print',       type: 'core',      gender: 'women' },
+    { id: 'ec-w-linen-dress',       name: 'Linen Summer Dress',           desc: 'Mediterranean ease',                  type: 'core',      gender: 'women' },
+  ],
+  vintage: [
+    { id: 'vt-w-tea-dress',         name: 'Vintage Tea Dress',            desc: 'floral print, midi length',           type: 'core',      gender: 'women' },
+    { id: 'vt-w-circle-skirt',      name: '50s Circle Skirt',             desc: 'full A-line, petticoat optional',     type: 'statement', gender: 'women' },
+    { id: 'vt-w-shirtwaist',        name: 'Vintage Shirtwaist Dress',     desc: 'belted, retro silhouette',            type: 'core',      gender: 'women' },
+    { id: 'vt-w-retro-midi',        name: 'Retro Midi Dress',             desc: '60s-70s inspired, print fabric',      type: 'statement', gender: 'women' },
+    { id: 'vt-w-pinup-dress',       name: 'Pin-Up Inspired Dress',        desc: 'halterneck, polka dot',               type: 'statement', gender: 'women' },
+  ],
+  techwear: [
+    { id: 'tw-w-cargo-skirt',       name: 'Techwear Cargo Mini Skirt',    desc: 'utility pockets, technical fabric',   type: 'core',      gender: 'women' },
+    { id: 'tw-w-utility-dress',     name: 'Utility Dress',                desc: 'multiple pockets, modular',           type: 'core',      gender: 'women' },
+    { id: 'tw-w-bodysuit-dress',    name: 'Tech Bodysuit Dress',          desc: 'seamless, technical construction',    type: 'statement', gender: 'women' },
+    { id: 'tw-w-asymmetric-skirt',  name: 'Asymmetric Tech Skirt',        desc: 'draped, structured',                  type: 'statement', gender: 'women' },
+    { id: 'tw-w-mini-skirt-tech',   name: 'Technical Mini Skirt',         desc: 'quick-dry, performance fabric',       type: 'core',      gender: 'women' },
+  ],
+  gorpcore: [
+    { id: 'gp-w-hiking-skirt',      name: 'Technical Hiking Skirt',       desc: 'DWR finish, trail-ready',             type: 'core',      gender: 'women' },
+    { id: 'gp-w-skort',             name: 'Performance Skort',            desc: 'built-in shorts, active',             type: 'core',      gender: 'women' },
+    { id: 'gp-w-trail-skirt',       name: 'Trail Running Skirt',          desc: 'lightweight, moisture-wicking',       type: 'core',      gender: 'women' },
+    { id: 'gp-w-fleece-dress',      name: 'Fleece Outdoor Dress',         desc: 'cosy, gorpcore vibes',                type: 'statement', gender: 'women' },
+    { id: 'gp-w-active-skort',      name: 'Active Skort with Pockets',    desc: 'functional, trail-ready',             type: 'statement', gender: 'women' },
+  ],
+  normcore: [
+    { id: 'nc-w-shirt-dress',       name: 'Simple Shirt Dress',           desc: 'nothing fancy, perfectly plain',      type: 'core',      gender: 'women' },
+    { id: 'nc-w-midi-skirt',        name: 'Basic Midi Skirt',             desc: 'no-fuss, solid colour',               type: 'core',      gender: 'women' },
+    { id: 'nc-w-plain-dress',       name: 'Plain Midi Dress',             desc: 'generic, everyday wear',              type: 'core',      gender: 'women' },
+    { id: 'nc-w-aline-skirt',       name: 'Simple A-Line Skirt',          desc: 'knee length, any colour',             type: 'core',      gender: 'women' },
+    { id: 'nc-w-cotton-dress',      name: 'Cotton Summer Dress',          desc: 'ordinary, comfortable',               type: 'statement', gender: 'women' },
+  ],
+  streetwear: [
+    { id: 'sw-w-mini-skirt',        name: 'Street Mini Skirt',            desc: 'urban, paired with oversized top',    type: 'core',      gender: 'women' },
+    { id: 'sw-w-sweat-dress',       name: 'Oversized Sweatshirt Dress',   desc: 'casual streetwear silhouette',        type: 'core',      gender: 'women' },
+    { id: 'sw-w-graphic-mini',      name: 'Graphic Mini Skirt',           desc: 'logo or art print',                   type: 'statement', gender: 'women' },
+    { id: 'sw-w-street-dress',      name: 'Street Style Mini Dress',      desc: 'brand-focused, bold',                 type: 'statement', gender: 'women' },
+    { id: 'sw-w-cargo-skirt',       name: 'Cargo Mini Skirt',             desc: 'utility pockets, street edge',        type: 'core',      gender: 'women' },
+  ],
+  athleisure: [
+    { id: 'al-w-workout-dress',     name: 'Workout Dress',                desc: 'built-in shorts, tennis-inspired',    type: 'core',      gender: 'women' },
+    { id: 'al-w-sports-skirt',      name: 'Sports Mini Skirt',            desc: 'pleated or A-line, active',           type: 'core',      gender: 'women' },
+    { id: 'al-w-athletic-mini',     name: 'Athletic Mini Dress',          desc: 'performance fabric, sporty',          type: 'statement', gender: 'women' },
+    { id: 'al-w-active-skort',      name: 'Active Skort',                 desc: 'skirt over compression shorts',       type: 'core',      gender: 'women' },
+    { id: 'al-w-yoga-dress',        name: 'Yoga Midi Dress',              desc: 'stretch fabric, flowy',               type: 'statement', gender: 'women' },
+  ],
+  y2k: [
+    { id: 'y2-w-mini-skirt',        name: 'Y2K Mini Skirt',               desc: 'low-rise, logo waistband',            type: 'core',      gender: 'women' },
+    { id: 'y2-w-butterfly-dress',   name: 'Butterfly Print Mini Dress',   desc: '2000s print, nostalgic',              type: 'statement', gender: 'women' },
+    { id: 'y2-w-y2k-mini',         name: 'Y2K Mini Dress',               desc: 'velour or jersey, 00s energy',        type: 'core',      gender: 'women' },
+    { id: 'y2-w-metallic-mini',     name: 'Metallic Mini Skirt',          desc: 'futuristic disco, shimmer',           type: 'statement', gender: 'women' },
+    { id: 'y2-w-cargo-mini',        name: 'Low-Rise Cargo Mini Skirt',    desc: 'signature Y2K silhouette',            type: 'statement', gender: 'women' },
+  ],
+  maximalist: [
+    { id: 'mx-w-ball-skirt',        name: 'Maximalist Ball Skirt',        desc: 'voluminous tulle, statement',         type: 'statement', gender: 'women' },
+    { id: 'mx-w-bold-maxi',         name: 'Bold Print Maxi Dress',        desc: 'clashing prints, joyful',             type: 'statement', gender: 'women' },
+    { id: 'mx-w-ruffle-dress',      name: 'Maximalist Ruffle Dress',      desc: 'layers on layers',                    type: 'statement', gender: 'women' },
+    { id: 'mx-w-eclectic-maxi',     name: 'Eclectic Maxi Dress',          desc: 'mixed pattern, colour blocking',      type: 'statement', gender: 'women' },
+    { id: 'mx-w-statement-gown',    name: 'Statement Gown',               desc: 'dramatic, show-stopping',             type: 'statement', gender: 'women' },
+  ],
+  minimalist: [
+    { id: 'mn-w-midi-dress',        name: 'Minimalist Midi Dress',        desc: 'one colour, clean cut',               type: 'core',      gender: 'women' },
+    { id: 'mn-w-aline-skirt',       name: 'Clean A-Line Skirt',           desc: 'no embellishment, sharp',             type: 'core',      gender: 'women' },
+    { id: 'mn-w-wrap-dress',        name: 'Minimalist Wrap Dress',        desc: 'structured, neutral palette',         type: 'statement', gender: 'women' },
+    { id: 'mn-w-slip-dress',        name: 'Simple Slip Dress',            desc: 'bias cut, understated',               type: 'core',      gender: 'women' },
+    { id: 'mn-w-tube-dress',        name: 'Structured Tube Dress',        desc: 'column silhouette, minimal detail',   type: 'statement', gender: 'women' },
+  ],
+  preppy: [
+    { id: 'pp-w-tennis-skirt',      name: 'Tennis Mini Skirt',            desc: 'pleated, white or pastel',            type: 'core',      gender: 'women' },
+    { id: 'pp-w-pleated-skirt',     name: 'Pleated Preppy Skirt',         desc: 'tartan or solid, knee length',        type: 'core',      gender: 'women' },
+    { id: 'pp-w-preppy-dress',      name: 'Preppy Dress',                 desc: 'collar, A-line, smart casual',        type: 'statement', gender: 'women' },
+    { id: 'pp-w-plaid-skirt',       name: 'Plaid Mini Skirt',             desc: 'campus classic, knee socks pairing',  type: 'statement', gender: 'women' },
+    { id: 'pp-w-midi-dress',        name: 'Preppy Midi Dress',            desc: 'floral or stripe, refined',           type: 'core',      gender: 'women' },
+  ],
+  cleangirl: [
+    { id: 'cg-w-mini-dress',        name: 'Clean Girl Mini Dress',        desc: 'minimal, well-tailored',              type: 'core',      gender: 'women' },
+    { id: 'cg-w-linen-dress',       name: 'Linen Slip Dress',             desc: 'effortless, breathable',              type: 'core',      gender: 'women' },
+    { id: 'cg-w-midi-skirt',        name: 'Clean Midi Skirt',             desc: 'bias-cut satin or linen',             type: 'statement', gender: 'women' },
+    { id: 'cg-w-sundress',          name: 'Minimalist Sundress',          desc: 'simple straps, clean lines',          type: 'core',      gender: 'women' },
+    { id: 'cg-w-wrap-dress',        name: 'Clean Girl Wrap Dress',        desc: 'neutral tones, understated',          type: 'statement', gender: 'women' },
+  ],
+  scandi: [
+    { id: 'sd-w-midi-dress',        name: 'Scandi Midi Dress',            desc: 'clean silhouette, muted palette',     type: 'core',      gender: 'women' },
+    { id: 'sd-w-knit-dress',        name: 'Minimal Knit Dress',           desc: 'fine gauge, Scandinavian cool',       type: 'statement', gender: 'women' },
+    { id: 'sd-w-wrap-dress',        name: 'Scandi Wrap Dress',            desc: 'asymmetric, modern',                  type: 'core',      gender: 'women' },
+    { id: 'sd-w-midi-skirt',        name: 'Simple Scandi Midi Skirt',     desc: 'A-line, neutral tone',                type: 'core',      gender: 'women' },
+    { id: 'sd-w-nordic-dress',      name: 'Nordic Print Dress',           desc: 'subtle pattern, hygge vibe',          type: 'statement', gender: 'women' },
+  ],
+  coastalgrandma: [
+    { id: 'cgm-w-wrap-dress',       name: 'Linen Wrap Dress',             desc: 'coastal ease, midi length',           type: 'core',      gender: 'women' },
+    { id: 'cgm-w-floral-midi',      name: 'Floral Midi Dress',            desc: 'grandma-chic, summer ready',          type: 'statement', gender: 'women' },
+    { id: 'cgm-w-maxi-dress',       name: 'Coastal Maxi Dress',           desc: 'breezy, seafront walk-ready',         type: 'core',      gender: 'women' },
+    { id: 'cgm-w-wrap-skirt',       name: 'Coastal Wrap Skirt',           desc: 'linen, relaxed fit',                  type: 'core',      gender: 'women' },
+    { id: 'cgm-w-sundress',         name: 'Linen Sundress',               desc: 'sleeveless, effortless',              type: 'statement', gender: 'women' },
+  ],
+}
+
+// ── Merged export ─────────────────────────────────────────────────────────────
+// Combines BASE_ITEMS (largely unisex) with WOMEN_ITEMS (women-specific).
+export const AESTHETIC_ITEMS = Object.fromEntries(
+  Object.keys(BASE_ITEMS).map((id) => [
+    id,
+    [...(BASE_ITEMS[id] || []), ...(WOMEN_ITEMS[id] || [])],
+  ])
+)
+
 // ── Quiz-compatible flat array ────────────────────────────────────────────────
 // Consumed by AppContext buildItemQueue alongside CLOTHING_ITEMS from categories.js
 
@@ -1488,6 +1861,7 @@ export const AESTHETIC_QUIZ_ITEMS = (() => {
         emoji:       TYPE_EMOJI[item.type],
         styleWeights: { [aId]: weight },
         _category:   inferCat(item.name),
+        gender:      item.gender || inferGender(item.name),
       })
     }
   }

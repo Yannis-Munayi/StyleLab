@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from 'react'
+import { createContext, useContext, useEffect, useReducer } from 'react'
 import { STYLES, REASON_WEIGHTS } from '../data/styles'
 import { CLOTHING_ITEMS } from '../data/categories'
 import { AESTHETIC_QUIZ_ITEMS } from '../data/aestheticItems'
@@ -23,22 +23,38 @@ const initialState = {
   currentItemIndex: 0,
   responses: {},
   styleScores: Object.fromEntries(Object.keys(STYLES).map((k) => [k, 0])),
+  gender: localStorage.getItem('fashionGender') ?? 'both', // 'men' | 'women' | 'both'
 }
 
-function buildItemQueue(categories, seasons) {
+// Returns true if an item's gender is compatible with the user's preference.
+// Items without a gender field are treated as 'unisex'.
+function matchesGender(itemGender, preference) {
+  if (preference === 'both') return true
+  const g = itemGender || 'unisex'
+  return g === 'unisex' || g === preference
+}
+
+function buildItemQueue(categories, seasons, gender) {
   const catSet = new Set(categories)
   const items  = []
 
   for (const catId of categories) {
     for (const item of (CLOTHING_ITEMS[catId] || [])) {
-      if (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s))) {
+      if (
+        (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s))) &&
+        matchesGender(item.gender, gender)
+      ) {
         items.push({ ...item, categoryId: catId })
       }
     }
   }
 
   for (const item of AESTHETIC_QUIZ_ITEMS) {
-    if (catSet.has(item._category) && (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s)))) {
+    if (
+      catSet.has(item._category) &&
+      (seasons.length === 0 || item.seasons.some((s) => seasons.includes(s))) &&
+      matchesGender(item.gender, gender)
+    ) {
       items.push({ ...item, categoryId: item._category })
     }
   }
@@ -90,8 +106,11 @@ function reducer(state, action) {
     case 'SET_CATEGORIES':
       return { ...state, selectedCategories: action.categories }
 
+    case 'SET_GENDER':
+      return { ...state, gender: action.gender }
+
     case 'START_DISCOVERY': {
-      const queue = buildItemQueue(state.selectedCategories, state.selectedSeasons)
+      const queue = buildItemQueue(state.selectedCategories, state.selectedSeasons, state.gender)
       return {
         ...state,
         screen: SCREENS.DISCOVERY,
@@ -139,6 +158,12 @@ function reducer(state, action) {
 
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
+
+  // Persist gender preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('fashionGender', state.gender)
+  }, [state.gender])
+
   return <AppContext.Provider value={{ state, dispatch, SCREENS }}>{children}</AppContext.Provider>
 }
 

@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { STYLES } from '../data/styles'
 import { CLOTHING_ITEMS } from '../data/categories'
-import { AESTHETIC_ITEMS, TYPE_EMOJI, inferCat, inferSeasons } from '../data/aestheticItems'
+import { AESTHETIC_ITEMS, TYPE_EMOJI, inferCat, inferSeasons, inferGender } from '../data/aestheticItems'
+import { AESTHETIC_DEPTH } from '../data/aestheticDepth'
 import { getLooks, getLookPieces } from '../data/looks'
 import { getGuideForAesthetic } from '../data/itemGuide'
 import { fetchPhotos } from '../services/pexels'
 import { useExplore } from '../context/ExploreContext'
 import { useWishlist } from '../context/WishlistContext'
+import { useApp } from '../context/AppContext'
 import styles from './AestheticScreen.module.css'
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -38,7 +40,7 @@ function HeartButton({ wishlisted, onToggle }) {
   )
 }
 
-function ItemCard({ item }) {
+function ItemCard({ item, genderFilter }) {
   const [photo, setPhoto]   = useState(null)
   const [loaded, setLoaded] = useState(false)
   const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist()
@@ -46,11 +48,13 @@ function ItemCard({ item }) {
 
   useEffect(() => {
     let cancelled = false
-    fetchPhotos(`${item.name} men fashion outfit`, 1).then(([url] = []) => {
+    const genderHint = genderFilter === 'women' ? 'women' : genderFilter === 'men' ? 'men' : ''
+    const query = `${item.name} ${genderHint} fashion outfit`.trim()
+    fetchPhotos(query, 1).then(([url] = []) => {
       if (!cancelled) setPhoto(url ?? null)
     })
     return () => { cancelled = true }
-  }, [item.id])
+  }, [item.id, genderFilter])
 
   function toggleWishlist() {
     if (wishlisted) {
@@ -85,7 +89,21 @@ function ItemCard({ item }) {
   )
 }
 
+const GENDER_OPTIONS = [
+  { id: 'both', label: 'Both' },
+  { id: 'men',  label: 'Men' },
+  { id: 'women', label: 'Women' },
+]
+
+function matchesGenderFilter(item, preference) {
+  if (preference === 'both') return true
+  const g = item.gender || inferGender(item.name)
+  return g === 'unisex' || g === preference
+}
+
 function ItemsTab({ aestheticId }) {
+  const { state, dispatch } = useApp()
+  const genderFilter = state.gender
   const styleData = STYLES[aestheticId]
   const gradient  = styleData?.gradient ?? 'linear-gradient(135deg, #1a1a1a 0%, #333 100%)'
 
@@ -99,42 +117,57 @@ function ItemsTab({ aestheticId }) {
       categoryId: inferCat(item.name),
       seasons:    inferSeasons(item.name),
     })
+    const filtered = raw.filter((i) => matchesGenderFilter(i, genderFilter))
     return {
-      core:      raw.filter((i) => i.type === 'core').map(enrich),
-      statement: raw.filter((i) => i.type === 'statement').map(enrich),
-      accessory: raw.filter((i) => i.type === 'accessory').map(enrich),
+      core:      filtered.filter((i) => i.type === 'core').map(enrich),
+      statement: filtered.filter((i) => i.type === 'statement').map(enrich),
+      accessory: filtered.filter((i) => i.type === 'accessory').map(enrich),
     }
-  }, [aestheticId, gradient])
-
-  if (core.length + statement.length + accessory.length === 0) {
-    return <p className={styles.emptyText}>No items tagged for this aesthetic yet.</p>
-  }
+  }, [aestheticId, gradient, genderFilter])
 
   return (
     <>
-      {core.length > 0 && (
-        <div className={styles.itemSection}>
-          <p className={styles.itemSectionLabel}>Core Pieces</p>
-          <div className={styles.itemsGrid}>
-            {core.map((item) => <ItemCard key={item.id} item={item} />)}
-          </div>
-        </div>
-      )}
-      {statement.length > 0 && (
-        <div className={styles.itemSection}>
-          <p className={styles.itemSectionLabel}>Statement Pieces</p>
-          <div className={styles.itemsGrid}>
-            {statement.map((item) => <ItemCard key={item.id} item={item} />)}
-          </div>
-        </div>
-      )}
-      {accessory.length > 0 && (
-        <div className={styles.itemSection}>
-          <p className={styles.itemSectionLabel}>Accessories</p>
-          <div className={styles.itemsGrid}>
-            {accessory.map((item) => <ItemCard key={item.id} item={item} />)}
-          </div>
-        </div>
+      <div className={styles.genderFilter}>
+        {GENDER_OPTIONS.map((opt) => (
+          <button
+            key={opt.id}
+            className={`${styles.genderPill} ${genderFilter === opt.id ? styles.genderPillActive : ''}`}
+            onClick={() => dispatch({ type: 'SET_GENDER', gender: opt.id })}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
+      {core.length + statement.length + accessory.length === 0 ? (
+        <p className={styles.emptyText}>No items for this filter.</p>
+      ) : (
+        <>
+          {core.length > 0 && (
+            <div className={styles.itemSection}>
+              <p className={styles.itemSectionLabel}>Core Pieces</p>
+              <div className={styles.itemsGrid}>
+                {core.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} />)}
+              </div>
+            </div>
+          )}
+          {statement.length > 0 && (
+            <div className={styles.itemSection}>
+              <p className={styles.itemSectionLabel}>Statement Pieces</p>
+              <div className={styles.itemsGrid}>
+                {statement.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} />)}
+              </div>
+            </div>
+          )}
+          {accessory.length > 0 && (
+            <div className={styles.itemSection}>
+              <p className={styles.itemSectionLabel}>Accessories</p>
+              <div className={styles.itemsGrid}>
+                {accessory.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} />)}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   )
@@ -142,21 +175,26 @@ function ItemsTab({ aestheticId }) {
 
 // ── Looks sub-tab ────────────────────────────────────────────────────────────
 
-function LookCard({ look }) {
-  const [photo, setPhoto]         = useState(null)
-  const [loaded, setLoaded]       = useState(false)
-  const [open, setOpen]           = useState(false)
-  const [gridPhotos, setGridPhotos] = useState([])
+function LookCard({ look, genderFilter }) {
+  const [photo, setPhoto]           = useState(null)
+  const [loaded, setLoaded]         = useState(false)
+  const [open, setOpen]             = useState(false)
+  const [menPhotos, setMenPhotos]   = useState([])
+  const [womenPhotos, setWomenPhotos] = useState([])
   const [gridLoading, setGridLoading] = useState(false)
   const fetchedRef = useRef(false)
 
+  const thumbQuery = genderFilter === 'women' ? (look.womenPexelsQuery ?? look.pexelsQuery) : look.pexelsQuery
+
   useEffect(() => {
     let cancelled = false
-    fetchPhotos(look.pexelsQuery, 1).then(([url] = []) => {
+    setPhoto(null)
+    setLoaded(false)
+    fetchPhotos(thumbQuery, 1).then(([url] = []) => {
       if (!cancelled) setPhoto(url ?? null)
     })
     return () => { cancelled = true }
-  }, [look.id])
+  }, [look.id, thumbQuery])
 
   function handleToggle() {
     const next = !open
@@ -164,8 +202,13 @@ function LookCard({ look }) {
     if (next && !fetchedRef.current) {
       fetchedRef.current = true
       setGridLoading(true)
-      fetchPhotos(look.pexelsQuery, 6).then((urls) => {
-        setGridPhotos(urls ?? [])
+      const menQ   = look.pexelsQuery
+      const womenQ = look.womenPexelsQuery ?? look.pexelsQuery
+      const fetchMen   = genderFilter !== 'women' ? fetchPhotos(menQ, 9)   : Promise.resolve([])
+      const fetchWomen = genderFilter !== 'men'   ? fetchPhotos(womenQ, 9) : Promise.resolve([])
+      Promise.all([fetchMen, fetchWomen]).then(([m, w]) => {
+        setMenPhotos(m ?? [])
+        setWomenPhotos(w ?? [])
         setGridLoading(false)
       })
     }
@@ -213,14 +256,28 @@ function LookCard({ look }) {
           {/* Outfit photo grid */}
           {gridLoading ? (
             <div className={styles.outfitGridLoading}>Loading outfits…</div>
-          ) : gridPhotos.length > 0 && (
+          ) : (menPhotos.length > 0 || womenPhotos.length > 0) && (
             <>
-              <p className={styles.piecesLabel}>Outfit inspiration</p>
-              <div className={styles.outfitGrid}>
-                {gridPhotos.map((url, i) => (
-                  <OutfitPhoto key={i} url={url} alt={`${look.name} outfit ${i + 1}`} />
-                ))}
-              </div>
+              {menPhotos.length > 0 && (
+                <>
+                  {womenPhotos.length > 0 && <p className={styles.piecesLabel}>Men's looks</p>}
+                  <div className={styles.outfitGrid}>
+                    {menPhotos.map((url, i) => (
+                      <OutfitPhoto key={`m${i}`} url={url} alt={`${look.name} men outfit ${i + 1}`} />
+                    ))}
+                  </div>
+                </>
+              )}
+              {womenPhotos.length > 0 && (
+                <>
+                  {menPhotos.length > 0 && <p className={styles.piecesLabel} style={{ marginTop: 16 }}>Women's looks</p>}
+                  <div className={styles.outfitGrid}>
+                    {womenPhotos.map((url, i) => (
+                      <OutfitPhoto key={`w${i}`} url={url} alt={`${look.name} women outfit ${i + 1}`} />
+                    ))}
+                  </div>
+                </>
+              )}
             </>
           )}
 
@@ -268,6 +325,8 @@ function OutfitPhoto({ url, alt, wishlistEntry }) {
 }
 
 function LooksTab({ aestheticId }) {
+  const { state, dispatch } = useApp()
+  const genderFilter = state.gender
   const [activeSeason, setActiveSeason] = useState(null)
   const [requiredPieces, setRequiredPieces] = useState([])
 
@@ -284,6 +343,7 @@ function LooksTab({ aestheticId }) {
   }
 
   const hasLooks = getLooks(aestheticId).length > 0
+  const genderHint = genderFilter === 'women' ? 'women' : genderFilter === 'men' ? 'men' : ''
 
   if (!hasLooks) {
     return (
@@ -293,7 +353,7 @@ function LooksTab({ aestheticId }) {
         </p>
         <a
           href={`https://www.pinterest.com/search/pins/?q=${encodeURIComponent(
-            (STYLES[aestheticId]?.name ?? '') + ' men outfit'
+            `${STYLES[aestheticId]?.name ?? ''} ${genderHint} outfit`.trim()
           )}`}
           target="_blank"
           rel="noopener noreferrer"
@@ -307,6 +367,19 @@ function LooksTab({ aestheticId }) {
 
   return (
     <div>
+      {/* Gender filter */}
+      <div className={styles.genderFilter}>
+        {GENDER_OPTIONS.map((opt) => (
+          <button
+            key={opt.id}
+            className={`${styles.genderPill} ${genderFilter === opt.id ? styles.genderPillActive : ''}`}
+            onClick={() => dispatch({ type: 'SET_GENDER', gender: opt.id })}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
       {/* Season filter */}
       <div className={styles.filterRow}>
         <button
@@ -354,7 +427,7 @@ function LooksTab({ aestheticId }) {
       ) : (
         <div className={styles.looksList}>
           {filtered.map((look) => (
-            <LookCard key={look.id} look={look} />
+            <LookCard key={`${look.id}-${genderFilter}`} look={look} genderFilter={genderFilter} />
           ))}
         </div>
       )}
@@ -364,21 +437,25 @@ function LooksTab({ aestheticId }) {
 
 // ── Guide sub-tab ────────────────────────────────────────────────────────────
 
-function GuideItem({ type, catLabel, isOpen, onToggle }) {
-  const [photos, setPhotos]       = useState([])
+function GuideItem({ type, catLabel, isOpen, onToggle, gender }) {
+  const [menPhotos, setMenPhotos]     = useState([])
+  const [womenPhotos, setWomenPhotos] = useState([])
   const [photosLoading, setPhotosLoading] = useState(false)
-  const fetchedRef = useRef(false)
+  const fetchedRef = useRef(null)
 
   useEffect(() => {
-    if (isOpen && !fetchedRef.current) {
-      fetchedRef.current = true
+    if (isOpen && fetchedRef.current !== gender) {
+      fetchedRef.current = gender
       setPhotosLoading(true)
-      fetchPhotos(`${type.name} ${catLabel} men fashion`, 6).then((urls) => {
-        setPhotos(urls ?? [])
+      const fetchMen   = gender !== 'women' ? fetchPhotos(`${type.name} ${catLabel} men fashion`, 9)   : Promise.resolve([])
+      const fetchWomen = gender !== 'men'   ? fetchPhotos(`${type.name} ${catLabel} women fashion`, 9) : Promise.resolve([])
+      Promise.all([fetchMen, fetchWomen]).then(([m, w]) => {
+        setMenPhotos(m ?? [])
+        setWomenPhotos(w ?? [])
         setPhotosLoading(false)
       })
     }
-  }, [isOpen, type.name, catLabel])
+  }, [isOpen, type.name, catLabel, gender])
 
   return (
     <div className={styles.guideItem} onClick={onToggle} role="button" tabIndex={0}
@@ -404,17 +481,35 @@ function GuideItem({ type, catLabel, isOpen, onToggle }) {
           )}
           {photosLoading ? (
             <div className={styles.outfitGridLoading}>Loading photos…</div>
-          ) : photos.length > 0 && (
-            <div className={styles.outfitGrid}>
-              {photos.map((url, i) => (
-                <OutfitPhoto
-                  key={i}
-                  url={url}
-                  alt={`${type.name} ${catLabel} ${i + 1}`}
-                  wishlistEntry={{ id: `photo:${catLabel}:${type.name}:${i}`, label: type.name, catLabel }}
-                />
-              ))}
-            </div>
+          ) : (
+            <>
+              {menPhotos.length > 0 && (
+                <>
+                  {womenPhotos.length > 0 && <p className={styles.piecesLabel}>Men</p>}
+                  <div className={styles.outfitGrid}>
+                    {menPhotos.map((url, i) => (
+                      <OutfitPhoto key={`m${i}`} url={url}
+                        alt={`${type.name} ${catLabel} men ${i + 1}`}
+                        wishlistEntry={{ id: `photo:${catLabel}:${type.name}:m${i}`, label: type.name, catLabel }}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+              {womenPhotos.length > 0 && (
+                <>
+                  {menPhotos.length > 0 && <p className={styles.piecesLabel} style={{ marginTop: 12 }}>Women</p>}
+                  <div className={styles.outfitGrid}>
+                    {womenPhotos.map((url, i) => (
+                      <OutfitPhoto key={`w${i}`} url={url}
+                        alt={`${type.name} ${catLabel} women ${i + 1}`}
+                        wishlistEntry={{ id: `photo:${catLabel}:${type.name}:w${i}`, label: type.name, catLabel }}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           )}
         </div>
       )}
@@ -423,6 +518,8 @@ function GuideItem({ type, catLabel, isOpen, onToggle }) {
 }
 
 function GuideTab({ aestheticId }) {
+  const { state, dispatch } = useApp()
+  const gender = state.gender
   const [expanded, setExpanded] = useState(null)
   const categories = useMemo(() => getGuideForAesthetic(aestheticId), [aestheticId])
 
@@ -432,6 +529,18 @@ function GuideTab({ aestheticId }) {
 
   return (
     <div className={styles.guideList}>
+      <div className={styles.genderFilter}>
+        {GENDER_OPTIONS.map((opt) => (
+          <button
+            key={opt.id}
+            className={`${styles.genderPill} ${gender === opt.id ? styles.genderPillActive : ''}`}
+            onClick={() => dispatch({ type: 'SET_GENDER', gender: opt.id })}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
       {categories.map((cat) => (
         <section key={cat.id} className={styles.guideSection}>
           <div className={styles.guideSectionHeader}>
@@ -446,11 +555,12 @@ function GuideTab({ aestheticId }) {
             const typeId = `${cat.id}-${type.name}`
             return (
               <GuideItem
-                key={typeId}
+                key={`${typeId}-${gender}`}
                 type={type}
                 catLabel={cat.label}
                 isOpen={expanded === typeId}
                 onToggle={() => setExpanded(expanded === typeId ? null : typeId)}
+                gender={gender}
               />
             )
           })}
@@ -460,9 +570,81 @@ function GuideTab({ aestheticId }) {
   )
 }
 
+// ── Story sub-tab ─────────────────────────────────────────────────────────────
+
+function StorySection({ emoji, title, children }) {
+  return (
+    <section className={styles.storySection}>
+      <div className={styles.storySectionHeader}>
+        <span className={styles.storySectionEmoji}>{emoji}</span>
+        <h3 className={styles.storySectionTitle}>{title}</h3>
+      </div>
+      {children}
+    </section>
+  )
+}
+
+function StoryTab({ aestheticId }) {
+  const data = AESTHETIC_DEPTH[aestheticId]
+  if (!data) {
+    return <p className={styles.emptyText}>Deep dive coming soon for this aesthetic.</p>
+  }
+
+  return (
+    <div className={styles.storyTab}>
+      <div className={styles.storyMeta}>
+        <span className={styles.storyPill}>{data.era}</span>
+        <span className={styles.storyPill}>{data.origin}</span>
+      </div>
+
+      <StorySection emoji="📖" title="History & Origin">
+        <p className={styles.storyBody}>{data.history}</p>
+      </StorySection>
+
+      <StorySection emoji="👕" title="Key Garments">
+        <div className={styles.garmentList}>
+          {data.keyGarments.map((g) => (
+            <div key={g.name} className={styles.garmentRow}>
+              <span className={styles.garmentName}>{g.name}</span>
+              <span className={styles.garmentDesc}>{g.desc}</span>
+            </div>
+          ))}
+        </div>
+      </StorySection>
+
+      <StorySection emoji="⭐" title="Icons Who Shaped It">
+        <div className={styles.personList}>
+          {data.icons.map((p) => (
+            <div key={p.name} className={styles.personCard}>
+              <span className={styles.personName}>{p.name}</span>
+              <span className={styles.personMeta}>{p.role} · {p.era}</span>
+            </div>
+          ))}
+        </div>
+      </StorySection>
+
+      <StorySection emoji="🔥" title="Modern Representatives">
+        <div className={styles.personList}>
+          {data.modernReps.map((p) => (
+            <div key={p.name} className={styles.personCard}>
+              <span className={styles.personName}>{p.name}</span>
+              <span className={styles.personMeta}>{p.type}</span>
+            </div>
+          ))}
+        </div>
+      </StorySection>
+
+      <StorySection emoji="🌍" title="Cultural Context">
+        <p className={styles.storyBody}>{data.culturalContext}</p>
+      </StorySection>
+    </div>
+  )
+}
+
 // ── Main AestheticScreen ─────────────────────────────────────────────────────
 
 const TABS = [
+  { id: 'story', label: 'Story' },
   { id: 'items', label: 'Items' },
   { id: 'looks', label: 'Looks' },
   { id: 'guide', label: 'Guide' },
@@ -470,10 +652,25 @@ const TABS = [
 
 export default function AestheticScreen({ aestheticId, setActiveTab }) {
   const { closeAestheticTab, saveAesthetic, unsaveAesthetic, isSaved } = useExplore()
-  const [subTab, setSubTab] = useState('items')
+  const { state } = useApp()
+  const gender = state.gender
+  const [subTab, setSubTab] = useState('story')
+  const [heroBg, setHeroBg] = useState(null)
 
-  const style    = STYLES[aestheticId]
-  const saved    = isSaved(aestheticId)
+  const style = STYLES[aestheticId]
+  const saved = isSaved(aestheticId)
+
+  useEffect(() => {
+    setHeroBg(null)
+    setSubTab('story')
+    let cancelled = false
+    const genderHint = gender === 'women' ? 'women' : gender === 'men' ? 'men' : ''
+    const heroQuery = `${style?.name ?? ''} ${genderHint} fashion aesthetic`.trim()
+    fetchPhotos(heroQuery, 1).then(([url] = []) => {
+      if (!cancelled && url) setHeroBg(url)
+    })
+    return () => { cancelled = true }
+  }, [aestheticId, gender])
 
   if (!style) return null
 
@@ -483,17 +680,18 @@ export default function AestheticScreen({ aestheticId, setActiveTab }) {
   }
 
   function handleSaveToggle() {
-    if (saved) {
-      unsaveAesthetic(aestheticId)
-    } else {
-      saveAesthetic(aestheticId)
-    }
+    if (saved) unsaveAesthetic(aestheticId)
+    else saveAesthetic(aestheticId)
   }
+
+  const heroStyle = heroBg
+    ? { backgroundImage: `url(${heroBg})`, backgroundSize: 'cover', backgroundPosition: 'center top' }
+    : { background: style.gradient }
 
   return (
     <div className={styles.screen}>
       {/* ── Hero header ── */}
-      <div className={styles.hero} style={{ background: style.gradient }}>
+      <div className={styles.hero} style={heroStyle}>
         <div className={styles.heroOverlay} />
 
         <button className={styles.backBtn} onClick={handleBack}>
@@ -533,23 +731,22 @@ export default function AestheticScreen({ aestheticId, setActiveTab }) {
 
       {/* ── Sub-tab bar ── */}
       <div className={styles.subTabBar}>
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={`${styles.subTab} ${subTab === tab.id ? styles.subTabActive : ''}`}
-            onClick={() => setSubTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-        <div
-          className={styles.subTabIndicator}
-          style={{ left: `${TABS.findIndex((t) => t.id === subTab) * (100 / TABS.length)}%` }}
-        />
+        <div className={styles.subTabGroup}>
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={`${styles.subTab} ${subTab === tab.id ? styles.subTabActive : ''}`}
+              onClick={() => setSubTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Tab content ── */}
       <div className={styles.tabContent}>
+        {subTab === 'story' && <StoryTab aestheticId={aestheticId} />}
         {subTab === 'items' && <ItemsTab aestheticId={aestheticId} />}
         {subTab === 'looks' && <LooksTab aestheticId={aestheticId} />}
         {subTab === 'guide' && <GuideTab aestheticId={aestheticId} />}
