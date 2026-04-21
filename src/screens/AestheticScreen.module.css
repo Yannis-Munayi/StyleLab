@@ -225,6 +225,16 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
+  position: relative;
+}
+
+.itemPhotoBtn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 .itemPhoto {
@@ -242,6 +252,31 @@
   height: 100%;
   object-fit: cover;
   transition: opacity 0.3s;
+}
+
+.itemOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.itemPhotoBtn:hover .itemOverlay {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.itemOverlayDots {
+  font-size: 22px;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.itemPhotoBtn:hover .itemOverlayDots {
+  opacity: 1;
 }
 
 .itemEmoji {

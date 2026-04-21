@@ -100,12 +100,46 @@
   gap: 7px;
 }
 
+.itemPhotoBtn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
 .itemPhoto {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4;
   border-radius: 12px;
   overflow: hidden;
+}
+
+.itemOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.itemPhotoBtn:hover .itemOverlay {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.itemOverlayIcon {
+  font-size: 22px;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.itemPhotoBtn:hover .itemOverlayIcon {
+  opacity: 1;
 }
 
 .itemImg {
@@ -115,16 +149,6 @@
   height: 100%;
   object-fit: cover;
   transition: opacity 0.3s;
-}
-
-.itemEmoji {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  font-size: 18px;
-  line-height: 1;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
-  opacity: 0.8;
 }
 
 .itemName {
@@ -137,21 +161,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.shopLink {
-  display: block;
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.35);
-  text-decoration: none;
-  padding: 0 2px;
-  transition: color 0.2s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.shopLink:hover { color: rgba(255, 255, 255, 0.7); }
 
 /* ── Photo grid (outfit photos) ── */
 .photoGrid {

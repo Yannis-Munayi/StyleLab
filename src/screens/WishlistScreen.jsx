@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { fetchPhotosWithFallback } from '../services/pexels'
 import { useWishlist } from '../context/WishlistContext'
 import { useApp } from '../context/AppContext'
-import { getPinterestUrl } from '../data/styles'
+import ItemActionSheet from '../components/ItemActionSheet'
+import ShopPanel from '../components/ShopPanel'
 import AuthWidget from '../components/AuthWidget'
 
 import styles from './WishlistScreen.module.css'
 
-function ItemWishCard({ entry, onRemove }) {
+function ItemWishCard({ entry, onRemove, onSelect }) {
   const [photo, setPhoto]   = useState(null)
   const [loaded, setLoaded] = useState(false)
   const { state } = useApp()
@@ -29,32 +30,29 @@ function ItemWishCard({ entry, onRemove }) {
 
   return (
     <div className={styles.itemCard}>
-      <div className={styles.itemPhoto} style={{ background: entry.gradient }}>
-        {photo && (
-          <img
-            src={photo}
-            alt={entry.name}
-            className={styles.itemImg}
-            style={{ opacity: loaded ? 1 : 0 }}
-            onLoad={() => setLoaded(true)}
-            onError={() => setLoaded(true)}
-          />
-        )}
-          <button className={styles.removeBtn} onClick={() => onRemove(entry.id)} aria-label="Remove">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+      <button className={styles.itemPhotoBtn} onClick={() => onSelect(entry)}>
+        <div className={styles.itemPhoto} style={{ background: entry.gradient }}>
+          {photo && (
+            <img
+              src={photo}
+              alt={entry.name}
+              className={styles.itemImg}
+              style={{ opacity: loaded ? 1 : 0 }}
+              onLoad={() => setLoaded(true)}
+              onError={() => setLoaded(true)}
+            />
+          )}
+          <div className={styles.itemOverlay}>
+            <span className={styles.itemOverlayIcon}>⋯</span>
+          </div>
+        </div>
+      </button>
+      <button className={styles.removeBtn} onClick={() => onRemove(entry.id)} aria-label="Remove">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
       <p className={styles.itemName}>{entry.name}</p>
-      <a
-        href={getPinterestUrl(null, gender, entry.name)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.shopLink}
-      >
-        Shop on Pinterest ↗
-      </a>
     </div>
   )
 }
@@ -86,10 +84,17 @@ function PhotoWishCard({ entry, onRemove }) {
 
 export default function WishlistScreen() {
   const { wishlist, removeFromWishlist } = useWishlist()
+  const [activeItem, setActiveItem] = useState(null)
+  const [shopItem,   setShopItem]   = useState(null)
 
   const itemEntries  = wishlist.filter((e) => e.type === 'item')
   const photoEntries = wishlist.filter((e) => e.type === 'photo')
   const total = wishlist.length
+
+  function handleOpenShop() {
+    setShopItem(activeItem)
+    setActiveItem(null)
+  }
 
   return (
     <div className={styles.screen}>
@@ -121,7 +126,12 @@ export default function WishlistScreen() {
             <h2 className={styles.sectionLabel}>🧥 Clothing Pieces</h2>
             <div className={styles.itemGrid}>
               {itemEntries.map((entry) => (
-                <ItemWishCard key={entry.id} entry={entry} onRemove={removeFromWishlist} />
+                <ItemWishCard
+                  key={entry.id}
+                  entry={entry}
+                  onRemove={removeFromWishlist}
+                  onSelect={setActiveItem}
+                />
               ))}
             </div>
           </section>
@@ -138,6 +148,21 @@ export default function WishlistScreen() {
           </section>
         )}
       </div>
+
+      {activeItem && (
+        <ItemActionSheet
+          item={activeItem}
+          onShop={handleOpenShop}
+          onClose={() => setActiveItem(null)}
+        />
+      )}
+
+      {shopItem && (
+        <ShopPanel
+          item={shopItem}
+          onClose={() => setShopItem(null)}
+        />
+      )}
     </div>
   )
 }

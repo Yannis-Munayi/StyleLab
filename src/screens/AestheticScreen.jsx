@@ -9,6 +9,8 @@ import { fetchPhotos, fetchPhotosWithFallback } from '../services/pexels'
 import { useExplore } from '../context/ExploreContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useApp } from '../context/AppContext'
+import ItemActionSheet from '../components/ItemActionSheet'
+import ShopPanel from '../components/ShopPanel'
 import styles from './AestheticScreen.module.css'
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -40,7 +42,7 @@ function HeartButton({ wishlisted, onToggle }) {
   )
 }
 
-function ItemCard({ item, genderFilter }) {
+function ItemCard({ item, genderFilter, onSelect }) {
   const [photo, setPhoto]   = useState(null)
   const [loaded, setLoaded] = useState(false)
   const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist()
@@ -74,20 +76,25 @@ function ItemCard({ item, genderFilter }) {
 
   return (
     <div className={styles.itemCard}>
-      <div className={styles.itemPhoto} style={{ background: item.gradient }}>
-        {photo && (
-          <img
-            src={photo}
-            alt={item.name}
-            className={styles.itemImg}
-            style={{ opacity: loaded ? 1 : 0 }}
-            onLoad={() => setLoaded(true)}
-            onError={() => setLoaded(true)}
-          />
-        )}
-        <span className={styles.itemEmoji}>{item.emoji}</span>
-        <HeartButton wishlisted={wishlisted} onToggle={toggleWishlist} />
-      </div>
+      <button className={styles.itemPhotoBtn} onClick={() => onSelect(item)}>
+        <div className={styles.itemPhoto} style={{ background: item.gradient }}>
+          {photo && (
+            <img
+              src={photo}
+              alt={item.name}
+              className={styles.itemImg}
+              style={{ opacity: loaded ? 1 : 0 }}
+              onLoad={() => setLoaded(true)}
+              onError={() => setLoaded(true)}
+            />
+          )}
+          <span className={styles.itemEmoji}>{item.emoji}</span>
+          <div className={styles.itemOverlay}>
+            <span className={styles.itemOverlayDots}>⋯</span>
+          </div>
+        </div>
+      </button>
+      <HeartButton wishlisted={wishlisted} onToggle={toggleWishlist} />
       <p className={styles.itemName}>{item.name}</p>
     </div>
   )
@@ -106,10 +113,13 @@ function matchesGenderFilter(item, preference) {
 }
 
 function ItemsTab({ aestheticId }) {
-  const { state, dispatch } = useApp()
+  const { state } = useApp()
   const genderFilter = state.gender
   const styleData = STYLES[aestheticId]
   const gradient  = styleData?.gradient ?? 'linear-gradient(135deg, #1a1a1a 0%, #333 100%)'
+
+  const [activeItem, setActiveItem] = useState(null)
+  const [shopItem,   setShopItem]   = useState(null)
 
   const { core, statement, accessory } = useMemo(() => {
     const raw = AESTHETIC_ITEMS[aestheticId] ?? []
@@ -129,6 +139,11 @@ function ItemsTab({ aestheticId }) {
     }
   }, [aestheticId, gradient, genderFilter])
 
+  function handleOpenShop() {
+    setShopItem(activeItem)
+    setActiveItem(null)
+  }
+
   return (
     <>
       {core.length + statement.length + accessory.length === 0 ? (
@@ -139,7 +154,7 @@ function ItemsTab({ aestheticId }) {
             <div className={styles.itemSection}>
               <p className={styles.itemSectionLabel}>Core Pieces</p>
               <div className={styles.itemsGrid}>
-                {core.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} />)}
+                {core.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} onSelect={setActiveItem} />)}
               </div>
             </div>
           )}
@@ -147,7 +162,7 @@ function ItemsTab({ aestheticId }) {
             <div className={styles.itemSection}>
               <p className={styles.itemSectionLabel}>Statement Pieces</p>
               <div className={styles.itemsGrid}>
-                {statement.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} />)}
+                {statement.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} onSelect={setActiveItem} />)}
               </div>
             </div>
           )}
@@ -155,11 +170,26 @@ function ItemsTab({ aestheticId }) {
             <div className={styles.itemSection}>
               <p className={styles.itemSectionLabel}>Accessories</p>
               <div className={styles.itemsGrid}>
-                {accessory.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} />)}
+                {accessory.map((item) => <ItemCard key={item.id} item={item} genderFilter={genderFilter} onSelect={setActiveItem} />)}
               </div>
             </div>
           )}
         </>
+      )}
+
+      {activeItem && (
+        <ItemActionSheet
+          item={activeItem}
+          onShop={handleOpenShop}
+          onClose={() => setActiveItem(null)}
+        />
+      )}
+
+      {shopItem && (
+        <ShopPanel
+          item={shopItem}
+          onClose={() => setShopItem(null)}
+        />
       )}
     </>
   )
