@@ -138,6 +138,21 @@
   text-overflow: ellipsis;
 }
 
+.shopLink {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+  text-decoration: none;
+  padding: 0 2px;
+  transition: color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shopLink:hover { color: rgba(255, 255, 255, 0.7); }
+
 /* ── Photo grid (outfit photos) ── */
 .photoGrid {
   display: grid;

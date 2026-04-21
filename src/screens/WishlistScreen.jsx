@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchPhotosWithFallback } from '../services/pexels'
 import { useWishlist } from '../context/WishlistContext'
 import { useApp } from '../context/AppContext'
+import { getPinterestUrl } from '../data/styles'
 import AuthWidget from '../components/AuthWidget'
 
 import styles from './WishlistScreen.module.css'
@@ -39,14 +40,21 @@ function ItemWishCard({ entry, onRemove }) {
             onError={() => setLoaded(true)}
           />
         )}
-        <span className={styles.itemEmoji}>{entry.emoji}</span>
-        <button className={styles.removeBtn} onClick={() => onRemove(entry.id)} aria-label="Remove">
+          <button className={styles.removeBtn} onClick={() => onRemove(entry.id)} aria-label="Remove">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M18 6L6 18M6 6l12 12" />
           </svg>
         </button>
       </div>
       <p className={styles.itemName}>{entry.name}</p>
+      <a
+        href={getPinterestUrl(null, gender, entry.name)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.shopLink}
+      >
+        Shop on Pinterest ↗
+      </a>
     </div>
   )
 }
