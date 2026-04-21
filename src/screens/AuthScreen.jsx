@@ -11,6 +11,7 @@ export default function AuthScreen() {
   const [name, setName]         = useState('')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
+  const [gender, setGender]     = useState('both')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
 
@@ -22,6 +23,7 @@ export default function AuthScreen() {
       if (mode === 'signup') {
         if (!name.trim()) { setError('Please enter your name.'); setLoading(false); return }
         await signup(email, password, name.trim())
+        dispatch({ type: 'SET_GENDER', gender })
       } else {
         await login(email, password)
       }
@@ -62,17 +64,35 @@ export default function AuthScreen() {
 
         <form className={styles.form} onSubmit={handleSubmit}>
           {mode === 'signup' && (
-            <div className={styles.field}>
-              <label>Name</label>
-              <input
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                autoComplete="name"
-              />
-            </div>
+            <>
+              <div className={styles.field}>
+                <label>Name</label>
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  autoComplete="name"
+                />
+              </div>
+
+              <div className={styles.genderField}>
+                <label>Shop for</label>
+                <div className={styles.genderRow}>
+                  {[{ id: 'men', label: 'Men' }, { id: 'women', label: 'Women' }, { id: 'both', label: 'Both' }].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      className={`${styles.genderPill} ${gender === opt.id ? styles.genderPillActive : ''}`}
+                      onClick={() => setGender(opt.id)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
 
           <div className={styles.field}>

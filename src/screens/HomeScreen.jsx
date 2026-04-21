@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { STYLES } from '../data/styles'
-import { fetchPhotos } from '../services/pexels'
+import { STYLES, getStyleName } from '../data/styles'
+import { fetchPhotosWithFallback } from '../services/pexels'
 import { useApp, SCREENS } from '../context/AppContext'
 import { useAuth } from '../context/AuthContext'
 import { useExplore } from '../context/ExploreContext'
@@ -11,13 +11,7 @@ import styles from './HomeScreen.module.css'
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
-const HERO_SLIDES = [
-  { id: 'oldmoney',     query: 'old money men fashion elegant luxury' },
-  { id: 'darkacademia', query: 'dark academia men aesthetic tweed coat' },
-  { id: 'streetwear',   query: 'streetwear men urban outfit editorial' },
-  { id: 'gorpcore',     query: 'gorpcore men outdoor fashion mountain' },
-  { id: 'minimalist',   query: 'minimalist men fashion clean neutral' },
-]
+const HERO_SLIDE_IDS = ['oldmoney', 'darkacademia', 'streetwear', 'gorpcore', 'minimalist']
 
 const SEASON_PICKS = {
   winter: ['oldmoney', 'darkacademia', 'preppy', 'military', 'knitwearaesthetic', 'gorpcore'],
@@ -52,25 +46,34 @@ function getGreeting() {
 
 // ── Hero carousel ─────────────────────────────────────────────────────────────
 
-function HeroCarousel({ setActiveTab }) {
-  const [photos, setPhotos]     = useState(new Array(HERO_SLIDES.length).fill(null))
+function HeroCarousel({ setActiveTab, gender }) {
+  const [photos, setPhotos]       = useState(new Array(HERO_SLIDE_IDS.length).fill(null))
   const [activeIdx, setActiveIdx] = useState(0)
   const [imgLoaded, setImgLoaded] = useState(false)
   const timerRef = useRef(null)
 
   useEffect(() => {
-    HERO_SLIDES.forEach((slide, i) => {
-      fetchPhotos(slide.query, 1).then(([url] = []) => {
+    setPhotos(new Array(HERO_SLIDE_IDS.length).fill(null))
+    const hint = gender === 'women' ? 'women' : gender === 'men' ? 'men' : ''
+    HERO_SLIDE_IDS.forEach((id, i) => {
+      const s = STYLES[id]
+      if (!s) return
+      const name = getStyleName(s, gender)
+      fetchPhotosWithFallback([
+        `${name} ${hint} fashion aesthetic`.trim(),
+        `${name} ${hint} outfit`.trim(),
+        `${name} fashion`,
+      ], 1).then(([url] = []) => {
         setPhotos((prev) => { const next = [...prev]; next[i] = url ?? null; return next })
         if (i === 0) setImgLoaded(false)
       })
     })
-  }, [])
+  }, [gender])
 
   function startTimer() {
     clearInterval(timerRef.current)
     timerRef.current = setInterval(() => {
-      setActiveIdx((i) => (i + 1) % HERO_SLIDES.length)
+      setActiveIdx((i) => (i + 1) % HERO_SLIDE_IDS.length)
       setImgLoaded(false)
     }, 5000)
   }
@@ -86,9 +89,9 @@ function HeroCarousel({ setActiveTab }) {
     startTimer()
   }
 
-  const slide  = HERO_SLIDES[activeIdx]
-  const style  = STYLES[slide.id]
-  const photo  = photos[activeIdx]
+  const slideId = HERO_SLIDE_IDS[activeIdx]
+  const style   = STYLES[slideId]
+  const photo   = photos[activeIdx]
 
   return (
     <div className={styles.hero}>
@@ -117,11 +120,11 @@ function HeroCarousel({ setActiveTab }) {
       {/* Bottom content */}
       <div className={styles.heroContent}>
         <p className={styles.heroEyebrow}>Featured Aesthetic</p>
-        <h2 className={styles.heroName}>{style?.name}</h2>
+        <h2 className={styles.heroName}>{getStyleName(style, gender)}</h2>
         <p className={styles.heroTagline}>{style?.tagline}</p>
         <button
           className={styles.heroBtn}
-          onClick={() => setActiveTab(`aesthetic:${slide.id}`)}
+          onClick={() => setActiveTab(`aesthetic:${slideId}`)}
         >
           Explore look →
         </button>
@@ -129,7 +132,7 @@ function HeroCarousel({ setActiveTab }) {
 
       {/* Dot nav */}
       <div className={styles.heroDots}>
-        {HERO_SLIDES.map((_, i) => (
+        {HERO_SLIDE_IDS.map((_, i) => (
           <button
             key={i}
             className={`${styles.heroDot} ${i === activeIdx ? styles.heroDotActive : ''}`}
@@ -172,7 +175,7 @@ function StatsPills({ setActiveTab }) {
 
 // ── Aesthetic mini-card (horizontal scroll) ───────────────────────────────────
 
-function AestheticMiniCard({ aestheticId, setActiveTab }) {
+function AestheticMiniCard({ aestheticId, setActiveTab, gender }) {
   const [photo, setPhoto]   = useState(null)
   const [loaded, setLoaded] = useState(false)
   const cardRef  = useRef(null)
@@ -180,18 +183,31 @@ function AestheticMiniCard({ aestheticId, setActiveTab }) {
   const style    = STYLES[aestheticId]
 
   useEffect(() => {
+    fetched.current = false
+    setPhoto(null)
+    setLoaded(false)
+  }, [gender])
+
+  useEffect(() => {
     const el = cardRef.current
     if (!el || !style) return
     const obs = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !fetched.current) {
         fetched.current = true
-        fetchPhotos(`${style.name} men outfit`, 1).then(([url] = []) => setPhoto(url ?? null))
+        const name = getStyleName(style, gender)
+        const hint = gender === 'women' ? 'women' : gender === 'men' ? 'men' : ''
+        fetchPhotosWithFallback([
+          `${name} ${hint} outfit aesthetic`.trim(),
+          `${name} ${hint} fashion`.trim(),
+          `${name} fashion`,
+          `${name} outfit`,
+        ], 1).then(([url] = []) => setPhoto(url ?? null))
         obs.disconnect()
       }
     }, { rootMargin: '100px' })
     obs.observe(el)
     return () => obs.disconnect()
-  }, [aestheticId, style])
+  }, [aestheticId, style, gender])
 
   if (!style) return null
 
@@ -214,16 +230,16 @@ function AestheticMiniCard({ aestheticId, setActiveTab }) {
         )}
       </div>
       <div className={styles.miniCardOverlay} />
-      <span className={styles.miniCardName}>{style.name.split(' / ')[0]}</span>
+      <span className={styles.miniCardName}>{getStyleName(style, gender).split(' / ')[0]}</span>
     </button>
   )
 }
 
-function HorizontalScroll({ ids, setActiveTab }) {
+function HorizontalScroll({ ids, setActiveTab, gender }) {
   return (
     <div className={styles.hScroll}>
       {ids.filter((id) => STYLES[id]).map((id) => (
-        <AestheticMiniCard key={id} aestheticId={id} setActiveTab={setActiveTab} />
+        <AestheticMiniCard key={`${id}-${gender}`} aestheticId={id} setActiveTab={setActiveTab} gender={gender} />
       ))}
     </div>
   )
@@ -231,7 +247,7 @@ function HorizontalScroll({ ids, setActiveTab }) {
 
 // ── Your Style journey CTA ────────────────────────────────────────────────────
 
-function StyleJourneyCTA({ setActiveTab }) {
+function StyleJourneyCTA({ setActiveTab, gender }) {
   const { state }  = useApp()
   const { user }   = useAuth()
 
@@ -250,7 +266,7 @@ function StyleJourneyCTA({ setActiveTab }) {
         <div className={styles.ctaCardOverlay} />
         <div className={styles.ctaCardContent}>
           <p className={styles.ctaEyebrow}>Your top aesthetic</p>
-          <h3 className={styles.ctaTitle}>{topStyleData.name}</h3>
+          <h3 className={styles.ctaTitle}>{getStyleName(topStyleData, gender)}</h3>
           <p className={styles.ctaSub}>{topStyleData.tagline}</p>
           <div className={styles.ctaActions}>
             <button className={styles.ctaBtn} onClick={() => setActiveTab(`aesthetic:${topStyle}`)}>
@@ -306,6 +322,8 @@ function StyleJourneyCTA({ setActiveTab }) {
 export default function HomeScreen({ setActiveTab }) {
   const { user }            = useAuth()
   const { savedAesthetics } = useExplore()
+  const { state }           = useApp()
+  const gender              = state.gender
   const season              = getSeason()
   const meta                = SEASON_META[season]
 
@@ -314,7 +332,7 @@ export default function HomeScreen({ setActiveTab }) {
   return (
     <div className={styles.screen}>
       {/* Hero */}
-      <HeroCarousel setActiveTab={setActiveTab} />
+      <HeroCarousel setActiveTab={setActiveTab} gender={gender} />
 
       <div className={styles.body}>
         {/* Greeting */}
@@ -338,7 +356,7 @@ export default function HomeScreen({ setActiveTab }) {
                 <p className={styles.sectionSub}>{savedAesthetics.length} pinned from Explore</p>
               </div>
             </div>
-            <HorizontalScroll ids={savedAesthetics} setActiveTab={setActiveTab} />
+            <HorizontalScroll ids={savedAesthetics} setActiveTab={setActiveTab} gender={gender} />
           </section>
         )}
 
@@ -351,11 +369,11 @@ export default function HomeScreen({ setActiveTab }) {
               <p className={styles.sectionSub}>{meta.sub}</p>
             </div>
           </div>
-          <HorizontalScroll ids={SEASON_PICKS[season]} setActiveTab={setActiveTab} />
+          <HorizontalScroll ids={SEASON_PICKS[season]} setActiveTab={setActiveTab} gender={gender} />
         </section>
 
         {/* Style journey CTA */}
-        <StyleJourneyCTA setActiveTab={setActiveTab} />
+        <StyleJourneyCTA setActiveTab={setActiveTab} gender={gender} />
 
         {/* Trending */}
         <section className={styles.section}>
@@ -366,7 +384,7 @@ export default function HomeScreen({ setActiveTab }) {
               <p className={styles.sectionSub}>Styles gaining momentum</p>
             </div>
           </div>
-          <HorizontalScroll ids={TRENDING} setActiveTab={setActiveTab} />
+          <HorizontalScroll ids={TRENDING} setActiveTab={setActiveTab} gender={gender} />
         </section>
 
         {/* Explore all */}

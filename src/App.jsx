@@ -13,11 +13,14 @@ import ResultsScreen   from './screens/ResultsScreen'
 import AuthScreen      from './screens/AuthScreen'
 import ProfileScreen   from './screens/ProfileScreen'
 import WardrobeScreen  from './screens/WardrobeScreen'
+import LikedScreen     from './screens/LikedScreen'
 import WishlistScreen  from './screens/WishlistScreen'
 import ShopScreen      from './screens/ShopScreen'
 import ExploreScreen   from './screens/ExploreScreen'
 import AestheticScreen from './screens/AestheticScreen'
 import TabBar          from './components/TabBar'
+import GuideTour, { GUIDE_STEPS } from './components/GuideTour'
+import { GuideProvider } from './context/GuideContext'
 
 // Screens where the tab bar is hidden (focused setup flow)
 const HIDE_TABS_ON = new Set([
@@ -99,6 +102,7 @@ function AppShell() {
   const { openAesthetic, openAestheticTab } = useExplore()
   const [activeTab, setActiveTab]       = useState('home')
   const [showResumeModal, setShowResumeModal] = useState(false)
+  const [guideStep, setGuideStep]       = useState(null)
   const prevUserRef = useRef(user)
 
   const showTabs = !HIDE_TABS_ON.has(state.screen)
@@ -126,6 +130,55 @@ function AppShell() {
 
   // Answered count for the modal
   const answeredCount = Object.keys(state.responses).length
+
+  function startGuide() {
+    setGuideStep(0)
+    setActiveTab('home')
+  }
+
+  function navigateGuideTab(tab) {
+    if (tab.startsWith('aesthetic:')) {
+      const id = tab.replace('aesthetic:', '')
+      openAestheticTab(id)
+      setActiveTab(tab)
+    } else {
+      setActiveTab(tab)
+    }
+  }
+
+  function guideNext() {
+    const next = guideStep + 1
+    if (next >= GUIDE_STEPS.length) { setGuideStep(null); return }
+    setGuideStep(next)
+    const nextTab = GUIDE_STEPS[next].tab
+    if (nextTab !== GUIDE_STEPS[guideStep].tab) navigateGuideTab(nextTab)
+  }
+
+  function guideBack() {
+    const prev = guideStep - 1
+    if (prev < 0) return
+    setGuideStep(prev)
+    const prevTab = GUIDE_STEPS[prev].tab
+    if (prevTab !== GUIDE_STEPS[guideStep].tab) navigateGuideTab(prevTab)
+  }
+
+  function guideSkip() {
+    // If we're mid-quiz-setup, reset so the user isn't stuck on season/category screens
+    if (state.screen === SCREENS.SEASONS || state.screen === SCREENS.CATEGORIES) {
+      dispatch({ type: 'GO_TO_WELCOME' })
+    }
+    setGuideStep(null)
+  }
+
+  // When a guide step requires a specific quiz screen, dispatch the transition
+  useEffect(() => {
+    if (guideStep === null) return
+    const step = GUIDE_STEPS[guideStep]
+    if (step.forceScreen === 'seasons') {
+      dispatch({ type: 'GO_TO_SEASONS' })
+      setActiveTab('quiz')
+    }
+  }, [guideStep])
 
   function handleTabChange(tabId) {
     if (tabId === 'quiz' && sessionInProgress) {
@@ -155,7 +208,19 @@ function AppShell() {
   const isAestheticTab = activeTab.startsWith('aesthetic:')
   const aestheticId    = isAestheticTab ? activeTab.replace('aesthetic:', '') : null
 
+  const currentGuideStep  = guideStep !== null ? GUIDE_STEPS[guideStep] : null
+  const guideForceSubTab  = currentGuideStep?.subTab ?? null
+
+  const guideContextValue = {
+    isActive:      guideStep !== null,
+    currentStep:   currentGuideStep,
+    guideNext,
+    forceSeason:   currentGuideStep?.forceSeason   ?? null,
+    forceCategory: currentGuideStep?.forceCategory ?? null,
+  }
+
   return (
+    <GuideProvider value={guideContextValue}>
     <div style={{ paddingBottom: showTabs ? 64 : 0 }}>
       {/* Quiz flow */}
       {(!showTabs || activeTab === 'quiz') && <QuizRouter />}
@@ -171,17 +236,28 @@ function AppShell() {
         <AestheticScreen
           aestheticId={aestheticId ?? openAesthetic}
           setActiveTab={handleTabChange}
+          forceSubTab={guideForceSubTab}
         />
       )}
-      {showTabs && activeTab === 'wardrobe'  && <WardrobeScreen />}
+      {showTabs && activeTab === 'wardrobe'  && <LikedScreen />}
       {showTabs && activeTab === 'wishlist'  && <WishlistScreen />}
       {showTabs && activeTab === 'shop'      && <ShopScreen />}
       {showTabs && activeTab === 'profile'  && (
-        <ProfileScreen onBack={() => handleTabChange('quiz')} />
+        <ProfileScreen onBack={() => handleTabChange('quiz')} startGuide={startGuide} />
       )}
 
       {showTabs && (
         <TabBar activeTab={activeTab} setActiveTab={handleTabChange} />
+      )}
+
+      {/* Interactive guide tour */}
+      {guideStep !== null && (
+        <GuideTour
+          step={guideStep}
+          onNext={guideNext}
+          onBack={guideBack}
+          onSkip={guideSkip}
+        />
       )}
 
       {/* Resume / restart modal */}
@@ -194,6 +270,7 @@ function AppShell() {
         />
       )}
     </div>
+    </GuideProvider>
   )
 }
 

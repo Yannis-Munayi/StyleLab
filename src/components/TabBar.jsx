@@ -1,6 +1,8 @@
 import { useAuth } from '../context/AuthContext'
 import { useShop } from '../context/ShopContext'
 import { useWishlist } from '../context/WishlistContext'
+
+
 import styles from './TabBar.module.css'
 
 /* ── Icons ── */
@@ -35,23 +37,22 @@ function QuizIcon({ active }) {
   )
 }
 
-function WardrobeIcon({ active }) {
+function LikedIcon({ active }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+    <svg width="22" height="22" viewBox="0 0 24 24"
+      fill={active ? 'currentColor' : 'none'}
       stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}>
-      <rect x="3" y="3" width="8" height="8" rx="1.5" />
-      <rect x="13" y="3" width="8" height="8" rx="1.5" />
-      <rect x="3" y="13" width="8" height="8" rx="1.5" />
-      <rect x="13" y="13" width="8" height="8" rx="1.5" />
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
     </svg>
   )
 }
 
 function WishlistIcon({ active }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+    <svg width="22" height="22" viewBox="0 0 24 24"
+      fill={active ? 'currentColor' : 'none'}
       stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}>
-      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+      <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
     </svg>
   )
 }
@@ -79,9 +80,9 @@ function ProfileIcon({ active }) {
 
 /* ── TabBar ── */
 export default function TabBar({ activeTab, setActiveTab }) {
-  const { user }     = useAuth()
-  const { shopList } = useShop()
-  const { wishlist } = useWishlist()
+  const { user }           = useAuth()
+  const { shopList }       = useShop()
+  const { wishlist, liked } = useWishlist()
 
   return (
     <nav className={styles.tabBar}>
@@ -115,7 +116,14 @@ export default function TabBar({ activeTab, setActiveTab }) {
           className={`${styles.tab} ${activeTab === 'wardrobe' ? styles.active : ''}`}
           onClick={() => setActiveTab('wardrobe')}
         >
-          <WardrobeIcon active={activeTab === 'wardrobe'} />
+          <div className={styles.shopIconWrap}>
+            <LikedIcon active={activeTab === 'wardrobe'} />
+            {liked.length > 0 && (
+              <span className={styles.badge}>
+                {liked.length > 9 ? '9+' : liked.length}
+              </span>
+            )}
+          </div>
           <span>Liked</span>
         </button>
 

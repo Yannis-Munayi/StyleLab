@@ -3,7 +3,7 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '../services/firebase'
 import { useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
-import { STYLES } from '../data/styles'
+import { STYLES, getPinterestUrl, getStyleName } from '../data/styles'
 import styles from './ProfileScreen.module.css'
 
 function timeAgo(ts) {
@@ -16,9 +16,56 @@ function timeAgo(ts) {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-export default function ProfileScreen({ onBack }) {
+function GuideLauncher({ onStart }) {
+  return (
+    <section>
+      <button className={styles.guideToggle} onClick={onStart}>
+        <div className={styles.guideLaunchInner}>
+          <span className={styles.guideLaunchIcon}>✦</span>
+          <div>
+            <span className={styles.guideLaunchTitle}>Take the app tour</span>
+            <span className={styles.guideLaunchSub}>12-step walkthrough of every tab</span>
+          </div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0, opacity: 0.4 }}>
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+    </section>
+  )
+}
+
+const GENDER_OPTIONS = [
+  { id: 'men',   label: 'Men' },
+  { id: 'women', label: 'Women' },
+  { id: 'both',  label: 'Both' },
+]
+
+function GenderSelector() {
+  const { state, dispatch } = useApp()
+  return (
+    <section>
+      <h3 className={styles.sectionTitle}>Style for</h3>
+      <div className={styles.genderRow}>
+        {GENDER_OPTIONS.map((opt) => (
+          <button
+            key={opt.id}
+            className={`${styles.genderPill} ${state.gender === opt.id ? styles.genderPillActive : ''}`}
+            onClick={() => dispatch({ type: 'SET_GENDER', gender: opt.id })}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+export default function ProfileScreen({ onBack, startGuide }) {
   const { user, logout }  = useAuth()
-  const { dispatch }      = useApp()
+  const { state, dispatch } = useApp()
+  const gender = state.gender
   const [quizzes, setQuizzes] = useState([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
@@ -78,16 +125,20 @@ export default function ProfileScreen({ onBack }) {
           )}
           <p className={styles.userName} style={{ flex: 1 }}>Profile</p>
         </div>
-        <div className={styles.body} style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: 16, padding: '80px 32px', textAlign: 'center' }}>
-          <p style={{ fontSize: 48 }}>👤</p>
-          <p className={styles.userName}>Not signed in</p>
-          <p className={styles.userEmail}>Sign in to save your style, track quiz history, and pin aesthetics.</p>
-          <button
-            className={styles.retakeBtn}
-            onClick={() => dispatch({ type: 'GO_TO_AUTH' })}
-          >
-            Sign in / Create account
-          </button>
+        <div className={styles.body}>
+          <GenderSelector />
+          <GuideLauncher onStart={startGuide} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '40px 0', textAlign: 'center' }}>
+            <p style={{ fontSize: 48 }}>👤</p>
+            <p className={styles.userName}>Not signed in</p>
+            <p className={styles.userEmail}>Sign in to save your style, track quiz history, and pin aesthetics.</p>
+            <button
+              className={styles.retakeBtn}
+              onClick={() => dispatch({ type: 'GO_TO_AUTH' })}
+            >
+              Sign in / Create account
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -113,6 +164,8 @@ export default function ProfileScreen({ onBack }) {
       </div>
 
       <div className={styles.body}>
+        <GenderSelector />
+
         {/* Overall top aesthetics */}
         {topOverall.length > 0 && (
           <section className={styles.section}>
@@ -124,14 +177,14 @@ export default function ProfileScreen({ onBack }) {
                 return (
                   <a
                     key={id}
-                    href={s.pinterest}
+                    href={getPinterestUrl(s, gender)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.aestheticChip}
                     style={{ background: s.gradient }}
                   >
                     <span className={styles.aestheticRank}>#{i + 1}</span>
-                    <span>{s.icon} {s.name}</span>
+                    <span>{s.icon} {getStyleName(s, gender)}</span>
                   </a>
                 )
               })}
@@ -176,7 +229,7 @@ export default function ProfileScreen({ onBack }) {
                       )}
                       <div>
                         <p className={styles.quizPrimary}>
-                          {primaryStyle?.name ?? 'Unknown'}
+                          {primaryStyle ? getStyleName(primaryStyle, gender) : 'Unknown'}
                         </p>
                         <p className={styles.quizMeta}>
                           {timeAgo(quiz.timestamp)} · {quiz.likedItems?.length ?? 0} liked
@@ -203,7 +256,7 @@ export default function ProfileScreen({ onBack }) {
                           return (
                             <div key={id} className={styles.quizStyleRow}>
                               <span className={styles.quizStyleName}>
-                                {s.icon} {s.name}
+                                {s.icon} {getStyleName(s, gender)}
                               </span>
                               <div className={styles.quizBarTrack}>
                                 <div
@@ -231,13 +284,13 @@ export default function ProfileScreen({ onBack }) {
 
                       {primaryStyle && (
                         <a
-                          href={primaryStyle.pinterest}
+                          href={getPinterestUrl(primaryStyle, gender)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={styles.exploreBtn}
                           style={{ background: primaryStyle.gradient }}
                         >
-                          Explore {primaryStyle.name} on Pinterest →
+                          Explore {getStyleName(primaryStyle, gender)} on Pinterest →
                         </a>
                       )}
                     </div>
@@ -247,6 +300,8 @@ export default function ProfileScreen({ onBack }) {
             })}
           </div>
         </section>
+
+        <GuideLauncher onStart={startGuide} />
 
         <button className={styles.retakeBtn} onClick={() => dispatch({ type: 'GO_TO_SEASONS' })}>
           Take quiz again

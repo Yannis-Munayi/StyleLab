@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { STYLES } from '../data/styles'
+import { STYLES, getStyleName } from '../data/styles'
 import { useExplore } from '../context/ExploreContext'
-import { fetchPhotos } from '../services/pexels'
+import { useApp } from '../context/AppContext'
+import { fetchPhotosWithFallback } from '../services/pexels'
 import AestheticScreen from './AestheticScreen'
 import AuthWidget from '../components/AuthWidget'
 import styles from './ExploreScreen.module.css'
@@ -36,11 +37,11 @@ const GROUPS = [
   },
 ]
 
-function AestheticCard({ style, onOpen, pinned }) {
-  const [photos, setPhotos]     = useState([])
-  const [imgIdx, setImgIdx]     = useState(0)
+function AestheticCard({ style, onOpen, pinned, gender }) {
+  const [photos, setPhotos]       = useState([])
+  const [imgIdx, setImgIdx]       = useState(0)
   const [imgLoaded, setImgLoaded] = useState(false)
-  const cardRef  = useRef(null)
+  const cardRef    = useRef(null)
   const fetchedRef = useRef(false)
 
   // Lazy-load: fetch 4 photos only when card enters the viewport
@@ -51,10 +52,45 @@ function AestheticCard({ style, onOpen, pinned }) {
       ([entry]) => {
         if (entry.isIntersecting && !fetchedRef.current) {
           fetchedRef.current = true
-          fetchPhotos(`${style.name} men outfit aesthetic`, 4).then((urls) => {
-            setPhotos(urls ?? [])
-            setImgLoaded(false)
-          })
+          const name = style.name
+          if (gender === 'both') {
+            Promise.all([
+              fetchPhotosWithFallback([
+                `${name} men outfit aesthetic`,
+                `${name} men fashion`,
+                `${name} men outfit`,
+                `${name} fashion`,
+              ], 2),
+              fetchPhotosWithFallback([
+                `${name} women outfit aesthetic`,
+                `${name} women fashion`,
+                `${name} women outfit`,
+                `${name} outfit`,
+              ], 2),
+            ]).then(([men, women]) => {
+              const interleaved = []
+              const len = Math.max(men.length, women.length)
+              for (let i = 0; i < len; i++) {
+                if (men[i])   interleaved.push(men[i])
+                if (women[i]) interleaved.push(women[i])
+              }
+              setPhotos(interleaved)
+              setImgLoaded(false)
+            })
+          } else {
+            const hint = gender === 'women' ? 'women' : 'men'
+            const displayName = getStyleName(style, gender)
+            fetchPhotosWithFallback([
+              `${displayName} ${hint} outfit aesthetic`,
+              `${displayName} ${hint} fashion`,
+              `${displayName} ${hint} outfit`,
+              `${name} ${hint} fashion`,
+              `${name} aesthetic`,
+            ], 4).then((urls) => {
+              setPhotos(urls ?? [])
+              setImgLoaded(false)
+            })
+          }
           obs.disconnect()
         }
       },
@@ -62,7 +98,7 @@ function AestheticCard({ style, onOpen, pinned }) {
     )
     obs.observe(el)
     return () => obs.disconnect()
-  }, [style.id, style.name])
+  }, [style.id, style.name, gender])
 
   function prev(e) {
     e.stopPropagation()
@@ -125,7 +161,7 @@ function AestheticCard({ style, onOpen, pinned }) {
 
       {/* Name + pin — also opens the aesthetic on click */}
       <div className={styles.cardFooter} onClick={() => onOpen(style.id)}>
-        <span className={styles.cardName}>{style.name}</span>
+        <span className={styles.cardName}>{getStyleName(style, gender)}</span>
         {pinned && <span className={styles.pinBadge}>📌</span>}
       </div>
     </div>
@@ -134,6 +170,8 @@ function AestheticCard({ style, onOpen, pinned }) {
 
 export default function ExploreScreen({ setActiveTab }) {
   const { savedAesthetics, openAesthetic, openAestheticTab, isSaved } = useExplore()
+  const { state } = useApp()
+  const gender = state.gender
   const [search, setSearch] = useState('')
 
   const query = search.toLowerCase().trim()
@@ -200,10 +238,11 @@ export default function ExploreScreen({ setActiveTab }) {
               <div className={styles.grid}>
                 {filtered.map((s) => (
                   <AestheticCard
-                    key={s.id}
+                    key={`${s.id}-${gender}`}
                     style={s}
                     onOpen={handleOpen}
                     pinned={isSaved(s.id)}
+                    gender={gender}
                   />
                 ))}
               </div>
@@ -220,7 +259,7 @@ export default function ExploreScreen({ setActiveTab }) {
                 const s = STYLES[id]
                 if (!s) return null
                 return (
-                  <AestheticCard key={id} style={s} onOpen={handleOpen} pinned />
+                  <AestheticCard key={`${id}-${gender}`} style={s} onOpen={handleOpen} pinned gender={gender} />
                 )
               })}
             </div>
@@ -240,7 +279,7 @@ export default function ExploreScreen({ setActiveTab }) {
                 <h2 className={styles.sectionLabel}>{group.label}</h2>
                 <div className={styles.grid}>
                   {groupStyles.map((s) => (
-                    <AestheticCard key={s.id} style={s} onOpen={handleOpen} pinned={false} />
+                    <AestheticCard key={`${s.id}-${gender}`} style={s} onOpen={handleOpen} pinned={false} gender={gender} />
                   ))}
                 </div>
               </section>

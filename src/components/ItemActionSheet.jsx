@@ -1,8 +1,10 @@
+import { useApp } from '../context/AppContext'
+import { getPinterestUrl } from '../data/styles'
 import styles from './ItemActionSheet.module.css'
 
 export default function ItemActionSheet({ item, onPinterest, onShop, onClose }) {
-  const pinterestUrl =
-    `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(item.name + ' men fashion outfit')}`
+  const { state } = useApp()
+  const pinterestUrl = getPinterestUrl(null, state.gender, item.name)
 
   return (
     <div className={styles.overlay} onClick={onClose}>

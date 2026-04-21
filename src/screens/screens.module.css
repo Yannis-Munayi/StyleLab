@@ -259,6 +259,39 @@
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+/* Guide tour forced/locked states */
+.guideForced {
+  background: rgba(255, 107, 53, 0.18) !important;
+  border-color: #FF6B35 !important;
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.35);
+  animation: guideForced 1.8s ease-in-out infinite;
+}
+
+@keyframes guideForced {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.35); }
+  50%       { box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.12); }
+}
+
+.guideLocked {
+  opacity: 0.28 !important;
+  pointer-events: none !important;
+  filter: grayscale(0.4);
+}
+
+.guidePulse {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 2px solid #FF6B35;
+  animation: pulseBorder 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulseBorder {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
 .seasonEmoji {
   font-size: 2rem;
 }

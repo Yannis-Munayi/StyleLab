@@ -1,9 +1,5 @@
 const cache = new Map()
 
-/**
- * Fetch `count` portrait photo URLs from Pexels for a given query.
- * Returns an array of image URL strings, or [] on failure / missing key.
- */
 export async function fetchPhotos(query, count = 1) {
   const key = import.meta.env.VITE_PEXELS_KEY
   if (!key) return []
@@ -24,4 +20,13 @@ export async function fetchPhotos(query, count = 1) {
   } catch {
     return []
   }
+}
+
+// Tries each query in order, returns the first that has results.
+export async function fetchPhotosWithFallback(queries, count = 1) {
+  for (const query of queries) {
+    const urls = await fetchPhotos(query, count)
+    if (urls.length > 0) return urls
+  }
+  return []
 }

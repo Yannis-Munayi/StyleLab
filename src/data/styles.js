@@ -571,6 +571,33 @@ export const STYLES = {
   },
 }
 
+const GENDER_NAME_MAP = {
+  'E-Boy':           { women: 'E-Girl',         both: 'E-Boy/Girl' },
+  'Soft Boy':        { women: 'Soft Girl',       both: 'Soft Boy/Girl' },
+  'Clean Boy':       { women: 'Clean Girl',      both: 'Clean Boy/Girl' },
+  'Coastal Grandpa': { women: 'Coastal Grandma', both: 'Coastal Grandpa/Grandma' },
+}
+
+export function getStyleName(style, gender) {
+  if (!style) return ''
+  const map = GENDER_NAME_MAP[style.name]
+  if (!map) return style.name
+  return map[gender] ?? style.name
+}
+
+// Returns a gender-aware Pinterest search URL for a given style (and optional item name).
+export function getPinterestUrl(style, gender, itemName = null) {
+  const genderWord = gender === 'women' ? 'womens' : gender === 'men' ? 'mens' : ''
+  const styleName  = getStyleName(style, gender)
+  if (itemName) {
+    const q = [genderWord, itemName, styleName, 'outfit'].filter(Boolean).join(' ')
+    return `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(q)}`
+  }
+  if (gender === 'men' && style?.pinterest) return style.pinterest
+  const q = [genderWord, styleName, 'aesthetic outfits'].filter(Boolean).join(' ')
+  return `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(q)}`
+}
+
 // ── Reason tag → style score contributions ────────────────────────────────────
 export const REASON_WEIGHTS = {
   // Universal

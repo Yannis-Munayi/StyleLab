@@ -1,0 +1,248 @@
+.screen {
+  min-height: 100dvh;
+  background: #0f0f0f;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  letter-spacing: -0.03em;
+}
+
+.sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+
+/* ── Empty state ── */
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 32px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: #FF6B35;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.emptySub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Body ── */
+.body {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Item grid ── */
+.itemGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.itemCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.itemPhoto {
+  position: relative;
+  aspect-ratio: 3/4;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.itemImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s;
+}
+
+.itemEmoji {
+  font-size: 28px;
+  z-index: 1;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.7);
+  padding: 0;
+}
+
+.itemName {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ── Generate button ── */
+.generateBtn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #FF6B35, #FF8C42);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.generateBtn:hover  { opacity: 0.9; }
+.generateBtn:active { transform: scale(0.98); }
+.generateBtn:disabled { opacity: 0.6; cursor: default; }
+
+/* ── Results panel ── */
+.resultsPanel {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.resultsLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.35);
+  margin: 0;
+}
+
+.noResults {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resultRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+
+.resultRow:hover { background: rgba(255,255,255,0.05); }
+
+.resultSwatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.resultInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.resultTop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resultRank {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.35);
+}
+
+.resultName {
+  font-size: 14px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.resultArrow {
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+}
+
+.resultBarTrack {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.resultBarFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}

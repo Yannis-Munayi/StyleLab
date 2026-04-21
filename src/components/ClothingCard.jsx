@@ -1,86 +1,64 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useApp } from '../context/AppContext'
 import { useWishlist } from '../context/WishlistContext'
-import { fetchPhotos } from '../services/pexels'
+import { fetchPhotosWithFallback } from '../services/pexels'
 import { getItemLabels } from '../data/labels'
 import styles from './ClothingCard.module.css'
 
-const SWIPE_THRESHOLD = 90   // px to trigger like/skip
-const MAX_ROTATION    = 12   // max card tilt in degrees
-
-function PhotoCarousel({ photos, fallbackGradient, loading }) {
-  const [index, setIndex]     = useState(0)
-  const [imgLoaded, setLoaded] = useState(false)
-
-  useEffect(() => { setIndex(0); setLoaded(false) }, [photos])
-
-  if (loading || photos.length === 0) {
-    return (
-      <div
-        className={`${styles.carousel} ${loading ? styles.pulsing : ''}`}
-        style={{ background: fallbackGradient }}
-      />
-    )
-  }
-
-  return (
-    <div className={styles.carousel}>
-      {!imgLoaded && <div className={styles.imgSkeleton} style={{ background: fallbackGradient }} />}
-      <img
-        key={photos[index]}
-        src={photos[index]}
-        alt=""
-        className={styles.photo}
-        style={{ opacity: imgLoaded ? 1 : 0 }}
-        onLoad={() => setLoaded(true)}
-        onError={() => setLoaded(true)}
-        draggable={false}
-      />
-      <div className={styles.photoOverlay} />
-      {photos.length > 1 && (
-        <div className={styles.dots}>
-          {photos.map((_, i) => (
-            <button
-              key={i}
-              className={`${styles.dot} ${i === index ? styles.dotActive : ''}`}
-              onClick={(e) => { e.stopPropagation(); setLoaded(false); setIndex(i) }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
+const SWIPE_THRESHOLD = 90
+const MAX_ROTATION    = 12
 
 export default function ClothingCard({ item }) {
   const { state, dispatch } = useApp()
   const gender = state.gender
-  const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist()
+  const { addToWishlist, removeFromWishlist, isWishlisted, addToLiked } = useWishlist()
   const wishlisted = isWishlisted(item.id)
 
-  const [photos, setPhotos]           = useState([])
-  const [loadingPhotos, setLoading]   = useState(true)
-  const [dragX, setDragX]             = useState(0)
-  const [dragging, setDragging]       = useState(false)
-  const [flyDir, setFlyDir]           = useState(null) // 'left' | 'right' | null
+  const [photo, setPhoto]           = useState(null)
+  const [imgLoaded, setImgLoaded]   = useState(false)
+  const [loadingPhoto, setLoading]  = useState(true)
+  const [dragX, setDragX]           = useState(0)
+  const [dragging, setDragging]     = useState(false)
+  const [flyDir, setFlyDir]         = useState(null)
 
-  const startXRef   = useRef(null)
-  const cardRef     = useRef(null)
-  const labels      = getItemLabels(item)
+  const startXRef = useRef(null)
+  const cardRef   = useRef(null)
+  const labels    = getItemLabels(item)
 
-  // Photo fetch — gender-aware
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    setPhotos([])
+    setPhoto(null)
+    setImgLoaded(false)
     const itemGender = item.gender && item.gender !== 'unisex' ? item.gender : gender
     const hint = itemGender === 'women' ? 'women' : itemGender === 'men' ? 'men' : ''
-    const query = `${item.name} ${hint} fashion outfit`.trim()
-    fetchPhotos(query, 3).then((urls) => {
-      if (!cancelled) { setPhotos(urls); setLoading(false) }
+    const queries = [
+      `${item.name} ${hint} fashion outfit`.trim(),
+      `${item.name} ${hint} outfit`.trim(),
+      `${item.name} fashion`,
+    ]
+    fetchPhotosWithFallback(queries, 1).then(([url] = []) => {
+      if (!cancelled) { setPhoto(url ?? null); setLoading(false) }
     })
     return () => { cancelled = true }
   }, [item.id, gender])
+
+  // ── Wishlist helpers ──────────────────────────────────────────────────────
+
+  function addItemToLiked() {
+    addToLiked({
+      id: item.id, type: 'item',
+      name: item.name, emoji: item.emoji, gradient: item.gradient,
+      categoryId: item.categoryId, seasons: item.seasons, description: item.description,
+      styleWeights: item.styleWeights ?? {},
+    })
+  }
+
+  function toggleWishlist(e) {
+    e.stopPropagation()
+    if (wishlisted) removeFromWishlist(item.id)
+    else addItemToLiked()
+  }
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
 
@@ -104,57 +82,41 @@ export default function ClothingCard({ item }) {
       const dir = dragX > 0 ? 'right' : 'left'
       setFlyDir(dir)
       setTimeout(() => {
-        if (dir === 'right') dispatch({ type: 'LIKE_ITEM', item })
-        else                  dispatch({ type: 'SKIP_ITEM' })
+        if (dir === 'right') {
+          addItemToLiked()
+          dispatch({ type: 'LIKE_ITEM', item })
+        } else {
+          dispatch({ type: 'SKIP_ITEM' })
+        }
       }, 300)
     } else {
       setDragX(0)
     }
   }, [dragX, dispatch, item])
 
-  // Touch events
   const onTouchStart = (e) => onDragStart(e.touches[0].clientX)
   const onTouchMove  = (e) => onDragMove(e.touches[0].clientX)
   const onTouchEnd   = () => onDragEnd()
 
-  // Mouse events
-  const onMouseDown  = (e) => { e.preventDefault(); onDragStart(e.clientX) }
+  const onMouseDown  = (e) => { if (e.target.closest('button')) return; e.preventDefault(); onDragStart(e.clientX) }
   const onMouseMove  = (e) => { if (dragging) onDragMove(e.clientX) }
   const onMouseUp    = () => { if (dragging) onDragEnd() }
   const onMouseLeave = () => { if (dragging) onDragEnd() }
 
   // ── Visual transform ──────────────────────────────────────────────────────
 
-  const activeDrag = flyDir
-    ? (flyDir === 'right' ? 600 : -600)
-    : dragX
-
+  const activeDrag = flyDir ? (flyDir === 'right' ? 600 : -600) : dragX
   const rotation   = (activeDrag / 300) * MAX_ROTATION
   const likeOp     = Math.min(Math.max(activeDrag / SWIPE_THRESHOLD, 0), 1)
   const skipOp     = Math.min(Math.max(-activeDrag / SWIPE_THRESHOLD, 0), 1)
 
-  const cardStyle  = {
+  const cardStyle = {
     transform:  `translateX(${activeDrag}px) rotate(${rotation}deg)`,
     transition: flyDir
       ? 'transform 0.3s ease, opacity 0.3s ease'
       : dragging ? 'none' : 'transform 0.4s cubic-bezier(0.3, 1.5, 0.7, 1)',
-    opacity:    flyDir ? 0 : 1,
-    cursor:     dragging ? 'grabbing' : 'grab',
-  }
-
-  // ── Wishlist ──────────────────────────────────────────────────────────────
-
-  function toggleWishlist(e) {
-    e.stopPropagation()
-    if (wishlisted) {
-      removeFromWishlist(item.id)
-    } else {
-      addToWishlist({
-        id: item.id, type: 'item',
-        name: item.name, emoji: item.emoji, gradient: item.gradient,
-        categoryId: item.categoryId, seasons: item.seasons, description: item.description,
-      })
-    }
+    opacity: flyDir ? 0 : 1,
+    cursor:  dragging ? 'grabbing' : 'grab',
   }
 
   return (
@@ -172,18 +134,28 @@ export default function ClothingCard({ item }) {
         onMouseLeave={onMouseLeave}
       >
         {/* Photo background */}
-        <PhotoCarousel
-          photos={photos}
-          fallbackGradient={item.gradient}
-          loading={loadingPhotos}
-        />
+        <div className={`${styles.carousel} ${loadingPhoto ? styles.pulsing : ''}`}
+          style={{ background: item.gradient }}>
+          {photo && (
+            <img
+              src={photo}
+              alt=""
+              className={styles.photo}
+              style={{ opacity: imgLoaded ? 1 : 0 }}
+              onLoad={() => setImgLoaded(true)}
+              onError={() => setImgLoaded(true)}
+              draggable={false}
+            />
+          )}
+          <div className={styles.photoOverlay} />
+        </div>
 
-        {/* Like overlay (right swipe) */}
+        {/* Like overlay */}
         <div className={styles.likeOverlay} style={{ opacity: likeOp }}>
           <div className={styles.swipeStamp}>♥ LIKE</div>
         </div>
 
-        {/* Skip overlay (left swipe) */}
+        {/* Skip overlay */}
         <div className={styles.skipOverlay} style={{ opacity: skipOp }}>
           <div className={styles.swipeStamp}>✕ SKIP</div>
         </div>
@@ -191,6 +163,7 @@ export default function ClothingCard({ item }) {
         {/* Wishlist button */}
         <button
           className={`${styles.wishlistBtn} ${wishlisted ? styles.wishlistBtnActive : ''}`}
+          onTouchStart={(e) => e.stopPropagation()}
           onClick={toggleWishlist}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
@@ -209,8 +182,6 @@ export default function ClothingCard({ item }) {
           </div>
           <h2 className={styles.itemName}>{item.name}</h2>
           <p className={styles.itemDesc}>{item.description}</p>
-
-          {/* Label chips */}
           <div className={styles.labelChips}>
             {labels.map((label) => (
               <span key={label} className={styles.labelChip}>{label}</span>
@@ -219,7 +190,7 @@ export default function ClothingCard({ item }) {
         </div>
       </div>
 
-      {/* Action buttons below the card */}
+      {/* Action buttons */}
       <div className={styles.actionRow}>
         <button
           className={`${styles.actionBtn} ${styles.skipBtn}`}
@@ -238,6 +209,7 @@ export default function ClothingCard({ item }) {
           className={`${styles.actionBtn} ${styles.likeBtn}`}
           onClick={() => {
             setFlyDir('right')
+            addItemToLiked()
             setTimeout(() => dispatch({ type: 'LIKE_ITEM', item }), 300)
           }}
           aria-label="Like"

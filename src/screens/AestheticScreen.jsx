@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { STYLES } from '../data/styles'
+import { STYLES, getPinterestUrl, getStyleName } from '../data/styles'
 import { CLOTHING_ITEMS } from '../data/categories'
 import { AESTHETIC_ITEMS, TYPE_EMOJI, inferCat, inferSeasons, inferGender } from '../data/aestheticItems'
 import { AESTHETIC_DEPTH } from '../data/aestheticDepth'
 import { getLooks, getLookPieces } from '../data/looks'
 import { getGuideForAesthetic } from '../data/itemGuide'
-import { fetchPhotos } from '../services/pexels'
+import { fetchPhotos, fetchPhotosWithFallback } from '../services/pexels'
 import { useExplore } from '../context/ExploreContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useApp } from '../context/AppContext'
@@ -49,8 +49,12 @@ function ItemCard({ item, genderFilter }) {
   useEffect(() => {
     let cancelled = false
     const genderHint = genderFilter === 'women' ? 'women' : genderFilter === 'men' ? 'men' : ''
-    const query = `${item.name} ${genderHint} fashion outfit`.trim()
-    fetchPhotos(query, 1).then(([url] = []) => {
+    const queries = [
+      `${item.name} ${genderHint} fashion outfit`.trim(),
+      `${item.name} ${genderHint} outfit`.trim(),
+      `${item.name} fashion`,
+    ]
+    fetchPhotosWithFallback(queries, 1).then(([url] = []) => {
       if (!cancelled) setPhoto(url ?? null)
     })
     return () => { cancelled = true }
@@ -127,18 +131,6 @@ function ItemsTab({ aestheticId }) {
 
   return (
     <>
-      <div className={styles.genderFilter}>
-        {GENDER_OPTIONS.map((opt) => (
-          <button
-            key={opt.id}
-            className={`${styles.genderPill} ${genderFilter === opt.id ? styles.genderPillActive : ''}`}
-            onClick={() => dispatch({ type: 'SET_GENDER', gender: opt.id })}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
       {core.length + statement.length + accessory.length === 0 ? (
         <p className={styles.emptyText}>No items for this filter.</p>
       ) : (
@@ -352,9 +344,7 @@ function LooksTab({ aestheticId }) {
           Curated looks for this aesthetic are coming soon. Try browsing the Items tab.
         </p>
         <a
-          href={`https://www.pinterest.com/search/pins/?q=${encodeURIComponent(
-            `${STYLES[aestheticId]?.name ?? ''} ${genderHint} outfit`.trim()
-          )}`}
+          href={getPinterestUrl(STYLES[aestheticId], genderFilter)}
           target="_blank"
           rel="noopener noreferrer"
           className={styles.pinterestLink}
@@ -367,19 +357,6 @@ function LooksTab({ aestheticId }) {
 
   return (
     <div>
-      {/* Gender filter */}
-      <div className={styles.genderFilter}>
-        {GENDER_OPTIONS.map((opt) => (
-          <button
-            key={opt.id}
-            className={`${styles.genderPill} ${genderFilter === opt.id ? styles.genderPillActive : ''}`}
-            onClick={() => dispatch({ type: 'SET_GENDER', gender: opt.id })}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
       {/* Season filter */}
       <div className={styles.filterRow}>
         <button
@@ -447,8 +424,8 @@ function GuideItem({ type, catLabel, isOpen, onToggle, gender }) {
     if (isOpen && fetchedRef.current !== gender) {
       fetchedRef.current = gender
       setPhotosLoading(true)
-      const fetchMen   = gender !== 'women' ? fetchPhotos(`${type.name} ${catLabel} men fashion`, 9)   : Promise.resolve([])
-      const fetchWomen = gender !== 'men'   ? fetchPhotos(`${type.name} ${catLabel} women fashion`, 9) : Promise.resolve([])
+      const fetchMen   = gender !== 'women' ? fetchPhotos(`${type.name} men outfit`, 9)   : Promise.resolve([])
+      const fetchWomen = gender !== 'men'   ? fetchPhotos(`${type.name} women outfit`, 9) : Promise.resolve([])
       Promise.all([fetchMen, fetchWomen]).then(([m, w]) => {
         setMenPhotos(m ?? [])
         setWomenPhotos(w ?? [])
@@ -529,18 +506,6 @@ function GuideTab({ aestheticId }) {
 
   return (
     <div className={styles.guideList}>
-      <div className={styles.genderFilter}>
-        {GENDER_OPTIONS.map((opt) => (
-          <button
-            key={opt.id}
-            className={`${styles.genderPill} ${gender === opt.id ? styles.genderPillActive : ''}`}
-            onClick={() => dispatch({ type: 'SET_GENDER', gender: opt.id })}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
       {categories.map((cat) => (
         <section key={cat.id} className={styles.guideSection}>
           <div className={styles.guideSectionHeader}>
@@ -650,7 +615,7 @@ const TABS = [
   { id: 'guide', label: 'Guide' },
 ]
 
-export default function AestheticScreen({ aestheticId, setActiveTab }) {
+export default function AestheticScreen({ aestheticId, setActiveTab, forceSubTab }) {
   const { closeAestheticTab, saveAesthetic, unsaveAesthetic, isSaved } = useExplore()
   const { state } = useApp()
   const gender = state.gender
@@ -661,12 +626,23 @@ export default function AestheticScreen({ aestheticId, setActiveTab }) {
   const saved = isSaved(aestheticId)
 
   useEffect(() => {
-    setHeroBg(null)
     setSubTab('story')
+  }, [aestheticId])
+
+  useEffect(() => {
+    if (forceSubTab) setSubTab(forceSubTab)
+  }, [forceSubTab])
+
+  useEffect(() => {
+    setHeroBg(null)
     let cancelled = false
     const genderHint = gender === 'women' ? 'women' : gender === 'men' ? 'men' : ''
-    const heroQuery = `${style?.name ?? ''} ${genderHint} fashion aesthetic`.trim()
-    fetchPhotos(heroQuery, 1).then(([url] = []) => {
+    const heroQueries = [
+      `${style?.name ?? ''} ${genderHint} fashion aesthetic`.trim(),
+      `${style?.name ?? ''} ${genderHint} fashion`.trim(),
+      `${style?.name ?? ''} style`,
+    ]
+    fetchPhotosWithFallback(heroQueries, 1).then(([url] = []) => {
       if (!cancelled && url) setHeroBg(url)
     })
     return () => { cancelled = true }
@@ -711,7 +687,7 @@ export default function AestheticScreen({ aestheticId, setActiveTab }) {
 
         <div className={styles.heroContent}>
           <span className={styles.heroIcon}>{style.icon}</span>
-          <h1 className={styles.heroName}>{style.name}</h1>
+          <h1 className={styles.heroName}>{getStyleName(style, gender)}</h1>
           <p className={styles.heroTagline}>{style.tagline}</p>
           {style.description && (
             <p className={styles.heroDesc}>{style.description}</p>
@@ -720,7 +696,7 @@ export default function AestheticScreen({ aestheticId, setActiveTab }) {
 
         {/* Pinterest link */}
         <a
-          href={style.pinterest}
+          href={getPinterestUrl(style, gender)}
           target="_blank"
           rel="noopener noreferrer"
           className={styles.pinterestBtn}

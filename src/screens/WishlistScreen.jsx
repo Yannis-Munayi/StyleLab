@@ -1,20 +1,30 @@
 import { useEffect, useState } from 'react'
-import { fetchPhotos } from '../services/pexels'
+import { fetchPhotosWithFallback } from '../services/pexels'
 import { useWishlist } from '../context/WishlistContext'
+import { useApp } from '../context/AppContext'
 import AuthWidget from '../components/AuthWidget'
+
 import styles from './WishlistScreen.module.css'
 
 function ItemWishCard({ entry, onRemove }) {
   const [photo, setPhoto]   = useState(null)
   const [loaded, setLoaded] = useState(false)
+  const { state } = useApp()
+  const gender = state.gender
 
   useEffect(() => {
     let cancelled = false
-    fetchPhotos(`${entry.name} men fashion outfit`, 1).then(([url] = []) => {
+    const hint = gender === 'women' ? 'women' : gender === 'men' ? 'men' : ''
+    const queries = [
+      `${entry.name} ${hint} fashion outfit`.trim(),
+      `${entry.name} ${hint} outfit`.trim(),
+      `${entry.name} fashion`,
+    ]
+    fetchPhotosWithFallback(queries, 1).then(([url] = []) => {
       if (!cancelled) setPhoto(url ?? null)
     })
     return () => { cancelled = true }
-  }, [entry.id, entry.name])
+  }, [entry.id, entry.name, gender])
 
   return (
     <div className={styles.itemCard}>
@@ -92,7 +102,7 @@ export default function WishlistScreen() {
           <span className={styles.emptyIcon}>🤍</span>
           <p className={styles.emptyTitle}>Your wishlist is empty</p>
           <p className={styles.emptySub}>
-            Save items from the Explore tab or while browsing the quiz to build your wishlist.
+            Save items from the Explore tab to build your wishlist.
           </p>
         </div>
       )}

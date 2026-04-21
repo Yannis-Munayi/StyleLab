@@ -5,51 +5,60 @@ import { useAuth } from './AuthContext'
 
 const WishlistContext = createContext(null)
 
-export function WishlistProvider({ children }) {
-  const { user } = useAuth()
-  const [wishlist, setWishlist]   = useState([])
-  const [loadReady, setLoadReady] = useState(false)
-  const loadedUid = useRef(null)
+function usePersistedList(user, docId) {
+  const [list, setList]         = useState([])
+  const [loadReady, setReady]   = useState(false)
+  const loadedUid               = useRef(null)
 
   useEffect(() => {
-    if (!user) {
-      setWishlist([])
-      setLoadReady(false)
-      loadedUid.current = null
-      return
-    }
+    if (!user) { setList([]); setReady(false); loadedUid.current = null; return }
     if (loadedUid.current === user.uid) return
     loadedUid.current = user.uid
-    setLoadReady(false)
-    getDoc(doc(db, 'users', user.uid, 'prefs', 'wishlist'))
-      .then((snap) => setWishlist(snap.exists() ? (snap.data().items ?? []) : []))
+    setReady(false)
+    getDoc(doc(db, 'users', user.uid, 'prefs', docId))
+      .then((snap) => setList(snap.exists() ? (snap.data().items ?? []) : []))
       .catch(() => {})
-      .finally(() => setLoadReady(true))
-  }, [user])
+      .finally(() => setReady(true))
+  }, [user, docId])
 
   useEffect(() => {
     if (!user || !loadReady || loadedUid.current !== user.uid) return
-    setDoc(doc(db, 'users', user.uid, 'prefs', 'wishlist'), { items: wishlist }, { merge: true }).catch(() => {})
-  }, [wishlist, user, loadReady])
+    setDoc(doc(db, 'users', user.uid, 'prefs', docId), { items: list }, { merge: true }).catch(() => {})
+  }, [list, user, loadReady, docId])
+
+  return [list, setList]
+}
+
+export function WishlistProvider({ children }) {
+  const { user } = useAuth()
+  const [wishlist, setWishlist] = usePersistedList(user, 'wishlist')
+  const [liked,    setLiked]    = usePersistedList(user, 'liked')
 
   const addToWishlist = useCallback((entry) => {
-    setWishlist((prev) => {
-      if (prev.some((e) => e.id === entry.id)) return prev
-      return [{ ...entry, addedAt: Date.now() }, ...prev]
-    })
-  }, [])
+    setWishlist((prev) => prev.some((e) => e.id === entry.id) ? prev : [{ ...entry, addedAt: Date.now() }, ...prev])
+  }, [setWishlist])
 
   const removeFromWishlist = useCallback((id) => {
     setWishlist((prev) => prev.filter((e) => e.id !== id))
-  }, [])
+  }, [setWishlist])
 
-  const isWishlisted = useCallback(
-    (id) => wishlist.some((e) => e.id === id),
-    [wishlist]
-  )
+  const isWishlisted = useCallback((id) => wishlist.some((e) => e.id === id), [wishlist])
+
+  const addToLiked = useCallback((entry) => {
+    setLiked((prev) => prev.some((e) => e.id === entry.id) ? prev : [{ ...entry, addedAt: Date.now() }, ...prev])
+  }, [setLiked])
+
+  const removeFromLiked = useCallback((id) => {
+    setLiked((prev) => prev.filter((e) => e.id !== id))
+  }, [setLiked])
+
+  const isLiked = useCallback((id) => liked.some((e) => e.id === id), [liked])
 
   return (
-    <WishlistContext.Provider value={{ wishlist, addToWishlist, removeFromWishlist, isWishlisted }}>
+    <WishlistContext.Provider value={{
+      wishlist, addToWishlist, removeFromWishlist, isWishlisted,
+      liked,    addToLiked,    removeFromLiked,    isLiked,
+    }}>
       {children}
     </WishlistContext.Provider>
   )

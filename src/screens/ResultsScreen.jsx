@@ -3,7 +3,7 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../services/firebase'
 import { useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
-import { STYLES } from '../data/styles'
+import { STYLES, getPinterestUrl, getStyleName } from '../data/styles'
 import styles from './screens.module.css'
 
 function getTopStyles(scores, count = 3) {
@@ -36,7 +36,7 @@ function PinterestIcon() {
 export default function ResultsScreen() {
   const { user }            = useAuth()
   const { state, dispatch } = useApp()
-  const { styleScores, responses, selectedSeasons, selectedCategories, itemQueue } = state
+  const { styleScores, responses, selectedSeasons, selectedCategories, itemQueue, gender } = state
   const savedRef = useRef(false)
 
   // Auto-save results to Firestore if signed in
@@ -87,7 +87,7 @@ export default function ResultsScreen() {
 
       {/* Hero — clicking opens Pinterest for the primary style */}
       <a
-        href={primaryStyle.pinterest}
+        href={getPinterestUrl(primaryStyle, gender)}
         target="_blank"
         rel="noopener noreferrer"
         className={styles.resultsHeroLink}
@@ -98,9 +98,9 @@ export default function ResultsScreen() {
         <div className={styles.heroContent}>
           <span className={styles.heroIcon}>{primaryStyle.icon}</span>
           <h1 className={styles.heroTitle}>Your style</h1>
-          <h2 className={styles.heroStyleName}>{primaryStyle.name}</h2>
+          <h2 className={styles.heroStyleName}>{getStyleName(primaryStyle, gender)}</h2>
           {isMixed && secondaryStyle && (
-            <p className={styles.heroMixed}>with {secondaryStyle.name} elements</p>
+            <p className={styles.heroMixed}>with {getStyleName(secondaryStyle, gender)} elements</p>
           )}
           <p className={styles.heroTagline}>{primaryStyle.tagline}</p>
           <span className={styles.heroPinterestHint}>
@@ -124,7 +124,7 @@ export default function ResultsScreen() {
             {primaryStyle.icons.map((piece) => (
               <a
                 key={piece}
-                href={`https://www.pinterest.com/search/pins/?q=${encodeURIComponent(`mens ${piece} ${primaryStyle.name} outfit`)}`}
+                href={getPinterestUrl(primaryStyle, gender, piece)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.pieceTagLink}
@@ -147,14 +147,14 @@ export default function ResultsScreen() {
               return (
                 <a
                   key={id}
-                  href={s.pinterest}
+                  href={getPinterestUrl(s, gender)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.scoreRowLink}
                 >
                   <div className={styles.scoreLabel}>
                     <span>{s.icon}</span>
-                    <span>{s.name}</span>
+                    <span>{getStyleName(s, gender)}</span>
                   </div>
                   <ScoreBar score={score} max={maxScore} color={s.color} />
                   <span className={styles.scoreNum}>{score}</span>
@@ -172,12 +172,12 @@ export default function ResultsScreen() {
           <section className={styles.mixNote}>
             <p>
               Your taste isn't one-note — you're drawn to both{' '}
-              <a href={primaryStyle.pinterest} target="_blank" rel="noopener noreferrer" className={styles.mixLink}>
-                {primaryStyle.name}
+              <a href={getPinterestUrl(primaryStyle, gender)} target="_blank" rel="noopener noreferrer" className={styles.mixLink}>
+                {getStyleName(primaryStyle, gender)}
               </a>{' '}
               and{' '}
-              <a href={secondaryStyle.pinterest} target="_blank" rel="noopener noreferrer" className={styles.mixLink}>
-                {secondaryStyle.name}
+              <a href={getPinterestUrl(secondaryStyle, gender)} target="_blank" rel="noopener noreferrer" className={styles.mixLink}>
+                {getStyleName(secondaryStyle, gender)}
               </a>
               . That's actually a strength: the best personal styles are always a blend.
             </p>
