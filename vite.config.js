@@ -83,7 +83,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-core':   ['react', 'react-dom'],
-          'firebase':     ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'firebase':     ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          'anthropic':    ['@anthropic-ai/sdk'],
           'data-styles':  [
             './src/data/styles.js',
             './src/data/categories.js',

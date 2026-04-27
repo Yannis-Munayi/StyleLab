@@ -829,3 +829,57 @@
 }
 
 .shareBtn:hover { opacity: 0.88; }
+
+/* ── Aesthetic Blend ── */
+.blendBar {
+  display: flex;
+  height: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+
+.blendSegment {
+  height: 100%;
+  transition: width 0.6s ease;
+  min-width: 4px;
+}
+
+.blendLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 12px;
+}
+
+.blendLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.blendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.blendPct {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.blendName {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.blendSentence {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.7;
+  margin: 0;
+}

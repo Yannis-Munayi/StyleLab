@@ -13,6 +13,65 @@ function getTopStyles(scores, count = 3) {
     .slice(0, count)
 }
 
+function AestheticBlend({ styleScores, gender }) {
+  const top = getTopStyles(styleScores, 4)
+  if (top.length < 2) return null
+
+  const total = top.reduce((s, [, v]) => s + v, 0)
+  const segments = top.map(([id, score]) => ({
+    style: STYLES[id],
+    pct:   Math.round((score / total) * 100),
+  }))
+
+  // Adjust so percentages sum to exactly 100
+  const diff = 100 - segments.reduce((s, seg) => s + seg.pct, 0)
+  segments[0].pct += diff
+
+  return (
+    <section className={styles.resultSection}>
+      <h3 className={styles.sectionTitle}>Your aesthetic blend</h3>
+
+      {/* Stacked bar */}
+      <div className={styles.blendBar}>
+        {segments.map((seg, i) => (
+          <div
+            key={seg.style.id}
+            className={styles.blendSegment}
+            style={{
+              width:        `${seg.pct}%`,
+              background:   seg.style.color,
+              borderRadius: i === 0 ? '8px 0 0 8px' : i === segments.length - 1 ? '0 8px 8px 0' : '0',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Legend */}
+      <div className={styles.blendLegend}>
+        {segments.map((seg) => (
+          <div key={seg.style.id} className={styles.blendLegendItem}>
+            <span className={styles.blendDot} style={{ background: seg.style.color }} />
+            <span className={styles.blendPct}>{seg.pct}%</span>
+            <span className={styles.blendName}>{getStyleName(seg.style, gender)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Human-readable sentence */}
+      <p className={styles.blendSentence}>
+        You are{' '}
+        {segments.map((seg, i) => (
+          <span key={seg.style.id}>
+            <strong style={{ color: seg.style.color }}>{seg.pct}% {getStyleName(seg.style, gender)}</strong>
+            {i < segments.length - 2 ? ', ' : i === segments.length - 2 ? ' and ' : ''}
+          </span>
+        ))}
+        .
+      </p>
+    </section>
+  )
+}
+
 function ScoreBar({ score, max, color }) {
   const pct = max > 0 ? Math.round((score / max) * 100) : 0
   return (
@@ -146,6 +205,9 @@ export default function ResultsScreen() {
         <section className={styles.resultSection}>
           <p className={styles.primaryDesc}>{primaryStyle.description}</p>
         </section>
+
+        {/* Aesthetic blend */}
+        <AestheticBlend styleScores={styleScores} gender={gender} />
 
         {/* Key pieces — each tag opens a Pinterest search for that specific piece + style */}
         <section className={styles.resultSection}>
