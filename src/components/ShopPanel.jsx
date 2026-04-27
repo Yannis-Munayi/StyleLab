@@ -64,13 +64,29 @@ function ColourPicker({ value, onChange }) {
   )
 }
 
+function getClickCounts() {
+  try { return JSON.parse(localStorage.getItem('retailer_clicks') ?? '{}') } catch { return {} }
+}
+
+function recordClick(retailerName) {
+  try {
+    const counts = getClickCounts()
+    counts[retailerName] = (counts[retailerName] ?? 0) + 1
+    localStorage.setItem('retailer_clicks', JSON.stringify(counts))
+  } catch {}
+}
+
 function RetailerCard({ retailer, index }) {
+  const counts = getClickCounts()
+  const clicks = counts[retailer.name] ?? 0
+
   return (
     <a
       href={retailer.searchUrl}
       target="_blank"
       rel="noopener noreferrer"
       className={styles.retailerCard}
+      onClick={() => recordClick(retailer.name)}
     >
       <div className={styles.retailerRank}>#{index + 1}</div>
       <div className={styles.retailerBody}>
@@ -78,6 +94,9 @@ function RetailerCard({ retailer, index }) {
           {retailer.emoji} {retailer.name}
         </p>
         <p className={styles.retailerTagline}>{retailer.tagline}</p>
+        {clicks > 0 && (
+          <p className={styles.retailerClicks}>{clicks} visit{clicks !== 1 ? 's' : ''}</p>
+        )}
       </div>
       <span className={styles.shopNow}>Shop →</span>
     </a>

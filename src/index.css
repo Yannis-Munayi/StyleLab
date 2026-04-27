@@ -5,11 +5,51 @@
 }
 
 :root {
-  --bg: #0f0f0f;
-  --surface: rgba(255, 255, 255, 0.05);
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #ffffff;
-  --text-muted: rgba(255, 255, 255, 0.5);
+  /* Backgrounds */
+  --bg:              #0f0f0f;
+  --bg-elevated:     #1a1a1a;
+  --bg-card:         rgba(255, 255, 255, 0.04);
+  /* Surfaces & borders */
+  --surface:         rgba(255, 255, 255, 0.05);
+  --surface-hover:   rgba(255, 255, 255, 0.08);
+  --border:          rgba(255, 255, 255, 0.08);
+  --border-strong:   rgba(255, 255, 255, 0.15);
+  /* Text */
+  --text:            #ffffff;
+  --text-dim:        rgba(255, 255, 255, 0.7);
+  --text-muted:      rgba(255, 255, 255, 0.45);
+  --text-faint:      rgba(255, 255, 255, 0.25);
+  /* Accent — unchanged in both themes */
+  --accent:          #FF6B35;
+  --accent-dim:      rgba(255, 107, 53, 0.15);
+  --accent-border:   rgba(255, 107, 53, 0.4);
+}
+
+:root[data-theme="light"] {
+  --bg:              #f5f4f0;
+  --bg-elevated:     #ffffff;
+  --bg-card:         rgba(0, 0, 0, 0.03);
+  --surface:         rgba(0, 0, 0, 0.04);
+  --surface-hover:   rgba(0, 0, 0, 0.07);
+  --border:          rgba(0, 0, 0, 0.09);
+  --border-strong:   rgba(0, 0, 0, 0.18);
+  --text:            #111111;
+  --text-dim:        rgba(0, 0, 0, 0.7);
+  --text-muted:      rgba(0, 0, 0, 0.45);
+  --text-faint:      rgba(0, 0, 0, 0.25);
+}
+
+:root[data-theme="light"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }
 
 html {
@@ -64,3 +104,50 @@ body::after {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Light mode global overrides ──────────────────────────────────────────────
+   These selectors catch the hardcoded colour values used in CSS Modules that
+   couldn't be replaced by CSS custom properties at the module level.           */
+
+[data-theme="light"] :focus-visible {
+  outline-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Inputs & textareas everywhere */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  color: #111;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Nav / Tab bar */
+[data-theme="light"] nav {
+  background: rgba(245, 244, 240, 0.92);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Generic heading colours — let CSS modules' own color properties win
+   for coloured gradient text, so we only override pure white */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3 {
+  color: var(--text);
+}
+
+/* Plain buttons that are styled with white text on a dark base */
+[data-theme="light"] .tabBar button,
+[data-theme="light"] nav button {
+  color: var(--text-muted);
+}
+
+/* Grain texture is less visible on light bg — keep it subtle */
+[data-theme="light"] body::after {
+  opacity: 0.015;
+}

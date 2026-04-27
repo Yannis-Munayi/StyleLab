@@ -16,8 +16,9 @@ import WardrobeScreen  from './screens/WardrobeScreen'
 import LikedScreen     from './screens/LikedScreen'
 import WishlistScreen  from './screens/WishlistScreen'
 import ShopScreen      from './screens/ShopScreen'
-import ExploreScreen   from './screens/ExploreScreen'
-import AestheticScreen from './screens/AestheticScreen'
+import ExploreScreen      from './screens/ExploreScreen'
+import AestheticScreen    from './screens/AestheticScreen'
+import OutfitBoardScreen  from './screens/OutfitBoardScreen'
 import TabBar          from './components/TabBar'
 import GuideTour, { GUIDE_STEPS } from './components/GuideTour'
 import { GuideProvider } from './context/GuideContext'
@@ -241,6 +242,7 @@ function AppShell() {
       )}
       {showTabs && activeTab === 'wardrobe'  && <LikedScreen />}
       {showTabs && activeTab === 'wishlist'  && <WishlistScreen />}
+      {showTabs && activeTab === 'outfits'   && <OutfitBoardScreen />}
       {showTabs && activeTab === 'shop'      && <ShopScreen />}
       {showTabs && activeTab === 'profile'  && (
         <ProfileScreen onBack={() => handleTabChange('quiz')} startGuide={startGuide} />

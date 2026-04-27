@@ -1,6 +1,6 @@
 .screen {
   min-height: 100dvh;
-  background: #0f0f0f;
+  background: var(--bg);
   padding-bottom: 88px;
 }
 
@@ -186,8 +186,8 @@
   align-items: center;
   gap: 4px;
   padding: 14px 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 14px;
   cursor: pointer;
   font-family: inherit;
@@ -401,8 +401,8 @@
   display: block;
   width: 100%;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 14px;
   color: rgba(255, 255, 255, 0.5);
   font-size: 14px;
@@ -418,3 +418,84 @@
   border-color: rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.8);
 }
+
+/* ── Capsule Wardrobe ── */
+.capsuleRow {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.capsuleRow::-webkit-scrollbar { display: none; }
+
+.capsuleCard {
+  flex-shrink: 0;
+  width: 160px;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.capsulePhoto {
+  position: relative;
+  width: 160px;
+  height: 220px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.capsuleImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s;
+}
+
+.capsuleOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 10px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+}
+
+.capsuleName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 2px;
+  line-height: 1.2;
+}
+
+.capsuleVibe {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.capsuleViewAll {
+  margin-top: 10px;
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.capsuleViewAll:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+

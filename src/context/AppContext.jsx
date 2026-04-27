@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer } from 'react'
+import { createContext, useContext, useEffect, useReducer, useState } from 'react'
 import { STYLES } from '../data/styles'
 import { CLOTHING_ITEMS } from '../data/categories'
 import { AESTHETIC_QUIZ_ITEMS } from '../data/aestheticItems'
@@ -181,4 +181,25 @@ export function AppProvider({ children }) {
 
 export function useApp() {
   return useContext(AppContext)
+}
+
+// ── Theme hook ────────────────────────────────────────────────────────────────
+// Persisted in localStorage. Applies data-theme attribute to the document root.
+export function useTheme() {
+  const [theme, setThemeState] = useState(() => {
+    return localStorage.getItem('stylelab_theme') ?? 'dark'
+  })
+
+  function setTheme(t) {
+    localStorage.setItem('stylelab_theme', t)
+    document.documentElement.setAttribute('data-theme', t)
+    setThemeState(t)
+  }
+
+  // Apply on mount
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { theme, setTheme }
 }

@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: #0f0f0f;
+  background: var(--bg);
   position: relative;
   overflow: hidden;
 }
@@ -24,7 +24,7 @@
 .card {
   width: 100%;
   max-width: 400px;
-  background: rgba(255,255,255,0.04);
+  background: var(--bg-card);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px;
   padding: 40px 32px;
@@ -222,4 +222,55 @@
   background: rgba(255,107,53,0.15);
   border-color: #FF6B35;
   color: #FF6B35;
+}
+
+/* ── Google Sign-In ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 4px 0;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+.dividerText {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+}
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s;
+  margin-bottom: 4px;
+}
+
+.googleBtn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.googleBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

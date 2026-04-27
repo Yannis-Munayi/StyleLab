@@ -5,6 +5,8 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '../services/firebase'
@@ -39,6 +41,17 @@ export function AuthProvider({ children }) {
     await signInWithEmailAndPassword(auth, email, password)
   }
 
+  async function signInWithGoogle() {
+    const provider = new GoogleAuthProvider()
+    const result   = await signInWithPopup(auth, provider)
+    const u        = result.user
+    await setDoc(doc(db, 'users', u.uid), {
+      displayName: u.displayName ?? '',
+      email:       u.email ?? '',
+      updatedAt:   serverTimestamp(),
+    }, { merge: true })
+  }
+
   async function logout() {
     await signOut(auth)
     // Remove any keys that were written by old code versions to prevent
@@ -48,7 +61,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, signup, login, logout, signInWithGoogle }}>
       {!loading && children}
     </AuthContext.Provider>
   )

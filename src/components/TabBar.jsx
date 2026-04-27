@@ -68,6 +68,18 @@ function ShopIcon({ active }) {
   )
 }
 
+function OutfitIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}>
+      <rect x="3" y="3" width="8" height="8" rx="1.5" />
+      <rect x="13" y="3" width="8" height="8" rx="1.5" />
+      <rect x="3" y="13" width="8" height="8" rx="1.5" />
+      <rect x="13" y="13" width="8" height="8" rx="1.5" />
+    </svg>
+  )
+}
+
 function ProfileIcon({ active }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -140,6 +152,14 @@ export default function TabBar({ activeTab, setActiveTab }) {
             )}
           </div>
           <span>Wishlist</span>
+        </button>
+
+        <button
+          className={`${styles.tab} ${activeTab === 'outfits' ? styles.active : ''}`}
+          onClick={() => setActiveTab('outfits')}
+        >
+          <OutfitIcon active={activeTab === 'outfits'} />
+          <span>Outfits</span>
         </button>
 
         <button

@@ -10,13 +10,8 @@ export const GUIDE_STEPS = [
   },
   {
     tab:   'home',
-    title: 'Hero Carousel',
-    desc:  'The large section at the top cycles through featured aesthetics. Swipe or wait for it to auto-advance. Tap "Explore look" on any slide to open the full aesthetic page.',
-  },
-  {
-    tab:   'home',
-    title: 'Stats & Picks',
-    desc:  'Your Liked, Wishlist, and Shop List counts are shown as tappable pills — tap any to jump to that tab. Below, scroll the Seasonal Picks and Trending rows to discover new styles.',
+    title: 'Stats, Picks & Capsule Wardrobe',
+    desc:  'Your Liked, Wishlist, and Shop counts are tappable pills. Scroll down to find your personal Capsule Wardrobe — curated looks from your top aesthetic for the current season.',
   },
 
   // ── Explore ───────────────────────────────────────────────────────────────
@@ -106,33 +101,28 @@ export const GUIDE_STEPS = [
   {
     tab:   'wardrobe',
     title: 'Liked — Your Saved Items ❤️',
-    desc:  'Every item you swiped right on lives here as a grid. Tap × on any card to remove it. The more items you\'ve liked, the more accurate your next step.',
-  },
-  {
-    tab:   'wardrobe',
-    title: 'Generate Your Aesthetics',
-    desc:  'Tap "Generate my aesthetics" to analyse your liked items and surface which styles they map to — ranked by match strength and linked to Pinterest.',
+    desc:  'Every item you swiped right on lives here. Tap "Generate my aesthetics" to re-analyse your likes and see which styles they map to. Tap × on any card to remove it.',
   },
 
-  // ── Wishlist ──────────────────────────────────────────────────────────────
+  // ── Wishlist + Shop ───────────────────────────────────────────────────────
   {
     tab:   'wishlist',
-    title: 'Wishlist 🤍',
-    desc:  'Items saved with 🤍 during Discover or inside any aesthetic\'s Items tab collect here. Each links to Pinterest so you can track down where to buy it.',
+    title: 'Wishlist & Shop 🤍🛍️',
+    desc:  'Items saved with 🤍 collect in your Wishlist — each links to Pinterest so you can find where to buy it. Tap "Add to shop list" inside any aesthetic to queue pieces you\'re ready to purchase; the Shop tab keeps them all together.',
   },
 
-  // ── Shop ──────────────────────────────────────────────────────────────────
+  // ── Outfit Boards ─────────────────────────────────────────────────────────
   {
-    tab:   'shop',
-    title: 'Shop List 🛍️',
-    desc:  'Inside any aesthetic\'s Items tab, tap "Add to shop list" to queue pieces you\'re ready to buy. This tab keeps them all in one focused list.',
+    tab:   'outfits',
+    title: 'Outfit Boards 🗂️',
+    desc:  'Combine your liked and saved pieces into named outfit boards. Tap "+ New Board", pick your pieces, give it a name — your boards save automatically to your account.',
   },
 
   // ── Profile ───────────────────────────────────────────────────────────────
   {
     tab:   'profile',
     title: 'Profile — All Done! 🎉',
-    desc:  'Set your gender preference here to personalise images, names, and Pinterest links across the whole app. Your quiz history and top aesthetics are saved here too.',
+    desc:  'Set your gender preference and appearance theme here. Your style evolution timeline and full quiz history are tracked here — sign in to save everything across devices.',
   },
 ]
 

@@ -31,8 +31,9 @@ function usePersistedList(user, docId) {
 
 export function WishlistProvider({ children }) {
   const { user } = useAuth()
-  const [wishlist, setWishlist] = usePersistedList(user, 'wishlist')
-  const [liked,    setLiked]    = usePersistedList(user, 'liked')
+  const [wishlist,      setWishlist]      = usePersistedList(user, 'wishlist')
+  const [liked,         setLiked]         = usePersistedList(user, 'liked')
+  const [outfitBoards,  setOutfitBoards]  = usePersistedList(user, 'outfitBoards')
 
   const addToWishlist = useCallback((entry) => {
     setWishlist((prev) => prev.some((e) => e.id === entry.id) ? prev : [{ ...entry, addedAt: Date.now() }, ...prev])
@@ -54,10 +55,27 @@ export function WishlistProvider({ children }) {
 
   const isLiked = useCallback((id) => liked.some((e) => e.id === id), [liked])
 
+  const saveOutfitBoard = useCallback((board) => {
+    setOutfitBoards((prev) => {
+      const exists = prev.findIndex((b) => b.id === board.id)
+      if (exists >= 0) {
+        const next = [...prev]
+        next[exists] = board
+        return next
+      }
+      return [board, ...prev]
+    })
+  }, [setOutfitBoards])
+
+  const deleteOutfitBoard = useCallback((id) => {
+    setOutfitBoards((prev) => prev.filter((b) => b.id !== id))
+  }, [setOutfitBoards])
+
   return (
     <WishlistContext.Provider value={{
       wishlist, addToWishlist, removeFromWishlist, isWishlisted,
       liked,    addToLiked,    removeFromLiked,    isLiked,
+      outfitBoards, saveOutfitBoard, deleteOutfitBoard,
     }}>
       {children}
     </WishlistContext.Provider>

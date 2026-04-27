@@ -1,6 +1,6 @@
 .screen {
   min-height: 100dvh;
-  background: #0f0f0f;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   color: #fff;
@@ -8,7 +8,7 @@
 
 .header {
   padding: 24px 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid var(--border);
 }
 
 .title {
@@ -149,7 +149,7 @@
 
 /* ── Results panel ── */
 .resultsPanel {
-  background: rgba(255,255,255,0.04);
+  background: var(--bg-card);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 20px;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { STYLES, getStyleName } from '../data/styles'
 import { fetchPhotosWithFallback } from '../services/pexels'
 import { useApp, SCREENS } from '../context/AppContext'
@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { useExplore } from '../context/ExploreContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useShop } from '../context/ShopContext'
+import { getLooks } from '../data/looks'
 import AuthWidget from '../components/AuthWidget'
 import styles from './HomeScreen.module.css'
 
@@ -317,6 +318,98 @@ function StyleJourneyCTA({ setActiveTab, gender }) {
   )
 }
 
+// ── Capsule Wardrobe ──────────────────────────────────────────────────────────
+
+function CapsuleLookCard({ look, gender, onClick }) {
+  const [photo, setPhoto]   = useState(null)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    const q = gender === 'women' ? look.womenPexelsQuery : look.pexelsQuery
+    fetchPhotosWithFallback([q, look.pexelsQuery], 1).then(([url] = []) => {
+      if (!cancelled) setPhoto(url ?? null)
+    })
+    return () => { cancelled = true }
+  }, [look.id, look.pexelsQuery, look.womenPexelsQuery, gender])
+
+  return (
+    <div className={styles.capsuleCard} onClick={onClick}>
+      <div className={styles.capsulePhoto}>
+        {photo && (
+          <img
+            src={photo}
+            alt={look.name}
+            className={styles.capsuleImg}
+            style={{ opacity: loaded ? 1 : 0 }}
+            onLoad={() => setLoaded(true)}
+            onError={() => setLoaded(true)}
+          />
+        )}
+        <div className={styles.capsuleOverlay}>
+          <p className={styles.capsuleName}>{look.name}</p>
+          <p className={styles.capsuleVibe}>{look.vibe}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CapsuleWardrobe({ setActiveTab, gender, season }) {
+  const { state }           = useApp()
+  const { savedAesthetics } = useExplore()
+
+  const capsuleAestheticId = useMemo(() => {
+    // 1. Top score from current quiz session
+    const scores = state.styleScores
+    const topFromQuiz = Object.entries(scores)
+      .filter(([, s]) => s > 0)
+      .sort(([, a], [, b]) => b - a)[0]
+    if (topFromQuiz) return topFromQuiz[0]
+
+    // 2. First saved aesthetic
+    if (savedAesthetics.length > 0) return savedAesthetics[0]
+
+    // 3. First seasonal pick
+    return SEASON_PICKS[season][0]
+  }, [state.styleScores, savedAesthetics, season])
+
+  const looks = useMemo(() => getLooks(capsuleAestheticId, { season }), [capsuleAestheticId, season])
+  const style = STYLES[capsuleAestheticId]
+
+  if (!style || looks.length === 0) return null
+
+  return (
+    <section className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}>✦</span>
+        <div>
+          <h2 className={styles.sectionTitle}>Your Capsule Wardrobe</h2>
+          <p className={styles.sectionSub}>
+            {getStyleName(style, gender)} · {season.charAt(0).toUpperCase() + season.slice(1)} edition
+          </p>
+        </div>
+      </div>
+      <div className={styles.capsuleRow}>
+        {looks.map((look) => (
+          <CapsuleLookCard
+            key={look.id}
+            look={look}
+            gender={gender}
+            onClick={() => setActiveTab(`aesthetic:${capsuleAestheticId}`)}
+          />
+        ))}
+      </div>
+      <button
+        className={styles.capsuleViewAll}
+        onClick={() => setActiveTab(`aesthetic:${capsuleAestheticId}`)}
+      >
+        View all {getStyleName(style, gender)} looks →
+      </button>
+    </section>
+  )
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ setActiveTab }) {
@@ -371,6 +464,9 @@ export default function HomeScreen({ setActiveTab }) {
           </div>
           <HorizontalScroll ids={SEASON_PICKS[season]} setActiveTab={setActiveTab} gender={gender} />
         </section>
+
+        {/* Seasonal Capsule Wardrobe */}
+        <CapsuleWardrobe setActiveTab={setActiveTab} gender={gender} season={season} />
 
         {/* Style journey CTA */}
         <StyleJourneyCTA setActiveTab={setActiveTab} gender={gender} />

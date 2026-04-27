@@ -377,24 +377,6 @@ export const LOOKS = {
     },
   ],
 
-  business: [
-    {
-      id: 'bc-1', name: 'Modern Professional',
-      vibe: 'Sharp without a tie',
-      seasons: ['fall', 'winter', 'spring'],
-      pieces: ['blazer', 'oxford', 'pleated', 'chelsea-boots', 'watch'],
-      pexelsQuery: 'mens business casual modern blazer oxford shirt outfit',
-      womenPexelsQuery: 'womens business casual blazer midi skirt heels professional outfit',
-    },
-    {
-      id: 'bc-2', name: 'Elevated Casual',
-      vibe: 'Relaxed Friday energy, still polished',
-      seasons: ['fall', 'spring'],
-      pieces: ['trench', 'polo', 'chinos', 'loafers'],
-      pexelsQuery: 'mens business casual smart casual chinos loafers outfit',
-      womenPexelsQuery: 'womens business casual smart wrap dress loafers trench coat outfit',
-    },
-  ],
 
   cottagecore: [
     {
@@ -564,6 +546,575 @@ export const LOOKS = {
       pieces: ['overcoat', 'turtleneck', 'slim-jeans', 'chelsea-boots'],
       pexelsQuery: 'mens nordic scandi winter layered minimal outfit',
       womenPexelsQuery: 'womens nordic scandi winter knit dress boots layered outfit',
+    },
+  ],
+
+  maximalist: [
+    {
+      id: 'mx-1', name: 'Pattern Clash',
+      vibe: 'Every print at once, on purpose',
+      seasons: ['spring', 'summer'],
+      pieces: ['graphic-tee', 'wide-leg', 'chunky-sneakers', 'chain-necklace', 'bucket-hat'],
+      pexelsQuery: 'mens maximalist bold pattern clash colorful outfit fashion',
+      womenPexelsQuery: 'womens maximalist bold pattern clash colorful dress accessories fashion',
+    },
+    {
+      id: 'mx-2', name: 'Layer Up',
+      vibe: 'More pieces, more drama',
+      seasons: ['fall', 'winter'],
+      pieces: ['overcoat', 'bomber', 'hoodie', 'baggy-jeans', 'chunky-sneakers'],
+      pexelsQuery: 'mens maximalist layered outerwear bold outfit fashion',
+      womenPexelsQuery: 'womens maximalist layered statement coat bold accessories fashion',
+    },
+    {
+      id: 'mx-3', name: 'Colour Block',
+      vibe: 'Each piece fights for dominance',
+      seasons: ['spring', 'fall'],
+      pieces: ['track-jacket', 'cargo', 'platform-shoes', 'chain-necklace'],
+      pexelsQuery: 'mens maximalist color block bold streetwear outfit',
+      womenPexelsQuery: 'womens maximalist color block bold midi dress heels outfit',
+    },
+  ],
+
+  skater: [
+    {
+      id: 'sk-1', name: 'Park Rat',
+      vibe: 'Loose fit, ready to bail',
+      seasons: ['spring', 'summer', 'fall'],
+      pieces: ['graphic-tee', 'baggy-jeans', 'high-tops', 'baseball-cap'],
+      pexelsQuery: 'mens skater outfit baggy jeans graphic tee skate shoes',
+      womenPexelsQuery: 'womens skater outfit baggy jeans crop tee skate shoes aesthetic',
+    },
+    {
+      id: 'sk-2', name: 'Flannel Skate',
+      vibe: 'West Coast meets concrete',
+      seasons: ['fall', 'spring'],
+      pieces: ['flannel', 'graphic-tee', 'cargo', 'chunky-sneakers', 'beanie'],
+      pexelsQuery: 'mens skater flannel shirt cargo pants sneakers skate outfit',
+      womenPexelsQuery: 'womens skater flannel shirt mini skirt platform sneakers outfit',
+    },
+    {
+      id: 'sk-3', name: 'Winter Session',
+      vibe: 'Hooded up, never slowing down',
+      seasons: ['fall', 'winter'],
+      pieces: ['hoodie', 'baggy-jeans', 'high-tops', 'beanie'],
+      pexelsQuery: 'mens skater winter hoodie baggy jeans sneakers beanie',
+      womenPexelsQuery: 'womens skater winter hoodie baggy jeans sneakers beanie aesthetic',
+    },
+  ],
+
+  arthoe: [
+    {
+      id: 'ah-1', name: 'Gallery Opening',
+      vibe: 'Overalls and warm tones',
+      seasons: ['spring', 'fall'],
+      pieces: ['linen-shirt', 'wide-leg', 'sandals', 'tote-bag', 'bucket-hat'],
+      pexelsQuery: 'mens art hoe artsy overalls warm tones aesthetic outfit',
+      womenPexelsQuery: 'womens art hoe overalls warm tones sunflower aesthetic outfit',
+    },
+    {
+      id: 'ah-2', name: 'Studio Session',
+      vibe: 'Creative layers, paint-splattered energy',
+      seasons: ['fall', 'winter'],
+      pieces: ['cardigan', 'plain-tee', 'wide-leg', 'chunky-sneakers'],
+      pexelsQuery: 'mens artsy creative layer warm aesthetic outfit colourful',
+      womenPexelsQuery: 'womens artsy creative layer warm midi skirt aesthetic outfit',
+    },
+  ],
+
+  lightacademia: [
+    {
+      id: 'la-1', name: 'Sunny Library',
+      vibe: 'Cream and beige, sun-drenched scholar',
+      seasons: ['spring', 'fall'],
+      pieces: ['blazer', 'linen-shirt', 'chinos', 'loafers', 'watch'],
+      pexelsQuery: 'mens light academia cream beige blazer linen shirt aesthetic',
+      womenPexelsQuery: 'womens light academia cream beige blazer midi skirt linen aesthetic',
+    },
+    {
+      id: 'la-2', name: 'Autumn Pages',
+      vibe: 'Knits in warm, readable tones',
+      seasons: ['fall', 'winter'],
+      pieces: ['cable-knit', 'oxford', 'pleated', 'dress-shoes'],
+      pexelsQuery: 'mens light academia knit sweater chinos dress shoes autumn aesthetic',
+      womenPexelsQuery: 'womens light academia knit sweater plaid skirt loafers autumn aesthetic',
+    },
+    {
+      id: 'la-3', name: 'Summer Term',
+      vibe: 'Breezy, airy, academically soft',
+      seasons: ['summer'],
+      pieces: ['linen-shirt', 'linen-trousers', 'sandals'],
+      pexelsQuery: 'mens light academia summer linen shirt trousers aesthetic',
+      womenPexelsQuery: 'womens light academia summer linen sundress sandals aesthetic',
+    },
+  ],
+
+  normcore: [
+    {
+      id: 'nc-1', name: 'Basic Blueprint',
+      vibe: 'As ordinary as possible, deliberately',
+      seasons: ['spring', 'fall'],
+      pieces: ['plain-tee', 'slim-jeans', 'clean-sneakers'],
+      pexelsQuery: 'mens normcore basic ordinary outfit minimal jeans white tee sneakers',
+      womenPexelsQuery: 'womens normcore basic ordinary outfit jeans white tee white sneakers',
+    },
+    {
+      id: 'nc-2', name: 'Dad Energy',
+      vibe: 'Comfortable, functional, zero flex',
+      seasons: ['summer'],
+      pieces: ['polo', 'shorts', 'clean-sneakers', 'sunglasses'],
+      pexelsQuery: 'mens normcore simple casual polo shorts sneakers dad outfit',
+      womenPexelsQuery: 'womens normcore simple casual tucked tee mom jeans sneakers outfit',
+    },
+    {
+      id: 'nc-3', name: 'Winter Basics',
+      vibe: 'Plain and warm, no more',
+      seasons: ['fall', 'winter'],
+      pieces: ['crewneck', 'slim-jeans', 'clean-sneakers', 'beanie'],
+      pexelsQuery: 'mens normcore winter basic crewneck jeans sneakers beanie outfit',
+      womenPexelsQuery: 'womens normcore winter basic crewneck straight jeans sneakers outfit',
+    },
+  ],
+
+  businesscasual: [
+    {
+      id: 'bz-1', name: 'Modern Professional',
+      vibe: 'Sharp without a tie',
+      seasons: ['fall', 'winter', 'spring'],
+      pieces: ['blazer', 'oxford', 'pleated', 'chelsea-boots', 'watch'],
+      pexelsQuery: 'mens business casual modern blazer oxford shirt outfit',
+      womenPexelsQuery: 'womens business casual blazer midi skirt heels professional outfit',
+    },
+    {
+      id: 'bz-2', name: 'Elevated Friday',
+      vibe: 'Relaxed but still polished',
+      seasons: ['fall', 'spring'],
+      pieces: ['trench', 'polo', 'chinos', 'loafers'],
+      pexelsQuery: 'mens business casual smart casual chinos loafers outfit',
+      womenPexelsQuery: 'womens business casual smart wrap dress loafers trench coat outfit',
+    },
+    {
+      id: 'bz-3', name: 'Creative Office',
+      vibe: 'Tailored but human',
+      seasons: ['spring', 'fall'],
+      pieces: ['knit-vest', 'oxford', 'slim-jeans', 'loafers', 'watch'],
+      pexelsQuery: 'mens business casual creative office knit vest smart outfit',
+      womenPexelsQuery: 'womens business casual creative office knit cardigan tailored trousers outfit',
+    },
+  ],
+
+  eurochic: [
+    {
+      id: 'ec-1', name: 'Milanese Monday',
+      vibe: 'Tailored basics, never overdone',
+      seasons: ['spring', 'fall'],
+      pieces: ['blazer', 'linen-shirt', 'chinos', 'loafers'],
+      pexelsQuery: 'mens euro chic european style blazer linen shirt tailored outfit',
+      womenPexelsQuery: 'womens euro chic european style tailored trousers silk blouse loafers outfit',
+    },
+    {
+      id: 'ec-2', name: 'Parisian Winter',
+      vibe: 'Long coat, scarf, done',
+      seasons: ['fall', 'winter'],
+      pieces: ['overcoat', 'turtleneck', 'slim-jeans', 'chelsea-boots', 'scarf'],
+      pexelsQuery: 'mens euro chic parisian winter long coat turtleneck aesthetic',
+      womenPexelsQuery: 'womens euro chic parisian winter long coat midi skirt boots aesthetic',
+    },
+    {
+      id: 'ec-3', name: 'Riviera Summer',
+      vibe: 'Breezy Mediterranean polish',
+      seasons: ['summer'],
+      pieces: ['linen-shirt', 'linen-trousers', 'sandals', 'watch', 'sunglasses'],
+      pexelsQuery: 'mens euro chic riviera summer linen mediterranean outfit',
+      womenPexelsQuery: 'womens euro chic riviera summer linen dress sandals mediterranean outfit',
+    },
+  ],
+
+  rockstar: [
+    {
+      id: 'rs-1', name: 'Stage Presence',
+      vibe: 'Leather pants and absolute confidence',
+      seasons: ['fall', 'winter'],
+      pieces: ['leather-jacket', 'graphic-tee', 'slim-jeans', 'chelsea-boots', 'chain-necklace'],
+      pexelsQuery: 'mens rockstar glam rock leather jacket outfit aesthetic',
+      womenPexelsQuery: 'womens rockstar glam rock leather jacket mini skirt boots aesthetic',
+    },
+    {
+      id: 'rs-2', name: 'Metallic Moment',
+      vibe: 'Shine, studs, and silk',
+      seasons: ['spring', 'summer'],
+      pieces: ['bomber', 'slim-jeans', 'chelsea-boots', 'chain-necklace', 'sunglasses'],
+      pexelsQuery: 'mens rockstar metallic satin bomber jacket aesthetic outfit',
+      womenPexelsQuery: 'womens rockstar metallic satin mini dress boots aesthetic outfit',
+    },
+  ],
+
+  emo: [
+    {
+      id: 'em-1', name: 'Band Tee Stack',
+      vibe: 'Layered wristbands and raw feeling',
+      seasons: ['fall', 'spring'],
+      pieces: ['leather-jacket', 'graphic-tee', 'slim-jeans', 'high-tops'],
+      pexelsQuery: 'mens emo band tee skinny jeans leather jacket converse outfit',
+      womenPexelsQuery: 'womens emo band tee skinny jeans fishnet leather jacket converse outfit',
+    },
+    {
+      id: 'em-2', name: 'Zip-Up Dark',
+      vibe: 'Monochrome and moody',
+      seasons: ['fall', 'winter'],
+      pieces: ['hoodie', 'graphic-tee', 'slim-jeans', 'combat-boots'],
+      pexelsQuery: 'mens emo aesthetic all black hoodie skinny jeans combat boots',
+      womenPexelsQuery: 'womens emo aesthetic all black hoodie mini skirt combat boots fishnet',
+    },
+  ],
+
+  scene: [
+    {
+      id: 'sc-1', name: 'Neon Statement',
+      vibe: 'Every colour, all at once',
+      seasons: ['spring', 'summer'],
+      pieces: ['graphic-tee', 'slim-jeans', 'platform-shoes', 'chain-necklace'],
+      pexelsQuery: 'mens scene fashion neon bright alternative outfit aesthetic',
+      womenPexelsQuery: 'womens scene fashion neon bright tutus fishnet alternative outfit aesthetic',
+    },
+    {
+      id: 'sc-2', name: 'Photo Shoot Ready',
+      vibe: 'Extra. Always.',
+      seasons: ['fall', 'spring'],
+      pieces: ['bomber', 'graphic-tee', 'slim-jeans', 'chunky-sneakers'],
+      pexelsQuery: 'mens scene alternative bold layered colorful outfit aesthetic',
+      womenPexelsQuery: 'womens scene alternative bold layered colorful outfit teased hair aesthetic',
+    },
+  ],
+
+  eboy: [
+    {
+      id: 'eb-1', name: 'Stripe Layer',
+      vibe: 'Graphic tee over long sleeve, always',
+      seasons: ['fall', 'spring'],
+      pieces: ['graphic-tee', 'slim-jeans', 'high-tops', 'chain-necklace'],
+      pexelsQuery: 'mens eboy aesthetic striped long sleeve graphic tee black jeans chain',
+      womenPexelsQuery: 'womens egirl aesthetic striped long sleeve plaid skirt combat boots chain',
+    },
+    {
+      id: 'eb-2', name: 'Dark Web',
+      vibe: 'All black, internet-bred edge',
+      seasons: ['fall', 'winter'],
+      pieces: ['leather-jacket', 'graphic-tee', 'slim-jeans', 'combat-boots', 'chain-necklace'],
+      pexelsQuery: 'mens eboy dark aesthetic all black alternative outfit',
+      womenPexelsQuery: 'womens egirl dark aesthetic all black alternative plaid skirt outfit',
+    },
+  ],
+
+  harajuku: [
+    {
+      id: 'hj-1', name: 'Takeshita Street',
+      vibe: 'Maximum layers, maximum expression',
+      seasons: ['spring', 'fall'],
+      pieces: ['bomber', 'graphic-tee', 'baggy-jeans', 'platform-shoes', 'chain-necklace'],
+      pexelsQuery: 'mens harajuku japanese street fashion layered eclectic outfit',
+      womenPexelsQuery: 'womens harajuku japanese street fashion kawaii layered eclectic outfit',
+    },
+    {
+      id: 'hj-2', name: 'Decora Moment',
+      vibe: 'Accessories as the outfit',
+      seasons: ['spring', 'summer'],
+      pieces: ['graphic-tee', 'wide-leg', 'chunky-sneakers', 'bucket-hat'],
+      pexelsQuery: 'mens harajuku j fashion bold colorful accessories outfit tokyo',
+      womenPexelsQuery: 'womens harajuku j fashion decora kawaii colorful accessories outfit tokyo',
+    },
+  ],
+
+  cyberpunk: [
+    {
+      id: 'cp-1', name: 'Night City Dweller',
+      vibe: 'Neon trim, reflective, dystopian',
+      seasons: ['fall', 'winter'],
+      pieces: ['windbreaker', 'cargo', 'trail-runners', 'crossbody'],
+      pexelsQuery: 'mens cyberpunk neon fashion techwear dark futuristic outfit',
+      womenPexelsQuery: 'womens cyberpunk neon fashion futuristic bodysuit reflective outfit',
+    },
+    {
+      id: 'cp-2', name: 'Chrome Operator',
+      vibe: 'Metallic and tactical',
+      seasons: ['spring', 'fall'],
+      pieces: ['anorak', 'graphic-tee', 'cargo', 'high-tops'],
+      pexelsQuery: 'mens cyberpunk silver metallic tactical outfit futuristic aesthetic',
+      womenPexelsQuery: 'womens cyberpunk silver metallic tactical outfit futuristic crop top aesthetic',
+    },
+  ],
+
+  steampunk: [
+    {
+      id: 'sp-1', name: 'Victorian Engineer',
+      vibe: 'Brass, leather, 1800s industrial',
+      seasons: ['fall', 'winter'],
+      pieces: ['blazer', 'oxford', 'pleated', 'dress-shoes', 'watch'],
+      pexelsQuery: 'mens steampunk victorian industrial outfit brass leather aesthetic',
+      womenPexelsQuery: 'womens steampunk victorian industrial corset bustle skirt lace aesthetic',
+    },
+    {
+      id: 'sp-2', name: 'Clockwork Explorer',
+      vibe: 'Layered leather and tailoring',
+      seasons: ['fall', 'spring'],
+      pieces: ['field-jacket', 'oxford', 'raw-denim', 'work-boots', 'scarf'],
+      pexelsQuery: 'mens steampunk explorer layered leather coat outfit',
+      womenPexelsQuery: 'womens steampunk explorer layered leather coat goggles outfit',
+    },
+  ],
+
+  fairycore: [
+    {
+      id: 'fc-1', name: 'Enchanted Forest',
+      vibe: 'Sheer, pastel, and otherworldly',
+      seasons: ['spring', 'summer'],
+      pieces: ['linen-shirt', 'wide-leg', 'sandals', 'crossbody'],
+      pexelsQuery: 'mens fairycore soft pastel whimsical outfit aesthetic nature',
+      womenPexelsQuery: 'womens fairycore fairy sheer pastel floral dress cottagecore aesthetic',
+    },
+    {
+      id: 'fc-2', name: 'Mushroom Walk',
+      vibe: 'Earthy, textured, enchanted',
+      seasons: ['fall'],
+      pieces: ['cardigan', 'plain-tee', 'wide-leg', 'work-boots', 'tote-bag'],
+      pexelsQuery: 'mens fairycore mushroom forest soft earth tone aesthetic outfit',
+      womenPexelsQuery: 'womens fairycore mushroom forest prairie dress earth tone aesthetic outfit',
+    },
+  ],
+
+  royalcore: [
+    {
+      id: 'rc-1', name: 'Royal Audience',
+      vibe: 'Velvet, gold, and absolute authority',
+      seasons: ['fall', 'winter'],
+      pieces: ['blazer', 'turtleneck', 'pleated', 'chelsea-boots', 'watch'],
+      pexelsQuery: 'mens royalcore royal velvet blazer gold accessories regal outfit',
+      womenPexelsQuery: 'womens royalcore royal velvet gown lace gold accessories regal outfit',
+    },
+    {
+      id: 'rc-2', name: 'Regency Morning',
+      vibe: 'Ornate tailoring, historical elegance',
+      seasons: ['spring', 'fall'],
+      pieces: ['overcoat', 'oxford', 'pleated', 'dress-shoes', 'scarf'],
+      pexelsQuery: 'mens royalcore regency historical tailored ornate outfit aesthetic',
+      womenPexelsQuery: 'womens royalcore regency historical empire waist gown ornate aesthetic',
+    },
+  ],
+
+  linencore: [
+    {
+      id: 'ln-1', name: 'Natural State',
+      vibe: 'Breathable neutrals, sun and sea air',
+      seasons: ['spring', 'summer'],
+      pieces: ['linen-shirt', 'linen-trousers', 'sandals'],
+      pexelsQuery: 'mens linencore linen shirt linen trousers natural outfit aesthetic',
+      womenPexelsQuery: 'womens linencore linen dress sandals natural neutral outfit aesthetic',
+    },
+    {
+      id: 'ln-2', name: 'Autumn Linen',
+      vibe: 'Earthy tones, relaxed cut',
+      seasons: ['fall'],
+      pieces: ['linen-shirt', 'wide-leg', 'loafers', 'tote-bag'],
+      pexelsQuery: 'mens linencore autumn earth tone linen layered outfit',
+      womenPexelsQuery: 'womens linencore autumn earth tone linen wide leg outfit',
+    },
+  ],
+
+  silksatin: [
+    {
+      id: 'ss-1', name: 'Satin Evening',
+      vibe: 'Glossy, fluid, intentional luxury',
+      seasons: ['spring', 'summer'],
+      pieces: ['bomber', 'slim-jeans', 'loafers', 'chain-necklace', 'sunglasses'],
+      pexelsQuery: 'mens silk satin shirt glossy luxe outfit aesthetic fashion',
+      womenPexelsQuery: 'womens silk satin slip dress glossy luxe outfit aesthetic fashion',
+    },
+    {
+      id: 'ss-2', name: 'Sheen Stack',
+      vibe: 'Layers of liquid fabric',
+      seasons: ['fall', 'winter'],
+      pieces: ['overcoat', 'turtleneck', 'pleated', 'chelsea-boots'],
+      pexelsQuery: 'mens silk satin glossy luxe layered outfit fashion',
+      womenPexelsQuery: 'womens silk satin luxe layered midi skirt outfit fashion',
+    },
+  ],
+
+  denimcore: [
+    {
+      id: 'dc-1', name: 'Double Denim',
+      vibe: 'Head to toe denim, different washes',
+      seasons: ['spring', 'fall'],
+      pieces: ['denim-jacket', 'raw-denim', 'work-boots', 'plain-tee'],
+      pexelsQuery: 'mens denimcore double denim jacket jeans outfit fashion',
+      womenPexelsQuery: 'womens denimcore double denim jacket jeans outfit fashion',
+    },
+    {
+      id: 'dc-2', name: 'Raw Stack',
+      vibe: 'Dark denim, structured silhouette',
+      seasons: ['fall', 'winter'],
+      pieces: ['denim-jacket', 'raw-denim', 'chelsea-boots', 'crewneck'],
+      pexelsQuery: 'mens denimcore dark raw denim layered outfit aesthetic',
+      womenPexelsQuery: 'womens denimcore dark raw denim layered dress boots outfit aesthetic',
+    },
+  ],
+
+  leatheraesthetic: [
+    {
+      id: 'le-1', name: 'Biker Blueprint',
+      vibe: 'Leather jacket, leather boots, full stop',
+      seasons: ['fall', 'spring'],
+      pieces: ['leather-jacket', 'plain-tee', 'raw-denim', 'combat-boots'],
+      pexelsQuery: 'mens leather aesthetic biker leather jacket jeans boots outfit',
+      womenPexelsQuery: 'womens leather aesthetic biker leather jacket mini skirt boots outfit',
+    },
+    {
+      id: 'le-2', name: 'Moto Season',
+      vibe: 'All leather, all edge',
+      seasons: ['fall', 'winter'],
+      pieces: ['leather-jacket', 'slim-jeans', 'chelsea-boots', 'chain-necklace'],
+      pexelsQuery: 'mens leather moto aesthetic all leather dark outfit',
+      womenPexelsQuery: 'womens leather moto aesthetic all leather dark pants boots outfit',
+    },
+  ],
+
+  knitwearaesthetic: [
+    {
+      id: 'kw-1', name: 'Sweater Weather',
+      vibe: 'Chunky knit over slim pants',
+      seasons: ['fall', 'winter'],
+      pieces: ['cable-knit', 'slim-jeans', 'loafers', 'scarf'],
+      pexelsQuery: 'mens knitwear aesthetic chunky knit sweater outfit cozy',
+      womenPexelsQuery: 'womens knitwear aesthetic chunky knit sweater dress boots cozy outfit',
+    },
+    {
+      id: 'kw-2', name: 'Layered Knit',
+      vibe: 'Vest over shirt, maximum texture',
+      seasons: ['fall', 'spring'],
+      pieces: ['knit-vest', 'oxford', 'chinos', 'loafers'],
+      pexelsQuery: 'mens knitwear knit vest shirt layered preppy aesthetic outfit',
+      womenPexelsQuery: 'womens knitwear knit vest shirt layered midi skirt loafers outfit',
+    },
+    {
+      id: 'kw-3', name: 'Mohair Moment',
+      vibe: 'Textured, soft, premium feeling',
+      seasons: ['fall', 'winter'],
+      pieces: ['mohair-sweater', 'wide-leg', 'chelsea-boots'],
+      pexelsQuery: 'mens knitwear mohair fuzzy sweater wide leg trousers outfit aesthetic',
+      womenPexelsQuery: 'womens knitwear mohair fuzzy sweater midi skirt boots outfit aesthetic',
+    },
+  ],
+
+  western: [
+    {
+      id: 'wt-1', name: 'Frontier Ready',
+      vibe: 'Denim, boots, and the open road',
+      seasons: ['spring', 'fall'],
+      pieces: ['denim-jacket', 'flannel', 'raw-denim', 'cowboy-boots', 'leather-belt'],
+      pexelsQuery: 'mens western cowboy outfit denim jacket flannel cowboy boots aesthetic',
+      womenPexelsQuery: 'womens western cowboy outfit denim jacket fringe dress cowboy boots aesthetic',
+    },
+    {
+      id: 'wt-2', name: 'Desert Rider',
+      vibe: 'Warm earth tones, frontier layers',
+      seasons: ['summer', 'fall'],
+      pieces: ['shearling', 'plain-tee', 'raw-denim', 'cowboy-boots'],
+      pexelsQuery: 'mens western desert cowboy shearling jacket raw denim cowboy boots',
+      womenPexelsQuery: 'womens western desert cowgirl fringe skirt shearling jacket boots',
+    },
+  ],
+
+  athletic: [
+    {
+      id: 'at-1', name: 'Performance Mode',
+      vibe: 'Built to move, looks the part',
+      seasons: ['spring', 'summer'],
+      pieces: ['track-jacket', 'shorts', 'trail-runners', 'baseball-cap'],
+      pexelsQuery: 'mens athletic performance training outfit track jacket sports',
+      womenPexelsQuery: 'womens athletic performance training outfit sports bra leggings sneakers',
+    },
+    {
+      id: 'at-2', name: 'Post-Workout',
+      vibe: 'Recovery gear done right',
+      seasons: ['spring', 'fall'],
+      pieces: ['hoodie', 'joggers', 'trail-runners'],
+      pexelsQuery: 'mens athletic post workout hoodie joggers clean sneakers outfit',
+      womenPexelsQuery: 'womens athletic post workout hoodie leggings clean sneakers outfit',
+    },
+  ],
+
+  outdoor: [
+    {
+      id: 'od-1', name: 'Trail Day',
+      vibe: 'Technical and ready for anything',
+      seasons: ['spring', 'fall'],
+      pieces: ['anorak', 'fleece', 'cargo', 'trail-runners', 'baseball-cap'],
+      pexelsQuery: 'mens outdoor hiking trail outfit technical anorak fleece boots',
+      womenPexelsQuery: 'womens outdoor hiking trail outfit technical shell fleece hiking boots',
+    },
+    {
+      id: 'od-2', name: 'Mountain Layer',
+      vibe: 'All-season, all-terrain layers',
+      seasons: ['fall', 'winter'],
+      pieces: ['anorak', 'zip-sweater', 'cargo', 'work-boots', 'beanie'],
+      pexelsQuery: 'mens outdoor hiking mountain layered technical winter outfit',
+      womenPexelsQuery: 'womens outdoor hiking mountain layered technical winter outfit fleece',
+    },
+  ],
+
+  baddie: [
+    {
+      id: 'bd-1', name: 'Fitted All Day',
+      vibe: 'Silhouette first, always',
+      seasons: ['spring', 'summer'],
+      pieces: ['plain-tee', 'slim-jeans', 'chunky-sneakers', 'chain-necklace'],
+      pexelsQuery: 'mens baddie aesthetic fitted confident outfit monochrome fashion',
+      womenPexelsQuery: 'womens baddie aesthetic fitted confident bodycon dress heels fashion',
+    },
+    {
+      id: 'bd-2', name: 'All Black Flex',
+      vibe: 'Monochrome and dominant',
+      seasons: ['fall', 'winter'],
+      pieces: ['leather-jacket', 'plain-tee', 'slim-jeans', 'combat-boots'],
+      pexelsQuery: 'mens baddie all black monochrome fitted outfit confident fashion',
+      womenPexelsQuery: 'womens baddie all black monochrome fitted bodysuit leather pants heels',
+    },
+  ],
+
+  edgy: [
+    {
+      id: 'eg-1', name: 'Sharp Dark',
+      vibe: 'All black, sharp silhouettes',
+      seasons: ['fall', 'winter'],
+      pieces: ['leather-jacket', 'plain-tee', 'slim-jeans', 'chelsea-boots'],
+      pexelsQuery: 'mens edgy dark aesthetic all black sharp outfit fashion',
+      womenPexelsQuery: 'womens edgy dark aesthetic all black sharp dress boots fashion',
+    },
+    {
+      id: 'eg-2', name: 'Industrial Edge',
+      vibe: 'Heavy fabrics, intentional attitude',
+      seasons: ['spring', 'fall'],
+      pieces: ['overcoat', 'graphic-tee', 'cargo', 'combat-boots'],
+      pexelsQuery: 'mens edgy industrial dark aesthetic cargo coat combat boots',
+      womenPexelsQuery: 'womens edgy industrial dark aesthetic asymmetric dress combat boots',
+    },
+  ],
+
+  coastalgrandma: [
+    {
+      id: 'cg3-1', name: 'Morning By the Sea',
+      vibe: 'Breezy linen, unhurried living',
+      seasons: ['spring', 'summer'],
+      pieces: ['linen-shirt', 'linen-trousers', 'sandals', 'watch'],
+      pexelsQuery: 'mens coastal grandpa aesthetic linen shirt khaki trousers boat shoes beach',
+      womenPexelsQuery: 'womens coastal grandma aesthetic linen dress woven bag sandals beach',
+    },
+    {
+      id: 'cg3-2', name: 'Harbor Afternoon',
+      vibe: 'Knit, khaki, and sea salt',
+      seasons: ['fall', 'spring'],
+      pieces: ['cable-knit', 'chinos', 'loafers', 'watch', 'crossbody'],
+      pexelsQuery: 'mens coastal grandpa knit sweater chinos loafers relaxed seaside',
+      womenPexelsQuery: 'womens coastal grandma linen wide leg trousers knit sweater sandals seaside',
     },
   ],
 }
