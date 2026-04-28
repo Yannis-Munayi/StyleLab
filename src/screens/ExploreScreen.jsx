@@ -54,14 +54,17 @@ function AestheticCard({ style, onOpen, pinned, gender }) {
           fetchedRef.current = true
           const name = style.name
           if (gender === 'both') {
+            const outfitQ = style.outfitQuery
             Promise.all([
               fetchPhotosWithFallback([
+                ...(outfitQ ? [outfitQ] : []),
                 `${name} men outfit aesthetic`,
                 `${name} men fashion`,
                 `${name} men outfit`,
                 `${name} fashion`,
               ], 2),
               fetchPhotosWithFallback([
+                ...(outfitQ ? [outfitQ] : []),
                 `${name} women outfit aesthetic`,
                 `${name} women fashion`,
                 `${name} women outfit`,
@@ -81,6 +84,7 @@ function AestheticCard({ style, onOpen, pinned, gender }) {
             const hint = gender === 'women' ? 'women' : 'men'
             const displayName = getStyleName(style, gender)
             fetchPhotosWithFallback([
+              ...(style.outfitQuery ? [style.outfitQuery] : []),
               `${displayName} ${hint} outfit aesthetic`,
               `${displayName} ${hint} fashion`,
               `${displayName} ${hint} outfit`,

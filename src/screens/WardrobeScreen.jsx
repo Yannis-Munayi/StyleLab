@@ -1,32 +1,50 @@
 import { useEffect, useMemo, useState } from 'react'
-import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from 'firebase/firestore'
-import { db } from '../services/firebase'
-import { useAuth } from '../context/AuthContext'
-import { useApp } from '../context/AppContext'
-import { fetchPhotos } from '../services/pexels'
-import { CLOTHING_ITEMS, CATEGORIES } from '../data/categories'
+import { useWishlist } from '../context/WishlistContext'
+import { fetchPhotosWithFallback } from '../services/pexels'
 import ItemActionSheet from '../components/ItemActionSheet'
 import ShopPanel from '../components/ShopPanel'
 import AuthWidget from '../components/AuthWidget'
-import WardrobeUpload from '../components/WardrobeUpload'
 import styles from './WardrobeScreen.module.css'
 
-// Flat lookup of every item by id
-const ITEM_LOOKUP = (() => {
-  const map = {}
-  for (const [catId, items] of Object.entries(CLOTHING_ITEMS)) {
-    for (const item of items) map[item.id] = { ...item, categoryId: catId }
-  }
-  return map
-})()
+// Ordered category buckets for grouping liked items
+const BUCKET_META = {
+  footwear:    { label: 'Footwear',    emoji: '👟' },
+  tops:        { label: 'Tops',        emoji: '👕' },
+  knitwear:    { label: 'Knitwear',    emoji: '🧶' },
+  bottoms:     { label: 'Bottoms',     emoji: '👖' },
+  outerwear:   { label: 'Outerwear',   emoji: '🧥' },
+  accessories: { label: 'Accessories', emoji: '👜' },
+  activewear:  { label: 'Activewear',  emoji: '🏃' },
+  // legacy categoryIds from old quiz items
+  tops_legacy:       { label: 'Tops',      emoji: '👕' },
+  outerwear_legacy:  { label: 'Outerwear', emoji: '🧥' },
+  bottoms_legacy:    { label: 'Bottoms',   emoji: '👖' },
+  footwear_legacy:   { label: 'Footwear',  emoji: '👟' },
+  other:       { label: 'Other',       emoji: '✨' },
+}
 
-function WardrobeItem({ item, onSelect }) {
-  const [photo, setPhoto]   = useState(null)
+const BUCKET_ORDER = ['footwear', 'tops', 'knitwear', 'bottoms', 'outerwear', 'accessories', 'activewear']
+
+function bucketFor(item) {
+  // New products use parentType
+  if (item.parentType) return item.parentType
+  // Old quiz items use categoryId — map to parentType equivalents
+  if (item.categoryId) return item.categoryId
+  return 'other'
+}
+
+// Single card for any liked item (product or old quiz item)
+function LikedItemCard({ item, onSelect }) {
+  const [photo,  setPhoto]  = useState(null)
   const [loaded, setLoaded] = useState(false)
+  const isProduct = item.type === 'product'
 
   useEffect(() => {
     let cancelled = false
-    fetchPhotos(`${item.name} men fashion outfit`, 1).then(([url] = []) => {
+    const query = item.pexelsQuery
+      ? [item.pexelsQuery]
+      : [`${item.brand ? item.brand + ' ' : ''}${item.name} fashion outfit`]
+    fetchPhotosWithFallback(query, 1).then(([url] = []) => {
       if (!cancelled) setPhoto(url ?? null)
     })
     return () => { cancelled = true }
@@ -45,198 +63,111 @@ function WardrobeItem({ item, onSelect }) {
             onError={() => setLoaded(true)}
           />
         )}
-        <span className={styles.itemEmoji}>{item.emoji}</span>
+        {isProduct
+          ? <span className={styles.brandBadge}>{item.brand}</span>
+          : <span className={styles.itemEmoji}>{item.emoji}</span>
+        }
         <div className={styles.itemOverlay}>
           <span className={styles.itemOverlayIcon}>⋯</span>
         </div>
       </div>
+
       <p className={styles.itemName}>{item.name}</p>
+
+      {isProduct && (
+        <div className={styles.itemMeta}>
+          {item.colorHex && (
+            <span className={styles.colorDot} style={{ background: item.colorHex }} />
+          )}
+          <span className={styles.colorLabel}>{item.color}</span>
+        </div>
+      )}
+
+      {isProduct && item.shopUrl && (
+        <a
+          href={item.shopUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.shopLink}
+          onClick={(e) => e.stopPropagation()}
+        >
+          Shop at {item.brand} ↗
+        </a>
+      )}
     </button>
   )
 }
 
-// Uploaded item card (uses the actual photo URL from Storage)
-function UploadedItem({ item }) {
-  return (
-    <div className={styles.item}>
-      <div className={styles.itemPhoto} style={{ background: 'rgba(255,255,255,0.05)' }}>
-        {item.imageUrl && (
-          <img src={item.imageUrl} alt={item.name} className={styles.itemImg} style={{ opacity: 1 }} />
-        )}
-        {!item.imageUrl && <span className={styles.itemEmoji}>📦</span>}
-        {item.aiDetected && <span className={styles.aiBadge}>✦ AI</span>}
-      </div>
-      <p className={styles.itemName}>{item.name}</p>
-    </div>
-  )
-}
-
 export default function WardrobeScreen() {
-  const { user }           = useAuth()
-  const { state }          = useApp()
-  const { itemQueue, responses } = state
+  const { liked, removeFromLiked }      = useWishlist()
 
-  const [pastItems,      setPastItems]      = useState([])
-  const [loadingPast,    setLoadingPast]    = useState(false)
-  const [uploadedItems,  setUploadedItems]  = useState([])
-  const [showUpload,     setShowUpload]     = useState(false)
-  const [activeItem,     setActiveItem]     = useState(null)
-  const [shopItem,       setShopItem]       = useState(null)
+  const [activeItem, setActiveItem] = useState(null)
+  const [shopItem,   setShopItem]   = useState(null)
 
-  // Load liked items from past quiz sessions if signed in
-  useEffect(() => {
-    if (!user) return
-    setLoadingPast(true)
-    const q = query(collection(db, 'users', user.uid, 'quizzes'), orderBy('timestamp', 'desc'))
-    getDocs(q).then((snap) => {
-      const seen  = new Set()
-      const items = []
-      for (const doc of snap.docs) {
-        for (const li of doc.data().likedItems ?? []) {
-          if (!seen.has(li.id) && ITEM_LOOKUP[li.id]) {
-            seen.add(li.id)
-            items.push(ITEM_LOOKUP[li.id])
-          }
-        }
-      }
-      setPastItems(items)
-    }).catch(() => {}).finally(() => setLoadingPast(false))
-  }, [user])
-
-  // Load uploaded items from Firestore
-  useEffect(() => {
-    if (!user) return
-    const q = query(collection(db, 'users', user.uid, 'uploadedItems'), orderBy('uploadedAt', 'desc'))
-    getDocs(q).then((snap) => {
-      setUploadedItems(snap.docs.map((d) => ({ ...d.data(), firestoreId: d.id })))
-    }).catch(() => {})
-  }, [user])
-
-  async function handleSaveUpload(item) {
-    if (!user) return
-    await addDoc(collection(db, 'users', user.uid, 'uploadedItems'), {
-      ...item,
-      uploadedAt: serverTimestamp(),
-    })
-    setUploadedItems((prev) => [item, ...prev])
-  }
-
-  // Current session liked items
-  const sessionItems = useMemo(() =>
-    itemQueue.filter((item) => responses[item.id]?.liked),
-    [itemQueue, responses]
-  )
-
-  // Merge: session items take precedence, then past
-  const allLiked = useMemo(() => {
-    const sessionIds = new Set(sessionItems.map((i) => i.id))
-    const past = pastItems.filter((i) => !sessionIds.has(i.id))
-    return [...sessionItems, ...past]
-  }, [sessionItems, pastItems])
-
-  // Group by category, preserving CATEGORIES order
+  // Group liked items by bucket (parentType for products, categoryId for old items)
   const grouped = useMemo(() => {
     const map = {}
-    for (const item of allLiked) {
-      const catId = item.categoryId
-      if (!map[catId]) map[catId] = []
-      map[catId].push(item)
+    for (const item of liked) {
+      const bucket = bucketFor(item)
+      if (!map[bucket]) map[bucket] = []
+      map[bucket].push(item)
     }
-    return CATEGORIES
-      .filter((cat) => map[cat.id])
-      .map((cat) => ({ cat, items: map[cat.id] }))
-  }, [allLiked])
-
-  const totalCount = allLiked.length
-
-  function handleSelectItem(item) {
-    setActiveItem(item)
-  }
+    const ordered = BUCKET_ORDER
+      .filter((id) => map[id])
+      .map((id) => ({ meta: BUCKET_META[id] ?? { label: id, emoji: '✨' }, items: map[id] }))
+    // Append any buckets not in the defined order (legacy categoryIds, etc.)
+    const seen = new Set(BUCKET_ORDER)
+    const extra = Object.keys(map)
+      .filter((id) => !seen.has(id))
+      .map((id) => ({
+        meta: BUCKET_META[id] ?? { label: id.charAt(0).toUpperCase() + id.slice(1), emoji: '👔' },
+        items: map[id],
+      }))
+    return [...ordered, ...extra]
+  }, [liked])
 
   function handleOpenShop() {
     setShopItem(activeItem)
     setActiveItem(null)
   }
 
-  // Group uploaded items by category
-  const uploadedGrouped = useMemo(() => {
-    const map = {}
-    for (const item of uploadedItems) {
-      if (!map[item.category]) map[item.category] = []
-      map[item.category].push(item)
-    }
-    return Object.entries(map).map(([catId, items]) => {
-      const cat = CATEGORIES.find((c) => c.id === catId) ?? { id: catId, label: catId, emoji: '👕' }
-      return { cat, items }
-    })
-  }, [uploadedItems])
-
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <div>
-            <h1 className={styles.title}>My Wardrobe</h1>
-            {(totalCount + uploadedItems.length) > 0 && (
-              <p className={styles.sub}>{totalCount + uploadedItems.length} piece{(totalCount + uploadedItems.length) !== 1 ? 's' : ''} saved</p>
+            <h1 className={styles.title}>Liked</h1>
+            {liked.length > 0 && (
+              <p className={styles.sub}>
+                {liked.length} piece{liked.length !== 1 ? 's' : ''} liked
+              </p>
             )}
           </div>
-          <div className={styles.headerRight}>
-            {user && (
-              <button className={styles.uploadBtn} onClick={() => setShowUpload(true)}>
-                + Upload
-              </button>
-            )}
-            <AuthWidget />
-          </div>
+          <AuthWidget />
         </div>
       </div>
 
-      {totalCount === 0 && uploadedItems.length === 0 && !loadingPast && (
+      {liked.length === 0 && (
         <div className={styles.empty}>
-          <span className={styles.emptyIcon}>🪣</span>
-          <p className={styles.emptyTitle}>Nothing saved yet</p>
+          <span className={styles.emptyIcon}>🤍</span>
+          <p className={styles.emptyTitle}>Nothing liked yet</p>
           <p className={styles.emptySub}>
-            Like items during the quiz, or tap "+ Upload" to add your own pieces.
+            Swipe right on items in Discover, or tap the heart on any card.
           </p>
         </div>
       )}
 
-      {loadingPast && totalCount === 0 && uploadedItems.length === 0 && (
-        <div className={styles.empty}>
-          <p className={styles.emptySub}>Loading your wardrobe…</p>
-        </div>
-      )}
-
       <div className={styles.sections}>
-        {/* Uploaded pieces — shown first */}
-        {uploadedGrouped.map(({ cat, items }) => (
-          <section key={`uploaded_${cat.id}`} className={styles.section}>
+        {grouped.map(({ meta, items }) => (
+          <section key={meta.label} className={styles.section}>
             <div className={styles.sectionHeader}>
-              <span className={styles.sectionEmoji}>{cat.emoji}</span>
-              <h2 className={styles.sectionTitle}>{cat.label}</h2>
-              <span className={styles.sectionBadge}>Uploaded</span>
+              <span className={styles.sectionEmoji}>{meta.emoji}</span>
+              <h2 className={styles.sectionTitle}>{meta.label}</h2>
               <span className={styles.sectionCount}>{items.length}</span>
             </div>
             <div className={styles.grid}>
               {items.map((item) => (
-                <UploadedItem key={item.id} item={item} />
-              ))}
-            </div>
-          </section>
-        ))}
-
-        {/* Quiz liked pieces */}
-        {grouped.map(({ cat, items }) => (
-          <section key={cat.id} className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <span className={styles.sectionEmoji}>{cat.emoji}</span>
-              <h2 className={styles.sectionTitle}>{cat.label}</h2>
-              <span className={styles.sectionCount}>{items.length}</span>
-            </div>
-            <div className={styles.grid}>
-              {items.map((item) => (
-                <WardrobeItem key={item.id} item={item} onSelect={handleSelectItem} />
+                <LikedItemCard key={item.id} item={item} onSelect={setActiveItem} />
               ))}
             </div>
           </section>
@@ -248,26 +179,16 @@ export default function WardrobeScreen() {
         <ItemActionSheet
           item={activeItem}
           onShop={handleOpenShop}
+          onRemove={() => { removeFromLiked(activeItem.id); setActiveItem(null) }}
           onClose={() => setActiveItem(null)}
         />
       )}
 
-      {/* Shop panel (full-screen slide) */}
+      {/* Shop panel for old quiz items */}
       {shopItem && (
-        <ShopPanel
-          item={shopItem}
-          onClose={() => setShopItem(null)}
-        />
+        <ShopPanel item={shopItem} onClose={() => setShopItem(null)} />
       )}
 
-      {/* Upload sheet */}
-      {showUpload && (
-        <WardrobeUpload
-          uid={user?.uid}
-          onSave={handleSaveUpload}
-          onClose={() => setShowUpload(false)}
-        />
-      )}
     </div>
   )
 }

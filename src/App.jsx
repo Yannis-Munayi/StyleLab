@@ -12,13 +12,9 @@ import DiscoveryScreen from './screens/DiscoveryScreen'
 import ResultsScreen   from './screens/ResultsScreen'
 import AuthScreen      from './screens/AuthScreen'
 import ProfileScreen   from './screens/ProfileScreen'
-import WardrobeScreen  from './screens/WardrobeScreen'
-import LikedScreen     from './screens/LikedScreen'
-import WishlistScreen  from './screens/WishlistScreen'
-import ShopScreen      from './screens/ShopScreen'
-import ExploreScreen      from './screens/ExploreScreen'
-import AestheticScreen    from './screens/AestheticScreen'
-import OutfitBoardScreen  from './screens/OutfitBoardScreen'
+import MyStyleScreen   from './screens/MyStyleScreen'
+import ExploreScreen   from './screens/ExploreScreen'
+import AestheticScreen from './screens/AestheticScreen'
 import TabBar          from './components/TabBar'
 import GuideTour, { GUIDE_STEPS } from './components/GuideTour'
 import { GuideProvider } from './context/GuideContext'
@@ -101,9 +97,10 @@ function AppShell() {
   const { state, dispatch } = useApp()
   const { user }            = useAuth()
   const { openAesthetic, openAestheticTab } = useExplore()
-  const [activeTab, setActiveTab]       = useState('home')
+  const [activeTab, setActiveTab]           = useState('home')
+  const [myStyleSubTab, setMyStyleSubTab]   = useState(null)
   const [showResumeModal, setShowResumeModal] = useState(false)
-  const [guideStep, setGuideStep]       = useState(null)
+  const [guideStep, setGuideStep]           = useState(null)
   const prevUserRef = useRef(user)
 
   const showTabs = !HIDE_TABS_ON.has(state.screen)
@@ -137,12 +134,15 @@ function AppShell() {
     setActiveTab('home')
   }
 
-  function navigateGuideTab(tab) {
+  function navigateGuideTab(tab, step) {
     if (tab.startsWith('aesthetic:')) {
       const id = tab.replace('aesthetic:', '')
       openAestheticTab(id)
       setActiveTab(tab)
     } else {
+      if (tab === 'mystyle' && step?.myStyleSubTab) {
+        setMyStyleSubTab(step.myStyleSubTab)
+      }
       setActiveTab(tab)
     }
   }
@@ -151,16 +151,26 @@ function AppShell() {
     const next = guideStep + 1
     if (next >= GUIDE_STEPS.length) { setGuideStep(null); return }
     setGuideStep(next)
-    const nextTab = GUIDE_STEPS[next].tab
-    if (nextTab !== GUIDE_STEPS[guideStep].tab) navigateGuideTab(nextTab)
+    const nextStep = GUIDE_STEPS[next]
+    const curStep  = GUIDE_STEPS[guideStep]
+    if (nextStep.tab !== curStep.tab) {
+      navigateGuideTab(nextStep.tab, nextStep)
+    } else if (nextStep.tab === 'mystyle' && nextStep.myStyleSubTab) {
+      setMyStyleSubTab(nextStep.myStyleSubTab)
+    }
   }
 
   function guideBack() {
     const prev = guideStep - 1
     if (prev < 0) return
     setGuideStep(prev)
-    const prevTab = GUIDE_STEPS[prev].tab
-    if (prevTab !== GUIDE_STEPS[guideStep].tab) navigateGuideTab(prevTab)
+    const prevStep = GUIDE_STEPS[prev]
+    const curStep  = GUIDE_STEPS[guideStep]
+    if (prevStep.tab !== curStep.tab) {
+      navigateGuideTab(prevStep.tab, prevStep)
+    } else if (prevStep.tab === 'mystyle' && prevStep.myStyleSubTab) {
+      setMyStyleSubTab(prevStep.myStyleSubTab)
+    }
   }
 
   function guideSkip() {
@@ -186,13 +196,27 @@ function AppShell() {
       setShowResumeModal(true)
       return
     }
+    // Auto-start the infinite feed on first Discover tap — no season/category gates
+    if (tabId === 'quiz' && state.screen === SCREENS.WELCOME) {
+      dispatch({ type: 'GO_TO_DISCOVERY_DIRECT' })
+      setActiveTab('quiz')
+      return
+    }
     if (tabId.startsWith('aesthetic:')) {
       const id = tabId.replace('aesthetic:', '')
       openAestheticTab(id)
       setActiveTab(tabId)
-    } else {
-      setActiveTab(tabId)
+      return
     }
+    if (tabId.startsWith('mystyle:')) {
+      setMyStyleSubTab(tabId.replace('mystyle:', ''))
+      setActiveTab('mystyle')
+      return
+    }
+    if (tabId === 'mystyle') {
+      setMyStyleSubTab(null)
+    }
+    setActiveTab(tabId)
   }
 
   function handleContinue() {
@@ -202,7 +226,7 @@ function AppShell() {
 
   function handleRestart() {
     setShowResumeModal(false)
-    dispatch({ type: 'RESTART_QUIZ' })
+    dispatch({ type: 'GO_TO_DISCOVERY_DIRECT' })
     setActiveTab('quiz')
   }
 
@@ -240,10 +264,9 @@ function AppShell() {
           forceSubTab={guideForceSubTab}
         />
       )}
-      {showTabs && activeTab === 'wardrobe'  && <LikedScreen />}
-      {showTabs && activeTab === 'wishlist'  && <WishlistScreen />}
-      {showTabs && activeTab === 'outfits'   && <OutfitBoardScreen />}
-      {showTabs && activeTab === 'shop'      && <ShopScreen />}
+      {showTabs && activeTab === 'mystyle' && (
+        <MyStyleScreen forceSubTab={myStyleSubTab} />
+      )}
       {showTabs && activeTab === 'profile'  && (
         <ProfileScreen onBack={() => handleTabChange('quiz')} startGuide={startGuide} />
       )}

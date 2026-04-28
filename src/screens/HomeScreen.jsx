@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { STYLES, getStyleName } from '../data/styles'
+import { CLOTHING_ITEMS } from '../data/categories'
+import { AESTHETIC_QUIZ_ITEMS } from '../data/aestheticItems'
 import { fetchPhotosWithFallback } from '../services/pexels'
 import { useApp, SCREENS } from '../context/AppContext'
 import { useAuth } from '../context/AuthContext'
@@ -30,6 +32,24 @@ const SEASON_META = {
   fall:   { icon: '🍂', label: 'Fall Picks',    sub: 'Earth tones, rich textures' },
 }
 
+// Full clothing item pool for Fresh Looks — built once at module load
+const ALL_FRESH_ITEMS = (() => {
+  const all = []
+  for (const [catId, items] of Object.entries(CLOTHING_ITEMS)) {
+    for (const item of items) all.push({ ...item, categoryId: catId })
+  }
+  for (const item of AESTHETIC_QUIZ_ITEMS) {
+    all.push({ ...item, categoryId: item._category })
+  }
+  const seen = new Set()
+  return all.filter((item) => {
+    const key = item.name.toLowerCase().trim()
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+})()
+
 function getSeason() {
   const m = new Date().getMonth()
   if (m <= 1 || m === 11) return 'winter'
@@ -38,11 +58,19 @@ function getSeason() {
   return 'fall'
 }
 
-function getGreeting() {
-  const h = new Date().getHours()
-  if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
+// Deterministic daily shuffle — same 10 items all day, changes at midnight
+function getDailyItems(pool, count = 10) {
+  const dateStr = new Date().toDateString()
+  let h = 0
+  for (let i = 0; i < dateStr.length; i++) h = (h * 31 + dateStr.charCodeAt(i)) >>> 0
+  const arr = [...pool]
+  let r = h
+  for (let i = arr.length - 1; i > 0; i--) {
+    r = (r * 1664525 + 1013904223) >>> 0
+    const j = r % (i + 1)
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr.slice(0, count)
 }
 
 // ── Hero carousel ─────────────────────────────────────────────────────────────
@@ -61,6 +89,7 @@ function HeroCarousel({ setActiveTab, gender }) {
       if (!s) return
       const name = getStyleName(s, gender)
       fetchPhotosWithFallback([
+        ...(s.outfitQuery ? [s.outfitQuery] : []),
         `${name} ${hint} fashion aesthetic`.trim(),
         `${name} ${hint} outfit`.trim(),
         `${name} fashion`,
@@ -96,7 +125,6 @@ function HeroCarousel({ setActiveTab, gender }) {
 
   return (
     <div className={styles.hero}>
-      {/* Background */}
       <div className={styles.heroBg} style={{ background: style?.gradient ?? '#1a1a1a' }}>
         {photo && (
           <img
@@ -112,13 +140,11 @@ function HeroCarousel({ setActiveTab, gender }) {
       </div>
       <div className={styles.heroOverlay} />
 
-      {/* Top bar */}
       <div className={styles.heroTopBar}>
         <span className={styles.heroWordmark}>StyleLab</span>
         <AuthWidget />
       </div>
 
-      {/* Bottom content */}
       <div className={styles.heroContent}>
         <p className={styles.heroEyebrow}>Featured Aesthetic</p>
         <h2 className={styles.heroName}>{getStyleName(style, gender)}</h2>
@@ -131,7 +157,6 @@ function HeroCarousel({ setActiveTab, gender }) {
         </button>
       </div>
 
-      {/* Dot nav */}
       <div className={styles.heroDots}>
         {HERO_SLIDE_IDS.map((_, i) => (
           <button
@@ -156,9 +181,9 @@ function StatsPills({ setActiveTab }) {
   const likedCount = Object.values(state.responses).filter((r) => r.liked).length
 
   const pills = [
-    { label: 'Liked',     value: likedCount,       icon: '❤️', tab: 'wardrobe' },
-    { label: 'Wishlist',  value: wishlist.length,   icon: '🤍', tab: 'wishlist' },
-    { label: 'Shop List', value: shopList.length,   icon: '🛍️', tab: 'shop'     },
+    { label: 'Liked',     value: likedCount,       icon: '❤️', tab: 'mystyle:liked' },
+    { label: 'Saved',     value: wishlist.length,   icon: '🤍', tab: 'mystyle:saved' },
+    { label: 'Shop List', value: shopList.length,   icon: '🛍️', tab: 'mystyle:shop'  },
   ]
 
   return (
@@ -171,6 +196,166 @@ function StatsPills({ setActiveTab }) {
         </button>
       ))}
     </div>
+  )
+}
+
+// ── Fresh Looks Today ─────────────────────────────────────────────────────────
+
+function FreshLookCard({ item, gender }) {
+  const { liked, addToLiked } = useWishlist()
+  const [photo, setPhoto]     = useState(null)
+  const [loaded, setLoaded]   = useState(false)
+  const cardRef = useRef(null)
+  const fetched = useRef(false)
+
+  const isLiked = liked.some((i) => i.id === item.id)
+
+  useEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !fetched.current) {
+        fetched.current = true
+        const hint = gender === 'women' ? 'women' : gender === 'men' ? 'men' : ''
+        fetchPhotosWithFallback([
+          `${item.name} ${hint} fashion outfit`.trim(),
+          `${item.name} ${hint} outfit`.trim(),
+          `${item.name} fashion`,
+        ], 1).then(([url] = []) => setPhoto(url ?? null))
+        obs.disconnect()
+      }
+    }, { rootMargin: '80px' })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [item.id, gender])
+
+  function handleLike(e) {
+    e.stopPropagation()
+    if (isLiked) return
+    addToLiked({
+      id: item.id, type: 'item',
+      name: item.name, emoji: item.emoji, gradient: item.gradient,
+      categoryId: item.categoryId, seasons: item.seasons || [],
+      description: item.description, styleWeights: item.styleWeights ?? {},
+    })
+  }
+
+  return (
+    <div ref={cardRef} className={styles.freshCard}>
+      <div className={styles.freshCardBg} style={{ background: item.gradient }}>
+        {photo && (
+          <img
+            src={photo}
+            alt={item.name}
+            className={styles.freshCardImg}
+            style={{ opacity: loaded ? 1 : 0 }}
+            onLoad={() => setLoaded(true)}
+            onError={() => setLoaded(true)}
+          />
+        )}
+        <div className={styles.freshCardOverlay} />
+      </div>
+      <button
+        className={`${styles.freshLikeBtn} ${isLiked ? styles.freshLikeBtnActive : ''}`}
+        onClick={handleLike}
+        aria-label={isLiked ? 'Liked' : 'Like'}
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24"
+          fill={isLiked ? 'currentColor' : 'none'}
+          stroke="currentColor" strokeWidth="2.2">
+          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+        </svg>
+      </button>
+      <div className={styles.freshCardFooter}>
+        <span className={styles.freshCardName}>{item.name}</span>
+      </div>
+    </div>
+  )
+}
+
+function FreshLooksSection({ gender, setActiveTab }) {
+  const items = useMemo(() => getDailyItems(ALL_FRESH_ITEMS, 10), [])
+
+  return (
+    <section className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}>✨</span>
+        <div>
+          <h2 className={styles.sectionTitle}>Fresh Looks Today</h2>
+          <p className={styles.sectionSub}>Refreshes daily · tap ♥ to like</p>
+        </div>
+      </div>
+      <div className={styles.hScroll}>
+        {items.map((item) => (
+          <FreshLookCard key={item.id} item={item} gender={gender} />
+        ))}
+      </div>
+      <button className={styles.freshDiscoverBtn} onClick={() => setActiveTab('quiz')}>
+        Swipe more looks →
+      </button>
+    </section>
+  )
+}
+
+// ── Live Aesthetic Profile ────────────────────────────────────────────────────
+
+function AestheticProfile({ setActiveTab, gender }) {
+  const { state } = useApp()
+
+  const topStyles = useMemo(() => {
+    const total = Object.values(state.styleScores).reduce((a, b) => a + b, 0)
+    if (total === 0) return []
+    return Object.entries(state.styleScores)
+      .filter(([, s]) => s > 0)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([id, score]) => ({ id, score, pct: Math.round((score / total) * 100) }))
+  }, [state.styleScores])
+
+  const swipedCount = Object.keys(state.responses).length
+
+  if (topStyles.length === 0) return null
+
+  return (
+    <section className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}>✦</span>
+        <div>
+          <h2 className={styles.sectionTitle}>Your Aesthetic Profile</h2>
+          <p className={styles.sectionSub}>{swipedCount} looks rated · updates live as you swipe</p>
+        </div>
+      </div>
+      <div className={styles.aestheticBars}>
+        {topStyles.map(({ id, pct }) => {
+          const s = STYLES[id]
+          if (!s) return null
+          return (
+            <button
+              key={id}
+              className={styles.aestheticBar}
+              onClick={() => setActiveTab(`aesthetic:${id}`)}
+            >
+              <div className={styles.aestheticBarLabel}>
+                <span className={styles.aestheticBarName}>{getStyleName(s, gender)}</span>
+                <span className={styles.aestheticBarPct}>{pct}%</span>
+              </div>
+              <div className={styles.aestheticBarTrack}>
+                <div
+                  className={styles.aestheticBarFill}
+                  style={{ width: `${pct}%`, background: s.gradient ?? 'linear-gradient(135deg, #FF6B35, #FF8C42)' }}
+                />
+              </div>
+            </button>
+          )
+        })}
+      </div>
+      <button
+        className={styles.viewResultsBtn}
+        onClick={() => setActiveTab('quiz')}
+      >
+        Full breakdown →
+      </button>
+    </section>
   )
 }
 
@@ -198,6 +383,7 @@ function AestheticMiniCard({ aestheticId, setActiveTab, gender }) {
         const name = getStyleName(style, gender)
         const hint = gender === 'women' ? 'women' : gender === 'men' ? 'men' : ''
         fetchPhotosWithFallback([
+          ...(style.outfitQuery ? [style.outfitQuery] : []),
           `${name} ${hint} outfit aesthetic`.trim(),
           `${name} ${hint} fashion`.trim(),
           `${name} fashion`,
@@ -246,78 +432,6 @@ function HorizontalScroll({ ids, setActiveTab, gender }) {
   )
 }
 
-// ── Your Style journey CTA ────────────────────────────────────────────────────
-
-function StyleJourneyCTA({ setActiveTab, gender }) {
-  const { state }  = useApp()
-  const { user }   = useAuth()
-
-  const responsesCount = Object.keys(state.responses).length
-  const inProgress     = state.screen === SCREENS.DISCOVERY && responsesCount > 0
-  const isDone         = state.screen === SCREENS.RESULTS || responsesCount === state.itemQueue.length && state.itemQueue.length > 0
-
-  const topStyle = isDone
-    ? Object.entries(state.styleScores).sort(([, a], [, b]) => b - a)[0]?.[0]
-    : null
-  const topStyleData = topStyle ? STYLES[topStyle] : null
-
-  if (topStyleData) {
-    return (
-      <div className={styles.ctaCard} style={{ background: topStyleData.gradient }}>
-        <div className={styles.ctaCardOverlay} />
-        <div className={styles.ctaCardContent}>
-          <p className={styles.ctaEyebrow}>Your top aesthetic</p>
-          <h3 className={styles.ctaTitle}>{getStyleName(topStyleData, gender)}</h3>
-          <p className={styles.ctaSub}>{topStyleData.tagline}</p>
-          <div className={styles.ctaActions}>
-            <button className={styles.ctaBtn} onClick={() => setActiveTab(`aesthetic:${topStyle}`)}>
-              Explore your style →
-            </button>
-            <button className={styles.ctaBtnGhost} onClick={() => setActiveTab('quiz')}>
-              Retake quiz
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (inProgress) {
-    return (
-      <div className={styles.ctaCard} style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' }}>
-        <div className={styles.ctaCardContent}>
-          <p className={styles.ctaEyebrow}>Quiz in progress</p>
-          <h3 className={styles.ctaTitle}>Pick up where you left off</h3>
-          <p className={styles.ctaSub}>
-            You've rated {responsesCount} of {state.itemQueue.length} items.
-          </p>
-          <button className={styles.ctaBtn} onClick={() => setActiveTab('quiz')}>
-            Continue quiz →
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className={styles.ctaCard} style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%)' }}>
-      <div className={styles.ctaCardContent}>
-        <p className={styles.ctaEyebrow}>Discover your aesthetic</p>
-        <h3 className={styles.ctaTitle}>Find your personal style in 5 minutes</h3>
-        <p className={styles.ctaSub}>
-          Like &amp; rate outfits — we'll map your aesthetic and build your wardrobe blueprint.
-        </p>
-        <button
-          className={styles.ctaBtnDark}
-          onClick={() => setActiveTab('quiz')}
-        >
-          Start the quiz →
-        </button>
-      </div>
-    </div>
-  )
-}
-
 // ── Capsule Wardrobe ──────────────────────────────────────────────────────────
 
 function CapsuleLookCard({ look, gender, onClick }) {
@@ -360,17 +474,12 @@ function CapsuleWardrobe({ setActiveTab, gender, season }) {
   const { savedAesthetics } = useExplore()
 
   const capsuleAestheticId = useMemo(() => {
-    // 1. Top score from current quiz session
     const scores = state.styleScores
     const topFromQuiz = Object.entries(scores)
       .filter(([, s]) => s > 0)
       .sort(([, a], [, b]) => b - a)[0]
     if (topFromQuiz) return topFromQuiz[0]
-
-    // 2. First saved aesthetic
     if (savedAesthetics.length > 0) return savedAesthetics[0]
-
-    // 3. First seasonal pick
     return SEASON_PICKS[season][0]
   }, [state.styleScores, savedAesthetics, season])
 
@@ -413,14 +522,11 @@ function CapsuleWardrobe({ setActiveTab, gender, season }) {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ setActiveTab }) {
-  const { user }            = useAuth()
   const { savedAesthetics } = useExplore()
   const { state }           = useApp()
   const gender              = state.gender
   const season              = getSeason()
   const meta                = SEASON_META[season]
-
-  const firstName = user?.displayName?.split(' ')[0] ?? null
 
   return (
     <div className={styles.screen}>
@@ -428,18 +534,16 @@ export default function HomeScreen({ setActiveTab }) {
       <HeroCarousel setActiveTab={setActiveTab} gender={gender} />
 
       <div className={styles.body}>
-        {/* Greeting */}
-        <div className={styles.greeting}>
-          <h1 className={styles.greetingText}>
-            {getGreeting()}{firstName ? `, ${firstName}` : ''}.
-          </h1>
-          <p className={styles.greetingSub}>What are we wearing today?</p>
-        </div>
+        {/* Fresh Looks Today — daily rotating content, main daily pull */}
+        <FreshLooksSection gender={gender} setActiveTab={setActiveTab} />
+
+        {/* Live Aesthetic Profile — only appears once user has swiped */}
+        <AestheticProfile setActiveTab={setActiveTab} gender={gender} />
 
         {/* Stats */}
         <StatsPills setActiveTab={setActiveTab} />
 
-        {/* Saved aesthetics — only when the user has pinned some */}
+        {/* Saved aesthetics */}
         {savedAesthetics.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
@@ -468,9 +572,6 @@ export default function HomeScreen({ setActiveTab }) {
         {/* Seasonal Capsule Wardrobe */}
         <CapsuleWardrobe setActiveTab={setActiveTab} gender={gender} season={season} />
 
-        {/* Style journey CTA */}
-        <StyleJourneyCTA setActiveTab={setActiveTab} gender={gender} />
-
         {/* Trending */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -483,7 +584,6 @@ export default function HomeScreen({ setActiveTab }) {
           <HorizontalScroll ids={TRENDING} setActiveTab={setActiveTab} gender={gender} />
         </section>
 
-        {/* Explore all */}
         <button className={styles.exploreAllBtn} onClick={() => setActiveTab('explore')}>
           Browse all {Object.keys(STYLES).length} aesthetics →
         </button>

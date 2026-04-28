@@ -97,23 +97,26 @@ export const GUIDE_STEPS = [
     desc:  'Tap 🤍 on any card to save it to your Wishlist without affecting the quiz. Great for pieces you love but aren\'t sure fit your aesthetic.',
   },
 
-  // ── Liked ─────────────────────────────────────────────────────────────────
+  // ── My Style: Liked ───────────────────────────────────────────────────────
   {
-    tab:   'wardrobe',
-    title: 'Liked — Your Saved Items ❤️',
-    desc:  'Every item you swiped right on lives here. Tap "Generate my aesthetics" to re-analyse your likes and see which styles they map to. Tap × on any card to remove it.',
+    tab:          'mystyle',
+    myStyleSubTab: 'liked',
+    title: 'My Style — Liked Items ❤️',
+    desc:  'Every item you swiped right on lives in the Liked tab. Tap "Generate my aesthetics" to re-analyse your likes and see which styles they map to. Tap × on any card to remove it.',
   },
 
-  // ── Wishlist + Shop ───────────────────────────────────────────────────────
+  // ── My Style: Saved ───────────────────────────────────────────────────────
   {
-    tab:   'wishlist',
-    title: 'Wishlist & Shop 🤍🛍️',
-    desc:  'Items saved with 🤍 collect in your Wishlist — each links to Pinterest so you can find where to buy it. Tap "Add to shop list" inside any aesthetic to queue pieces you\'re ready to purchase; the Shop tab keeps them all together.',
+    tab:          'mystyle',
+    myStyleSubTab: 'saved',
+    title: 'Saved & Shop 🤍🛍️',
+    desc:  'Items saved with 🤍 collect in the Saved tab — each links to Pinterest so you can find where to buy it. Switch to Shop to see pieces you\'ve queued for purchase from any aesthetic.',
   },
 
-  // ── Outfit Boards ─────────────────────────────────────────────────────────
+  // ── My Style: Boards ─────────────────────────────────────────────────────
   {
-    tab:   'outfits',
+    tab:          'mystyle',
+    myStyleSubTab: 'boards',
     title: 'Outfit Boards 🗂️',
     desc:  'Combine your liked and saved pieces into named outfit boards. Tap "+ New Board", pick your pieces, give it a name — your boards save automatically to your account.',
   },

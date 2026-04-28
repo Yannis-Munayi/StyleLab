@@ -2,8 +2,9 @@ import { useApp } from '../context/AppContext'
 import { getPinterestUrl } from '../data/styles'
 import styles from './ItemActionSheet.module.css'
 
-export default function ItemActionSheet({ item, onPinterest, onShop, onClose }) {
+export default function ItemActionSheet({ item, onShop, onRemove, onClose }) {
   const { state } = useApp()
+  const isProduct    = item.type === 'product'
   const pinterestUrl = getPinterestUrl(null, state.gender, item.name)
 
   return (
@@ -11,7 +12,10 @@ export default function ItemActionSheet({ item, onPinterest, onShop, onClose }) 
       <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
         {/* Item preview */}
         <div className={styles.itemPreview} style={{ background: item.gradient }}>
-          <span className={styles.itemEmoji}>{item.emoji}</span>
+          {isProduct && item.brand
+            ? <span className={styles.itemBrand}>{item.brand}</span>
+            : <span className={styles.itemEmoji}>{item.emoji}</span>
+          }
         </div>
         <p className={styles.itemName}>{item.name}</p>
         <p className={styles.itemDesc}>{item.description}</p>
@@ -29,12 +33,53 @@ export default function ItemActionSheet({ item, onPinterest, onShop, onClose }) 
             <span className={styles.actionArrow}>↗</span>
           </a>
 
-          <button className={`${styles.actionBtn} ${styles.shopBtn}`} onClick={onShop}>
-            <span className={styles.actionIcon}>🛍️</span>
-            <span className={styles.actionText}>Shop this item</span>
-            <span className={styles.actionArrow}>→</span>
-          </button>
+          {isProduct && item.shopUrl ? (
+            /* Direct shop link for products */
+            <a
+              href={item.shopUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.actionBtn} ${styles.shopBtn}`}
+              onClick={onClose}
+            >
+              <span className={styles.actionIcon}>🛍️</span>
+              <span className={styles.actionText}>Shop at {item.brand}</span>
+              <span className={styles.actionArrow}>↗</span>
+            </a>
+          ) : (
+            /* ShopPanel for generic items */
+            <button className={`${styles.actionBtn} ${styles.shopBtn}`} onClick={onShop}>
+              <span className={styles.actionIcon}>🛍️</span>
+              <span className={styles.actionText}>Shop this item</span>
+              <span className={styles.actionArrow}>→</span>
+            </button>
+          )}
+
+          {/* Fallback search link for products */}
+          {isProduct && item.shopFallbackUrl && (
+            <a
+              href={item.shopFallbackUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.actionBtn}
+              onClick={onClose}
+            >
+              <span className={styles.actionIcon}>🔍</span>
+              <span className={styles.actionText}>Search {item.brand} for this</span>
+              <span className={styles.actionArrow}>↗</span>
+            </a>
+          )}
         </div>
+
+        {onRemove && (
+          <button
+            className={`${styles.actionBtn} ${styles.removeBtn}`}
+            onClick={onRemove}
+          >
+            <span className={styles.actionIcon}>🗑️</span>
+            <span className={styles.actionText}>Remove from liked</span>
+          </button>
+        )}
 
         <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
       </div>

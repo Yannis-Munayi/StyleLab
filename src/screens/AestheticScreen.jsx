@@ -6,6 +6,8 @@ import { AESTHETIC_DEPTH } from '../data/aestheticDepth'
 import { getLooks, getLookPieces } from '../data/looks'
 import { getGuideForAesthetic } from '../data/itemGuide'
 import { fetchPhotos, fetchPhotosWithFallback } from '../services/pexels'
+import { fetchPhotos as fetchGooglePhotos } from '../services/google'
+import { PRODUCTS } from '../data/products'
 import { useExplore } from '../context/ExploreContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useApp } from '../context/AppContext'
@@ -24,6 +26,97 @@ const ITEM_LOOKUP = (() => {
 })()
 
 const SEASONS = ['spring', 'summer', 'fall', 'winter']
+
+// ── Product grid (used in Items + Guide tabs) ────────────────────────────────
+
+const GUIDE_CAT_PARENTS = {
+  jeans:     ['bottoms'],
+  outerwear: ['outerwear'],
+  sneakers:  ['footwear'],
+  boots:     ['footwear'],
+  loafers:   ['footwear'],
+  hoodies:   ['tops'],
+  shirts:    ['tops'],
+  suits:     ['outerwear'],
+  trousers:  ['bottoms'],
+}
+
+async function loadProductImage(product) {
+  if (product.googleQuery) {
+    const results = await fetchGooglePhotos(product.googleQuery, 1)
+    if (results.length) return results[0]
+  }
+  const [url] = await fetchPhotosWithFallback([product.name], 1)
+  return url ?? null
+}
+
+function ProductGridCard({ product }) {
+  const [photo, setPhoto]   = useState(null)
+  const [loaded, setLoaded] = useState(false)
+  const { addToLiked, removeFromLiked, isLiked } = useWishlist()
+  const liked = isLiked(product.id)
+
+  useEffect(() => {
+    let cancelled = false
+    loadProductImage(product).then((url) => {
+      if (!cancelled) setPhoto(url ?? null)
+    })
+    return () => { cancelled = true }
+  }, [product.id])
+
+  function toggleLike(e) {
+    e.stopPropagation()
+    if (liked) {
+      removeFromLiked(product.id)
+    } else {
+      addToLiked({
+        id: product.id, type: 'product',
+        name: product.name, brand: product.brand,
+        itemType: product.type, parentType: product.parentType,
+        color: product.color, colorHex: product.colorHex,
+        priceRange: product.priceRange, emoji: product.emoji,
+        gradient: product.gradient, description: product.description,
+        styleWeights: product.styleWeights ?? {},
+        shopUrl: product.shopUrl, shopFallbackUrl: product.shopFallbackUrl,
+        seasons: product.seasons,
+      })
+    }
+  }
+
+  return (
+    <div className={styles.productGridCard}>
+      <div className={styles.productGridPhoto} style={{ background: product.gradient }}>
+        {photo && (
+          <img
+            src={photo}
+            alt={product.name}
+            className={styles.itemImg}
+            style={{ opacity: loaded ? 1 : 0 }}
+            onLoad={() => setLoaded(true)}
+            onError={() => setLoaded(true)}
+          />
+        )}
+        {product.brand && <span className={styles.brandBadge}>{product.brand}</span>}
+        <button
+          className={`${styles.heartBtnSmall} ${liked ? styles.heartBtnSmallActive : ''}`}
+          onClick={toggleLike}
+          aria-label={liked ? 'Unlike' : 'Like'}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'}
+            stroke="currentColor" strokeWidth="2.2">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+          </svg>
+        </button>
+      </div>
+      <p className={styles.itemName}>{product.name}</p>
+      {product.shopUrl && (
+        <a href={product.shopUrl} target="_blank" rel="noopener noreferrer" className={styles.shopLink}>
+          Shop ↗
+        </a>
+      )}
+    </div>
+  )
+}
 
 // ── Items sub-tab ────────────────────────────────────────────────────────────
 
@@ -121,6 +214,13 @@ function ItemsTab({ aestheticId }) {
   const [activeItem, setActiveItem] = useState(null)
   const [shopItem,   setShopItem]   = useState(null)
 
+  const aestheticProducts = useMemo(() =>
+    PRODUCTS
+      .filter((p) => (p.styleWeights?.[aestheticId] ?? 0) >= 1)
+      .sort((a, b) => (b.styleWeights?.[aestheticId] ?? 0) - (a.styleWeights?.[aestheticId] ?? 0)),
+    [aestheticId]
+  )
+
   const { core, statement, accessory } = useMemo(() => {
     const raw = AESTHETIC_ITEMS[aestheticId] ?? []
     const enrich = (item) => ({
@@ -146,7 +246,18 @@ function ItemsTab({ aestheticId }) {
 
   return (
     <>
-      {core.length + statement.length + accessory.length === 0 ? (
+      {aestheticProducts.length > 0 && (
+        <div className={styles.itemSection}>
+          <p className={styles.itemSectionLabel}>Products</p>
+          <div className={styles.itemsGrid}>
+            {aestheticProducts.map((p) => (
+              <ProductGridCard key={p.id} product={p} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {core.length + statement.length + accessory.length === 0 && aestheticProducts.length === 0 ? (
         <p className={styles.emptyText}>No items for this filter.</p>
       ) : (
         <>
@@ -444,11 +555,22 @@ function LooksTab({ aestheticId }) {
 
 // ── Guide sub-tab ────────────────────────────────────────────────────────────
 
-function GuideItem({ type, catLabel, isOpen, onToggle, gender }) {
+function GuideItem({ type, catLabel, catId, aestheticId, isOpen, onToggle, gender }) {
   const [menPhotos, setMenPhotos]     = useState([])
   const [womenPhotos, setWomenPhotos] = useState([])
   const [photosLoading, setPhotosLoading] = useState(false)
   const fetchedRef = useRef(null)
+
+  const picks = useMemo(() =>
+    PRODUCTS
+      .filter((p) =>
+        (p.styleWeights?.[aestheticId] ?? 0) >= 1 &&
+        (GUIDE_CAT_PARENTS[catId] ?? []).includes(p.parentType)
+      )
+      .sort((a, b) => (b.styleWeights?.[aestheticId] ?? 0) - (a.styleWeights?.[aestheticId] ?? 0))
+      .slice(0, 3),
+    [catId, aestheticId]
+  )
 
   useEffect(() => {
     if (isOpen && fetchedRef.current !== gender) {
@@ -518,6 +640,23 @@ function GuideItem({ type, catLabel, isOpen, onToggle, gender }) {
               )}
             </>
           )}
+          {picks.length > 0 && (
+            <div className={styles.guideProductRow}>
+              {picks.map((p) => (
+                <div key={p.id} className={styles.guideProductPick}>
+                  <div>
+                    <p className={styles.guidePickBrand}>{p.brand}</p>
+                    <p className={styles.guidePickName}>{p.name}</p>
+                  </div>
+                  {p.shopUrl && (
+                    <a href={p.shopUrl} target="_blank" rel="noopener noreferrer" className={styles.guidePickShop}>
+                      Shop ↗
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -553,6 +692,8 @@ function GuideTab({ aestheticId }) {
                 key={`${typeId}-${gender}`}
                 type={type}
                 catLabel={cat.label}
+                catId={cat.id}
+                aestheticId={aestheticId}
                 isOpen={expanded === typeId}
                 onToggle={() => setExpanded(expanded === typeId ? null : typeId)}
                 gender={gender}
@@ -580,7 +721,8 @@ function StorySection({ emoji, title, children }) {
 }
 
 function StoryTab({ aestheticId }) {
-  const data = AESTHETIC_DEPTH[aestheticId]
+  const data  = AESTHETIC_DEPTH[aestheticId]
+  const style = STYLES[aestheticId]
   if (!data) {
     return <p className={styles.emptyText}>Deep dive coming soon for this aesthetic.</p>
   }
@@ -632,6 +774,16 @@ function StoryTab({ aestheticId }) {
       <StorySection emoji="🌍" title="Cultural Context">
         <p className={styles.storyBody}>{data.culturalContext}</p>
       </StorySection>
+
+      {style?.brands?.length > 0 && (
+        <StorySection emoji="🏷️" title="Brands to Know">
+          <div className={styles.brandChips}>
+            {style.brands.map((b) => (
+              <span key={b} className={styles.brandChip}>{b}</span>
+            ))}
+          </div>
+        </StorySection>
+      )}
     </div>
   )
 }
@@ -667,11 +819,13 @@ export default function AestheticScreen({ aestheticId, setActiveTab, forceSubTab
     setHeroBg(null)
     let cancelled = false
     const genderHint = gender === 'women' ? 'women' : gender === 'men' ? 'men' : ''
-    const heroQueries = [
-      `${style?.name ?? ''} ${genderHint} fashion aesthetic`.trim(),
-      `${style?.name ?? ''} ${genderHint} fashion`.trim(),
-      `${style?.name ?? ''} style`,
-    ]
+    const heroQueries = style?.backgroundQuery
+      ? [style.backgroundQuery, style.outfitQuery, `${style.name} aesthetic`].filter(Boolean)
+      : [
+          `${style?.name ?? ''} ${genderHint} fashion aesthetic`.trim(),
+          `${style?.name ?? ''} ${genderHint} fashion`.trim(),
+          `${style?.name ?? ''} style`,
+        ]
     fetchPhotosWithFallback(heroQueries, 1).then(([url] = []) => {
       if (!cancelled && url) setHeroBg(url)
     })

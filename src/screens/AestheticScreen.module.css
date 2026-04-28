@@ -747,3 +747,130 @@
   text-align: right;
   flex-shrink: 0;
 }
+
+/* ── Brand chips (Story tab) ── */
+.brandChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.brandChip {
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ── Product grid card (Items tab) ── */
+.productGridCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.productGridPhoto {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.brandBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.shopLink {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #FF6B35;
+  text-decoration: none;
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shopLink:hover { opacity: 0.75; }
+
+.heartBtnSmall {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0;
+  transition: background 0.14s, color 0.14s, transform 0.14s;
+  z-index: 2;
+}
+.heartBtnSmall:hover { background: rgba(0, 0, 0, 0.7); transform: scale(1.12); }
+.heartBtnSmallActive { color: #FF6B35; background: rgba(255, 107, 53, 0.2); }
+.heartBtnSmallActive:hover { background: rgba(255, 107, 53, 0.3); }
+
+/* ── Guide product picks ── */
+.guideProductRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.guideProductPick {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.guidePickBrand {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 2px;
+}
+
+.guidePickName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.guidePickShop {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FF6B35;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.guidePickShop:hover { opacity: 0.75; }

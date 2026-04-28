@@ -60,6 +60,15 @@
   line-height: 1;
 }
 
+.itemBrand {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+}
+
 .itemName {
   font-size: 17px;
   font-weight: 700;
@@ -110,6 +119,16 @@
 
 .shopBtn:hover {
   background: rgba(255, 107, 53, 0.2);
+}
+
+.removeBtn {
+  background: rgba(244, 67, 54, 0.08);
+  border-color: rgba(244, 67, 54, 0.2);
+  color: rgba(255, 100, 90, 0.85);
+}
+
+.removeBtn:hover {
+  background: rgba(244, 67, 54, 0.16);
 }
 
 .actionIcon {

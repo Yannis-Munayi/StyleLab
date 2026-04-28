@@ -1,0 +1,58 @@
+.screen {
+  min-height: 100dvh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Sub-tab bar ── */
+.subTabBar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  gap: 0;
+  padding: 52px 20px 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.subTab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 4px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s;
+  white-space: nowrap;
+}
+
+.subTabActive {
+  color: var(--text);
+  border-bottom-color: #FF6B35;
+}
+
+.subCount {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  line-height: 1.5;
+  transition: background 0.18s, color 0.18s;
+}
+
+.subCountActive {
+  background: rgba(255, 107, 53, 0.15);
+  color: #FF6B35;
+}

@@ -192,6 +192,63 @@
   text-overflow: ellipsis;
 }
 
+/* ── Product-specific additions ── */
+.brandBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 10px;
+}
+
+.shopLink {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #FF6B35;
+  text-decoration: none;
+  padding: 0 2px;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.15s;
+}
+
+.shopLink:hover { opacity: 0.75; }
+
+.itemMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 2px;
+  margin-top: 1px;
+}
+
+.colorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.colorLabel {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: capitalize;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ── Upload button ── */
 .headerRight {
   display: flex;
