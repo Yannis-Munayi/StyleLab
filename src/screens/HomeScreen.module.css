@@ -666,3 +666,51 @@
 }
 .viewResultsBtn:hover { opacity: 0.75; }
 
+
+
+/* ── Wardrobe Builder CTA ── */
+.wardrobeCTA {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, rgba(255,107,53,0.12), rgba(255,140,66,0.06));
+  border: 1.5px solid rgba(255,107,53,0.3);
+  border-radius: 18px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  color: var(--text);
+}
+.wardrobeCTA:active {
+  transform: scale(0.98);
+  background: linear-gradient(135deg, rgba(255,107,53,0.18), rgba(255,140,66,0.1));
+}
+.wardrobeCTAIcon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+.wardrobeCTAText {
+  flex: 1;
+  min-width: 0;
+}
+.wardrobeCTATitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+.wardrobeCTASub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+.wardrobeCTAArrow {
+  font-size: 20px;
+  color: #FF6B35;
+  font-weight: 700;
+  flex-shrink: 0;
+}

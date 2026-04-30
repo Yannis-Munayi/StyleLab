@@ -519,6 +519,28 @@ function CapsuleWardrobe({ setActiveTab, gender, season }) {
   )
 }
 
+// ── Wardrobe Builder CTA ──────────────────────────────────────────────────────
+
+function WardrobeBuilderCTA({ setActiveTab }) {
+  return (
+    <section className={styles.section}>
+      <button
+        className={styles.wardrobeCTA}
+        onClick={() => setActiveTab('wardrobe-builder')}
+      >
+        <div className={styles.wardrobeCTAIcon}>👗</div>
+        <div className={styles.wardrobeCTAText}>
+          <p className={styles.wardrobeCTATitle}>Build Your Wardrobe</p>
+          <p className={styles.wardrobeCTASub}>
+            Tell us what pieces you want → get the best brands for your budget
+          </p>
+        </div>
+        <span className={styles.wardrobeCTAArrow}>→</span>
+      </button>
+    </section>
+  )
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ setActiveTab }) {
@@ -536,6 +558,9 @@ export default function HomeScreen({ setActiveTab }) {
       <div className={styles.body}>
         {/* Fresh Looks Today — daily rotating content, main daily pull */}
         <FreshLooksSection gender={gender} setActiveTab={setActiveTab} />
+
+        {/* Wardrobe Builder CTA */}
+        <WardrobeBuilderCTA setActiveTab={setActiveTab} />
 
         {/* Live Aesthetic Profile — only appears once user has swiped */}
         <AestheticProfile setActiveTab={setActiveTab} gender={gender} />

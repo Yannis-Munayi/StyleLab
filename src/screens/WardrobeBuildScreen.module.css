@@ -1,0 +1,716 @@
+/* ── Screen shell ── */
+.screen {
+  min-height: 100dvh;
+  background: var(--bg);
+  padding-bottom: 88px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerBack {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.headerCenter {
+  flex: 1;
+  text-align: center;
+}
+
+.headerTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.headerSub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.headerSpacer {
+  width: 36px;
+  flex-shrink: 0;
+}
+
+/* ── Step indicator ── */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 20px 32px 8px;
+  position: relative;
+}
+
+.stepLine {
+  position: absolute;
+  top: 30px;
+  left: 80px;
+  right: 80px;
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  z-index: 0;
+}
+
+.stepDot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  z-index: 1;
+}
+
+.stepDotInner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.15);
+  transition: all 0.2s;
+}
+
+.stepDotActive .stepDotInner {
+  background: #FF6B35;
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 4px rgba(255,107,53,0.2);
+}
+
+.stepDotDone .stepDotInner {
+  background: rgba(255,107,53,0.4);
+  border-color: #FF6B35;
+}
+
+.stepDotLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.stepDotActive .stepDotLabel {
+  color: #FF6B35;
+}
+
+/* ── Content area ── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.stepContent {
+  padding: 24px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stepTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.stepSub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Piece grid ── */
+.pieceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.pieceCard {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+  background: rgba(255,255,255,0.04);
+  padding: 0;
+}
+
+.pieceCard:active {
+  transform: scale(0.97);
+}
+
+.pieceCardSelected {
+  border-color: #FF6B35;
+}
+
+.pieceCardBg {
+  position: absolute;
+  inset: 0;
+}
+
+.pieceCardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.5s ease;
+}
+
+.pieceCardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.55) 70%,
+    rgba(0,0,0,0.75) 100%
+  );
+}
+
+.pieceCardSelectedOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,107,53,0.2);
+  z-index: 1;
+}
+
+.pieceCardFooter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 10px 12px;
+  z-index: 2;
+}
+
+.pieceName {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+.pieceCheck {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #FF6B35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+/* ── Budget grid ── */
+.budgetGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.budgetCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  color: var(--text);
+}
+
+.budgetCard:active {
+  transform: scale(0.98);
+}
+
+.budgetCardSelected {
+  background: rgba(255,107,53,0.12);
+  border-color: #FF6B35;
+}
+
+.budgetTag {
+  font-size: 18px;
+  font-weight: 700;
+  color: #FF6B35;
+  min-width: 42px;
+  font-family: 'Playfair Display', serif;
+}
+
+.budgetLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.budgetCardSelected .budgetLabel {
+  color: #FF8C42;
+}
+
+.budgetSub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ── Priority chips ── */
+.priorityGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.priorityChip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  color: var(--text);
+}
+
+.priorityChip:active {
+  transform: scale(0.98);
+}
+
+.priorityChipSelected {
+  background: rgba(255,107,53,0.12);
+  border-color: #FF6B35;
+}
+
+.priorityChipDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.priorityEmoji {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.priorityLabel {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.priorityChipSelected .priorityLabel {
+  color: #FF8C42;
+}
+
+.priorityCheck {
+  font-size: 13px;
+  font-weight: 700;
+  color: #FF6B35;
+}
+
+/* ── Nav buttons ── */
+.navRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.nextBtn {
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #FF6B35, #FF8C42);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.nextBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.backBtn {
+  padding: 15px 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.notSureBtn {
+  padding: 13px 16px;
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.2);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.notSureBtn:hover {
+  border-color: #FF6B35;
+  color: #FF8C42;
+}
+
+/* ── Results ── */
+.results {
+  padding: 20px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Outfit count banner */
+.outfitBanner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,140,66,0.08));
+  border: 1px solid rgba(255,107,53,0.25);
+  border-radius: 18px;
+}
+
+.outfitCount {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px;
+  font-weight: 700;
+  color: #FF6B35;
+  line-height: 1;
+}
+
+.outfitText {
+  flex: 1;
+}
+
+.outfitMain {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+
+.outfitSub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Results sections */
+.resultsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.resultsSectionTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.resultsSectionSub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: -8px 0 0;
+}
+
+/* Piece group */
+.pieceGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pieceGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pieceGroupEmoji {
+  font-size: 20px;
+}
+
+.pieceGroupName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.pieceGroupBudget {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.productList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Product card */
+.productCard {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.productPhoto {
+  width: 90px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.productPhotoImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.5s ease;
+}
+
+.productCardBody {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.productCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.productBrand {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0;
+}
+
+.productName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 2px 0 0;
+}
+
+.productPriceTag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.productDesc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.productLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FF8C42;
+  background: rgba(255,107,53,0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  align-self: flex-start;
+}
+
+.shopBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  align-self: flex-start;
+  transition: background 0.15s;
+}
+
+.shopBtn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.noProducts {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+  margin: 0;
+}
+
+/* Also consider */
+.complementGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.complementCard {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border: 2px dashed rgba(255,255,255,0.18);
+  border-radius: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+  padding: 0;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.complementCard:active {
+  transform: scale(0.97);
+  border-color: #FF6B35;
+  border-style: solid;
+}
+
+.complementCardBg {
+  position: absolute;
+  inset: 0;
+}
+
+.complementCardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.5s ease;
+}
+
+.complementCardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.6) 70%,
+    rgba(0,0,0,0.8) 100%
+  );
+}
+
+.complementCardFooter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 10px 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.complementName {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  line-height: 1.3;
+}
+
+.complementAdd {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FF6B35;
+  background: rgba(0,0,0,0.45);
+  padding: 3px 8px;
+  border-radius: 6px;
+  align-self: flex-start;
+  backdrop-filter: blur(4px);
+}
+
+/* Reset button */
+.resetBtn {
+  padding: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}

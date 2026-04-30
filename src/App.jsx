@@ -15,6 +15,7 @@ import ProfileScreen   from './screens/ProfileScreen'
 import MyStyleScreen   from './screens/MyStyleScreen'
 import ExploreScreen   from './screens/ExploreScreen'
 import AestheticScreen from './screens/AestheticScreen'
+import WardrobeBuildScreen from './screens/WardrobeBuildScreen'
 import TabBar          from './components/TabBar'
 import GuideTour, { GUIDE_STEPS } from './components/GuideTour'
 import { GuideProvider } from './context/GuideContext'
@@ -256,6 +257,9 @@ function AppShell() {
       )}
       {showTabs && activeTab === 'explore' && (
         <ExploreScreen setActiveTab={handleTabChange} />
+      )}
+      {showTabs && activeTab === 'wardrobe-builder' && (
+        <WardrobeBuildScreen onBack={() => handleTabChange('home')} />
       )}
       {showTabs && isAestheticTab && (
         <AestheticScreen
