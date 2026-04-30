@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useShop } from '../context/ShopContext'
 import { useWishlist } from '../context/WishlistContext'
@@ -67,6 +68,17 @@ export default function TabBar({ activeTab, setActiveTab }) {
   const isMyStyle = activeTab === 'mystyle'
   const myStyleCount = liked.length + wishlist.length + shopList.length
 
+  const [bounceTab, setBounceTab] = useState(null)
+  const prevTabRef = useRef(activeTab)
+
+  useEffect(() => {
+    if (prevTabRef.current === activeTab) return
+    setBounceTab(activeTab)
+    prevTabRef.current = activeTab
+    const t = setTimeout(() => setBounceTab(null), 320)
+    return () => clearTimeout(t)
+  }, [activeTab])
+
   return (
     <nav className={styles.tabBar}>
       <div className={styles.tabScroll}>
@@ -75,7 +87,9 @@ export default function TabBar({ activeTab, setActiveTab }) {
           className={`${styles.tab} ${activeTab === 'home' ? styles.active : ''}`}
           onClick={() => setActiveTab('home')}
         >
-          <HomeIcon active={activeTab === 'home'} />
+          <span className={bounceTab === 'home' ? styles.iconBounce : ''}>
+            <HomeIcon active={activeTab === 'home'} />
+          </span>
           <span>Home</span>
         </button>
 
@@ -83,14 +97,16 @@ export default function TabBar({ activeTab, setActiveTab }) {
           className={`${styles.tab} ${activeTab === 'explore' ? styles.active : ''}`}
           onClick={() => setActiveTab('explore')}
         >
-          <ExploreIcon active={activeTab === 'explore'} />
+          <span className={bounceTab === 'explore' ? styles.iconBounce : ''}>
+            <ExploreIcon active={activeTab === 'explore'} />
+          </span>
           <span>Explore</span>
         </button>
 
         {/* ── Center Discover button ── */}
         <div className={styles.discoverWrap}>
           <button
-            className={`${styles.discoverBtn} ${activeTab === 'quiz' ? styles.discoverActive : ''}`}
+            className={`${styles.discoverBtn} ${activeTab === 'quiz' ? styles.discoverActive : ''} ${bounceTab === 'quiz' ? styles.iconBounce : ''}`}
             onClick={() => setActiveTab('quiz')}
           >
             <DiscoverIcon />
@@ -104,7 +120,7 @@ export default function TabBar({ activeTab, setActiveTab }) {
           className={`${styles.tab} ${isMyStyle ? styles.active : ''}`}
           onClick={() => setActiveTab('mystyle')}
         >
-          <div className={styles.iconWrap}>
+          <div className={`${styles.iconWrap} ${bounceTab === 'mystyle' ? styles.iconBounce : ''}`}>
             <MyStyleIcon active={isMyStyle} />
             {myStyleCount > 0 && (
               <span className={styles.badge}>
@@ -120,11 +136,13 @@ export default function TabBar({ activeTab, setActiveTab }) {
           onClick={() => setActiveTab('profile')}
         >
           {user ? (
-            <div className={`${styles.avatar} ${activeTab === 'profile' ? styles.avatarActive : ''}`}>
+            <div className={`${styles.avatar} ${activeTab === 'profile' ? styles.avatarActive : ''} ${bounceTab === 'profile' ? styles.iconBounce : ''}`}>
               {(user.displayName ?? user.email ?? '?')[0].toUpperCase()}
             </div>
           ) : (
-            <ProfileIcon active={activeTab === 'profile'} />
+            <span className={bounceTab === 'profile' ? styles.iconBounce : ''}>
+              <ProfileIcon active={activeTab === 'profile'} />
+            </span>
           )}
           <span>{user ? (user.displayName?.split(' ')[0] ?? 'Profile') : 'Profile'}</span>
         </button>

@@ -20,6 +20,7 @@ export default function ClothingCard({ item }) {
   const [dragX, setDragX]           = useState(0)
   const [dragging, setDragging]     = useState(false)
   const [flyDir, setFlyDir]         = useState(null)
+  const [heartPop, setHeartPop]     = useState(false)
 
   const startXRef = useRef(null)
   const cardRef   = useRef(null)
@@ -56,8 +57,12 @@ export default function ClothingCard({ item }) {
 
   function toggleWishlist(e) {
     e.stopPropagation()
-    if (wishlisted) removeFromWishlist(item.id)
-    else addItemToLiked()
+    if (wishlisted) {
+      removeFromWishlist(item.id)
+    } else {
+      addItemToLiked()
+      setHeartPop(true)
+    }
   }
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
@@ -110,6 +115,7 @@ export default function ClothingCard({ item }) {
   const likeOp     = Math.min(Math.max(activeDrag / SWIPE_THRESHOLD, 0), 1)
   const skipOp     = Math.min(Math.max(-activeDrag / SWIPE_THRESHOLD, 0), 1)
 
+  const glowAlpha = Math.min(likeOp * 0.65, 0.65)
   const cardStyle = {
     transform:  `translateX(${activeDrag}px) rotate(${rotation}deg)`,
     transition: flyDir
@@ -117,6 +123,9 @@ export default function ClothingCard({ item }) {
       : dragging ? 'none' : 'transform 0.4s cubic-bezier(0.3, 1.5, 0.7, 1)',
     opacity: flyDir ? 0 : 1,
     cursor:  dragging ? 'grabbing' : 'grab',
+    boxShadow: likeOp > 0.1
+      ? `0 20px 60px rgba(0,0,0,0.45), 0 0 28px rgba(34,197,94,${glowAlpha.toFixed(2)})`
+      : '0 20px 60px rgba(0,0,0,0.45)',
   }
 
   return (
@@ -134,7 +143,8 @@ export default function ClothingCard({ item }) {
         onMouseLeave={onMouseLeave}
       >
         {/* Photo background */}
-        <div className={`${styles.carousel} ${loadingPhoto ? styles.pulsing : ''}`}
+        <div
+          className={`${styles.carousel} ${loadingPhoto ? styles.carouselSkeleton : ''}`}
           style={{ background: item.gradient }}>
           {photo && (
             <img
@@ -167,8 +177,13 @@ export default function ClothingCard({ item }) {
           onClick={toggleWishlist}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill={wishlisted ? 'currentColor' : 'none'}
-            stroke="currentColor" strokeWidth="2.2">
+          <svg
+            className={heartPop ? styles.heartPopping : ''}
+            onAnimationEnd={() => setHeartPop(false)}
+            width="16" height="16" viewBox="0 0 24 24"
+            fill={wishlisted ? 'currentColor' : 'none'}
+            stroke="currentColor" strokeWidth="2.2"
+          >
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
           </svg>
         </button>

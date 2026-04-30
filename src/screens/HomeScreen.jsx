@@ -79,7 +79,8 @@ function HeroCarousel({ setActiveTab, gender }) {
   const [photos, setPhotos]       = useState(new Array(HERO_SLIDE_IDS.length).fill(null))
   const [activeIdx, setActiveIdx] = useState(0)
   const [imgLoaded, setImgLoaded] = useState(false)
-  const timerRef = useRef(null)
+  const timerRef    = useRef(null)
+  const touchStartX = useRef(null)
 
   useEffect(() => {
     setPhotos(new Array(HERO_SLIDE_IDS.length).fill(null))
@@ -119,12 +120,28 @@ function HeroCarousel({ setActiveTab, gender }) {
     startTimer()
   }
 
+  function onHeroTouchStart(e) {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  function onHeroTouchEnd(e) {
+    if (touchStartX.current === null) return
+    const delta = e.changedTouches[0].clientX - touchStartX.current
+    touchStartX.current = null
+    if (Math.abs(delta) > 50) {
+      const newIdx = delta < 0
+        ? (activeIdx + 1) % HERO_SLIDE_IDS.length
+        : (activeIdx - 1 + HERO_SLIDE_IDS.length) % HERO_SLIDE_IDS.length
+      goTo(newIdx)
+    }
+  }
+
   const slideId = HERO_SLIDE_IDS[activeIdx]
   const style   = STYLES[slideId]
   const photo   = photos[activeIdx]
 
   return (
-    <div className={styles.hero}>
+    <div className={styles.hero} onTouchStart={onHeroTouchStart} onTouchEnd={onHeroTouchEnd}>
       <div className={styles.heroBg} style={{ background: style?.gradient ?? '#1a1a1a' }}>
         {photo && (
           <img
@@ -285,7 +302,7 @@ function FreshLooksSection({ gender, setActiveTab }) {
           <p className={styles.sectionSub}>Refreshes daily · tap ♥ to like</p>
         </div>
       </div>
-      <div className={styles.hScroll}>
+      <div className={`${styles.hScroll} ${styles.hScrollFade}`}>
         {items.map((item) => (
           <FreshLookCard key={item.id} item={item} gender={gender} />
         ))}
@@ -314,7 +331,27 @@ function AestheticProfile({ setActiveTab, gender }) {
 
   const swipedCount = Object.keys(state.responses).length
 
-  if (topStyles.length === 0) return null
+  if (topStyles.length === 0) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionIcon}>✦</span>
+          <div>
+            <h2 className={styles.sectionTitle}>Your Aesthetic Profile</h2>
+            <p className={styles.sectionSub}>Rate looks to reveal your style breakdown</p>
+          </div>
+        </div>
+        <div className={styles.aestheticBarsEmpty}>
+          <div className={styles.aestheticBarGhost} />
+          <div className={styles.aestheticBarGhost} style={{ width: '70%' }} />
+          <div className={styles.aestheticBarGhost} style={{ width: '45%' }} />
+        </div>
+        <button className={styles.quizCTABtn} onClick={() => setActiveTab('quiz')}>
+          Take the style quiz to unlock your profile →
+        </button>
+      </section>
+    )
+  }
 
   return (
     <section className={styles.section}>
@@ -549,6 +586,19 @@ export default function HomeScreen({ setActiveTab }) {
   const gender              = state.gender
   const season              = getSeason()
   const meta                = SEASON_META[season]
+  const [trendingKey, setTrendingKey] = useState(0)
+
+  const trendingIds = useMemo(() => {
+    if (trendingKey === 0) return TRENDING
+    const arr = [...TRENDING]
+    let seed = trendingKey * 1664525 + 1013904223
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 1664525 + 1013904223) >>> 0
+      const j = seed % (i + 1)
+      ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    return arr
+  }, [trendingKey])
 
   return (
     <div className={styles.screen}>
@@ -601,12 +651,19 @@ export default function HomeScreen({ setActiveTab }) {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionIcon}>🔥</span>
-            <div>
+            <div style={{ flex: 1 }}>
               <h2 className={styles.sectionTitle}>Trending Now</h2>
               <p className={styles.sectionSub}>Styles gaining momentum</p>
             </div>
+            <button
+              className={styles.refreshBtn}
+              onClick={() => setTrendingKey((k) => k + 1)}
+              aria-label="Shuffle trending"
+            >
+              ↻
+            </button>
           </div>
-          <HorizontalScroll ids={TRENDING} setActiveTab={setActiveTab} gender={gender} />
+          <HorizontalScroll ids={trendingIds} setActiveTab={setActiveTab} gender={gender} />
         </section>
 
         <button className={styles.exploreAllBtn} onClick={() => setActiveTab('explore')}>

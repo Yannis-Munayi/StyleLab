@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { STYLES, getStyleName } from '../data/styles'
 import { useExplore } from '../context/ExploreContext'
 import { useApp } from '../context/AppContext'
@@ -37,7 +37,12 @@ const GROUPS = [
   },
 ]
 
-function AestheticCard({ style, onOpen, pinned, gender }) {
+const GROUP_MAP = GROUPS.reduce((acc, g) => {
+  g.ids.forEach((id) => { acc[id] = g.label })
+  return acc
+}, {})
+
+function AestheticCard({ style, onOpen, pinned, gender, groupLabel }) {
   const [photos, setPhotos]       = useState([])
   const [imgIdx, setImgIdx]       = useState(0)
   const [imgLoaded, setImgLoaded] = useState(false)
@@ -165,7 +170,10 @@ function AestheticCard({ style, onOpen, pinned, gender }) {
 
       {/* Name + pin — also opens the aesthetic on click */}
       <div className={styles.cardFooter} onClick={() => onOpen(style.id)}>
-        <span className={styles.cardName}>{getStyleName(style, gender)}</span>
+        <div>
+          {groupLabel && <span className={styles.groupTag}>{groupLabel}</span>}
+          <span className={styles.cardName}>{getStyleName(style, gender)}</span>
+        </div>
         {pinned && <span className={styles.pinBadge}>📌</span>}
       </div>
     </div>
@@ -176,19 +184,46 @@ export default function ExploreScreen({ setActiveTab }) {
   const { savedAesthetics, openAesthetic, openAestheticTab, isSaved } = useExplore()
   const { state } = useApp()
   const gender = state.gender
-  const [search, setSearch] = useState('')
+  const [search, setSearch]   = useState('')
+  const [filter, setFilter]   = useState('all')
+  const [showPinHint, setShowPinHint] = useState(
+    () => !localStorage.getItem('stylelab_pin_hint_shown')
+  )
+
+  useEffect(() => {
+    if (!showPinHint) return
+    const t = setTimeout(() => {
+      setShowPinHint(false)
+      localStorage.setItem('stylelab_pin_hint_shown', '1')
+    }, 4000)
+    return () => clearTimeout(t)
+  }, [showPinHint])
 
   const query = search.toLowerCase().trim()
 
-  // Filtered aesthetics for search
-  const filtered = query
-    ? ALL_AESTHETICS.filter(
-        (s) =>
+  const displayAesthetics = useMemo(() => {
+    if (filter === 'pinned') {
+      return savedAesthetics
+        .map((id) => STYLES[id])
+        .filter(Boolean)
+        .filter((s) => !query ||
           s.name.toLowerCase().includes(query) ||
-          s.tagline?.toLowerCase().includes(query) ||
-          s.icons?.some((i) => i.toLowerCase().includes(query))
-      )
-    : null
+          s.tagline?.toLowerCase().includes(query))
+    }
+    if (filter === 'popular') {
+      return ALL_AESTHETICS.filter((s) => !query ||
+        s.name.toLowerCase().includes(query) ||
+        s.tagline?.toLowerCase().includes(query) ||
+        s.icons?.some((i) => i.toLowerCase().includes(query)))
+    }
+    if (query) {
+      return ALL_AESTHETICS.filter((s) =>
+        s.name.toLowerCase().includes(query) ||
+        s.tagline?.toLowerCase().includes(query) ||
+        s.icons?.some((i) => i.toLowerCase().includes(query)))
+    }
+    return null
+  }, [filter, query, savedAesthetics])
 
   function handleOpen(id) {
     openAestheticTab(id)
@@ -230,23 +265,53 @@ export default function ExploreScreen({ setActiveTab }) {
             <button className={styles.searchClear} onClick={() => setSearch('')}>×</button>
           )}
         </div>
+        <div className={styles.filterRow}>
+          {['all', 'pinned', 'popular'].map((f) => (
+            <button
+              key={f}
+              className={`${styles.filterBtn} ${filter === f ? styles.filterBtnActive : ''}`}
+              onClick={() => setFilter(f)}
+            >
+              {f === 'all' ? 'All' : f === 'pinned' ? '📌 Saved' : '🔥 Popular'}
+            </button>
+          ))}
+        </div>
+        {showPinHint && (
+          <div className={styles.pinHint}>
+            <span>💡 Open any aesthetic and tap 📌 to save it to your home screen</span>
+            <button
+              className={styles.pinHintDismiss}
+              onClick={() => {
+                setShowPinHint(false)
+                localStorage.setItem('stylelab_pin_hint_shown', '1')
+              }}
+            >
+              ×
+            </button>
+          </div>
+        )}
       </div>
 
       <div className={styles.body}>
-        {/* Search results */}
-        {filtered && (
+        {/* Flat grid: search results, pinned filter, or popular filter */}
+        {displayAesthetics !== null && (
           <div>
-            {filtered.length === 0 ? (
-              <p className={styles.noResults}>No aesthetics match "{search}"</p>
+            {displayAesthetics.length === 0 ? (
+              <p className={styles.noResults}>
+                {filter === 'pinned'
+                  ? 'No saved aesthetics yet — open any aesthetic and tap 📌'
+                  : `No aesthetics match "${search}"`}
+              </p>
             ) : (
               <div className={styles.grid}>
-                {filtered.map((s) => (
+                {displayAesthetics.map((s) => (
                   <AestheticCard
                     key={`${s.id}-${gender}`}
                     style={s}
                     onOpen={handleOpen}
                     pinned={isSaved(s.id)}
                     gender={gender}
+                    groupLabel={filter === 'all' && query ? GROUP_MAP[s.id] : undefined}
                   />
                 ))}
               </div>
@@ -254,41 +319,42 @@ export default function ExploreScreen({ setActiveTab }) {
           </div>
         )}
 
-        {/* Pinned aesthetics section */}
-        {!filtered && savedAesthetics.length > 0 && (
-          <section className={styles.section}>
-            <h2 className={styles.sectionLabel}>📌 Saved</h2>
-            <div className={styles.grid}>
-              {savedAesthetics.map((id) => {
-                const s = STYLES[id]
-                if (!s) return null
-                return (
-                  <AestheticCard key={`${id}-${gender}`} style={s} onOpen={handleOpen} pinned gender={gender} />
-                )
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Grouped aesthetics */}
-        {!filtered &&
-          GROUPS.map((group) => {
-            const groupStyles = group.ids
-              .map((id) => STYLES[id])
-              .filter(Boolean)
-              .filter((s) => !savedAesthetics.includes(s.id)) // hide already pinned
-            if (groupStyles.length === 0) return null
-            return (
-              <section key={group.label} className={styles.section}>
-                <h2 className={styles.sectionLabel}>{group.label}</h2>
+        {/* Grouped view (default: filter=all, no search query) */}
+        {displayAesthetics === null && (
+          <>
+            {savedAesthetics.length > 0 && (
+              <section className={styles.section}>
+                <h2 className={styles.sectionLabel}>📌 Saved</h2>
                 <div className={styles.grid}>
-                  {groupStyles.map((s) => (
-                    <AestheticCard key={`${s.id}-${gender}`} style={s} onOpen={handleOpen} pinned={false} gender={gender} />
-                  ))}
+                  {savedAesthetics.map((id) => {
+                    const s = STYLES[id]
+                    if (!s) return null
+                    return (
+                      <AestheticCard key={`${id}-${gender}`} style={s} onOpen={handleOpen} pinned gender={gender} />
+                    )
+                  })}
                 </div>
               </section>
-            )
-          })}
+            )}
+            {GROUPS.map((group) => {
+              const groupStyles = group.ids
+                .map((id) => STYLES[id])
+                .filter(Boolean)
+                .filter((s) => !savedAesthetics.includes(s.id))
+              if (groupStyles.length === 0) return null
+              return (
+                <section key={group.label} className={styles.section}>
+                  <h2 className={styles.sectionLabel}>{group.label}</h2>
+                  <div className={styles.grid}>
+                    {groupStyles.map((s) => (
+                      <AestheticCard key={`${s.id}-${gender}`} style={s} onOpen={handleOpen} pinned={false} gender={gender} />
+                    ))}
+                  </div>
+                </section>
+              )
+            })}
+          </>
+        )}
       </div>
     </div>
   )

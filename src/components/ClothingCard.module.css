@@ -52,6 +52,43 @@
   50%       { opacity: 0.55; }
 }
 
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.carouselSkeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.carouselSkeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.07) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes heartPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.heartPopping {
+  animation: heartPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: block;
+}
+
 .photoOverlay {
   position: absolute;
   inset: 0;

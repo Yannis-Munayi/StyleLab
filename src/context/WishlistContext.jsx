@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from '../services/firebase'
 import { useAuth } from './AuthContext'
+import { showToast } from '../components/Toast'
 
 const WishlistContext = createContext(null)
 
@@ -36,21 +37,31 @@ export function WishlistProvider({ children }) {
   const [outfitBoards,  setOutfitBoards]  = usePersistedList(user, 'outfitBoards')
 
   const addToWishlist = useCallback((entry) => {
-    setWishlist((prev) => prev.some((e) => e.id === entry.id) ? prev : [{ ...entry, addedAt: Date.now() }, ...prev])
+    setWishlist((prev) => {
+      if (prev.some((e) => e.id === entry.id)) return prev
+      showToast('Saved to wishlist 🤍')
+      return [{ ...entry, addedAt: Date.now() }, ...prev]
+    })
   }, [setWishlist])
 
   const removeFromWishlist = useCallback((id) => {
     setWishlist((prev) => prev.filter((e) => e.id !== id))
+    showToast('Removed from wishlist')
   }, [setWishlist])
 
   const isWishlisted = useCallback((id) => wishlist.some((e) => e.id === id), [wishlist])
 
   const addToLiked = useCallback((entry) => {
-    setLiked((prev) => prev.some((e) => e.id === entry.id) ? prev : [{ ...entry, addedAt: Date.now() }, ...prev])
+    setLiked((prev) => {
+      if (prev.some((e) => e.id === entry.id)) return prev
+      showToast('Liked ❤️')
+      return [{ ...entry, addedAt: Date.now() }, ...prev]
+    })
   }, [setLiked])
 
   const removeFromLiked = useCallback((id) => {
     setLiked((prev) => prev.filter((e) => e.id !== id))
+    showToast('Removed')
   }, [setLiked])
 
   const isLiked = useCallback((id) => liked.some((e) => e.id === id), [liked])

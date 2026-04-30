@@ -18,6 +18,7 @@ import AestheticScreen from './screens/AestheticScreen'
 import WardrobeBuildScreen from './screens/WardrobeBuildScreen'
 import TabBar          from './components/TabBar'
 import GuideTour, { GUIDE_STEPS } from './components/GuideTour'
+import Toast           from './components/Toast'
 import { GuideProvider } from './context/GuideContext'
 
 // Screens where the tab bar is hidden (focused setup flow)
@@ -298,6 +299,8 @@ function AppShell() {
           onRestart={handleRestart}
         />
       )}
+
+      <Toast />
     </div>
     </GuideProvider>
   )

@@ -714,3 +714,78 @@
   font-weight: 700;
   flex-shrink: 0;
 }
+
+/* ── Fresh Looks scroll edge fade ── */
+.hScrollFade {
+  mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+}
+
+/* ── Aesthetic Profile empty state ── */
+@keyframes shimmerSlide {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.aestheticBarsEmpty {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.aestheticBarGhost {
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmerSlide 1.8s infinite linear;
+  width: 100%;
+}
+
+.quizCTABtn {
+  margin-top: 14px;
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,140,66,0.05));
+  border: 1.5px solid rgba(255,107,53,0.25);
+  border-radius: 14px;
+  color: #FF6B35;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.quizCTABtn:hover {
+  background: linear-gradient(135deg, rgba(255,107,53,0.18), rgba(255,140,66,0.1));
+  border-color: rgba(255,107,53,0.4);
+}
+
+/* ── Trending refresh button ── */
+.refreshBtn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.35);
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s, transform 0.2s;
+  font-family: inherit;
+  line-height: 1;
+}
+.refreshBtn:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+}
+.refreshBtn:active {
+  transform: rotate(180deg);
+}

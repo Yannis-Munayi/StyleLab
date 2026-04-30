@@ -266,7 +266,7 @@ function StepPieces({ selected, onToggle, onNotSure, onNext, gender }) {
       </div>
 
       <button className={styles.notSureBtn} onClick={onNotSure}>
-        Not sure yet? Show me a starter capsule →
+        ✨ Not sure yet? Show me a starter capsule
       </button>
 
       <button
