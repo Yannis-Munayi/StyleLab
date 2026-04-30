@@ -1,4 +1,4 @@
-.screen {
+﻿.screen {
   min-height: 100dvh;
   background: var(--bg);
   display: flex;
@@ -38,7 +38,7 @@
 
 .subTabActive {
   color: var(--text);
-  border-bottom-color: #FF6B35;
+  border-bottom-color: #E8735A;
 }
 
 .subCount {
@@ -53,6 +53,6 @@
 }
 
 .subCountActive {
-  background: rgba(255, 107, 53, 0.15);
-  color: #FF6B35;
+  background: rgba(232, 115, 90, 0.15);
+  color: #E8735A;
 }

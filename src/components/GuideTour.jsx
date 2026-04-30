@@ -2,62 +2,128 @@ import { useRef, useState } from 'react'
 import styles from './GuideTour.module.css'
 
 export const GUIDE_STEPS = [
-  // ── Home ──────────────────────────────────────────────────────────────────
+  // ── Home: Welcome ─────────────────────────────────────────────────────────
   {
     tab:   'home',
-    title: 'Welcome to StyleLab 👋',
-    desc:  'This is your Home screen — the starting point. You\'ll find featured aesthetics, your personal stats, seasonal picks, and trending styles all in one place.',
+    title: 'Welcome to StyleLab ✦',
+    desc:  'StyleLab is your personal fashion aesthetic engine. Swipe through clothes, discover which aesthetics match your taste, build outfit boards, and shop with intent — all in one place. This tour walks you through every feature.',
   },
+
+  // ── Home: Hero carousel ───────────────────────────────────────────────────
   {
     tab:   'home',
-    title: 'Stats, Picks & Capsule Wardrobe',
-    desc:  'Your Liked, Wishlist, and Shop counts are tappable pills. Scroll down to find your personal Capsule Wardrobe — curated looks from your top aesthetic for the current season.',
+    title: 'Hero Carousel — Featured Aesthetics',
+    desc:  'The hero at the top rotates through five curated aesthetics. Each slide is a live outfit photo. Tap any slide to dive directly into that aesthetic\'s full profile — Story, Items, Looks, and Guide.',
+  },
+
+  // ── Home: Fresh Looks ─────────────────────────────────────────────────────
+  {
+    tab:   'home',
+    title: 'Fresh Looks Today 🔄',
+    desc:  'Below the hero you\'ll find a new set of curated clothing pieces every day. The selection rotates at midnight using a daily shuffle — come back tomorrow for a fresh batch. Tap any piece to see its aesthetic, or tap the heart to save it to your Wishlist instantly.',
+  },
+
+  // ── Home: Wardrobe Builder ────────────────────────────────────────────────
+  {
+    tab:   'home',
+    title: 'Build Your Wardrobe 👗',
+    desc:  'The Wardrobe Builder lets you map out the pieces you want — tops, bottoms, footwear, and more — then matches them to the best brands for your budget and aesthetic. Tap the card to open the builder and start your wardrobe plan.',
+  },
+
+  // ── Home: Aesthetic Profile ───────────────────────────────────────────────
+  {
+    tab:   'home',
+    title: 'Your Live Aesthetic Profile 📊',
+    desc:  'Once you\'ve swiped on items in Discover, your Home screen shows a live breakdown of your top aesthetics with percentage scores. This updates every time you swipe — the more you rate, the more accurate your profile gets.',
+  },
+
+  // ── Home: Stats pills ─────────────────────────────────────────────────────
+  {
+    tab:   'home',
+    title: 'Stats at a Glance 💡',
+    desc:  'Three tappable pills show your total Liked items, Wishlist saves, and Shop queue count. Tap any pill to jump straight to that collection inside My Style. They\'re your quick-access shortcut to everything you\'ve collected.',
+  },
+
+  // ── Home: Saved aesthetics + season ──────────────────────────────────────
+  {
+    tab:   'home',
+    title: 'Saved Aesthetics & Season Picks 📌',
+    desc:  'Any aesthetic you pin from the Explore screen floats to the top of your Home in a dedicated Saved row. Below that, Season Picks shows aesthetics hand-curated for the current time of year — winter layers, summer breathables, and so on.',
+  },
+
+  // ── Home: Capsule Wardrobe ────────────────────────────────────────────────
+  {
+    tab:   'home',
+    title: 'Your Capsule Wardrobe ✦',
+    desc:  'Scroll further and you\'ll find Your Capsule Wardrobe — a curated set of full-outfit looks from your top aesthetic, filtered to the current season. These are real, styled outfits you can replicate. Tap any look to open the full aesthetic for more.',
+  },
+
+  // ── Home: Trending ────────────────────────────────────────────────────────
+  {
+    tab:   'home',
+    title: 'Trending Now 🔥',
+    desc:  'The Trending section shows aesthetics gaining momentum right now. Tap the shuffle button (↻) to randomise the order and surface fresh styles. Tap any card to explore that aesthetic in full.',
   },
 
   // ── Explore ───────────────────────────────────────────────────────────────
   {
     tab:   'explore',
-    title: 'Explore — Browse All Aesthetics 🔍',
-    desc:  'Every aesthetic lives here, grouped by category. Use the search bar at the top to find one by name, vibe, or keyword. Tap any card to open it.',
+    title: 'Explore — All 51 Aesthetics 🔍',
+    desc:  'The Explore tab is the complete library. All 51 aesthetics are displayed as visual cards, grouped by category (Academia, Street, Casual, Alternative, and more). Use the search bar at the top to find any aesthetic by name, vibe, or keyword like "dark" or "preppy".',
   },
 
-  // ── Aesthetic deep-dive ───────────────────────────────────────────────────
+  // ── Explore: Filter ───────────────────────────────────────────────────────
+  {
+    tab:   'explore',
+    title: 'Filter by Category',
+    desc:  'Tap a category chip below the search bar to filter the grid — only aesthetics in that group will show. Tap the chip again or choose "All" to clear the filter. Combine with search for precise lookups.',
+  },
+
+  // ── Aesthetic deep-dive: Story ────────────────────────────────────────────
   {
     tab:    'aesthetic:oldmoney',
     subTab: 'story',
-    title:  'Inside an Aesthetic — Story',
-    desc:   'We\'ve opened Old Money as an example. The Story tab gives you the origin, vibe, and defining traits of the aesthetic — the best place to start if you\'re new to a style.',
+    title:  'Inside an Aesthetic — Story Tab',
+    desc:   'We\'ve opened Old Money as an example. The Story tab tells you the cultural origin, defining vibe, key influences, and visual traits of the aesthetic. It\'s the best starting point when you\'re new to a style — understand it before you wear it.',
   },
+
+  // ── Aesthetic deep-dive: Items ────────────────────────────────────────────
   {
     tab:    'aesthetic:oldmoney',
     subTab: 'items',
-    title:  'Items Tab',
-    desc:   'The Items tab shows the key clothing pieces that define this aesthetic. Tap 🤍 on any piece to add it to your Wishlist, or tap "Add to shop list" to queue it for purchase.',
+    title:  'Items Tab — The Building Blocks',
+    desc:   'The Items tab lists the essential clothing pieces that define this aesthetic — blazers, loafers, cable-knit sweaters, and more. Tap the 🤍 heart on any piece to add it to your Wishlist, or tap "Add to shop list" to queue it for a future purchase.',
   },
+
+  // ── Aesthetic deep-dive: Looks ────────────────────────────────────────────
   {
     tab:    'aesthetic:oldmoney',
     subTab: 'looks',
-    title:  'Looks Tab',
-    desc:   'The Looks tab shows full outfit combinations built from the aesthetic\'s pieces — curated sets styled together for outfit inspiration.',
+    title:  'Looks Tab — Full Outfit Inspiration',
+    desc:   'The Looks tab shows complete, styled outfits built from the aesthetic\'s core pieces — top, bottom, shoes, accessories all paired together. Each look has a live Pexels photo. This is your outfit-of-the-day reference.',
   },
+
+  // ── Aesthetic deep-dive: Guide ────────────────────────────────────────────
   {
     tab:    'aesthetic:oldmoney',
     subTab: 'guide',
-    title:  'Guide Tab',
-    desc:   'The Guide tab breaks down how to wear the aesthetic — tops, bottoms, shoes, accessories. Each section loads real outfit photos for reference.',
+    title:  'Guide Tab — How to Wear It',
+    desc:   'The Guide tab breaks the aesthetic into wearable sections: tops, bottoms, footwear, accessories, and more. Tap any section header to expand it and load real reference photos. This is the practical "how to dress" manual for the aesthetic.',
   },
+
+  // ── Aesthetic: Pin ────────────────────────────────────────────────────────
   {
     tab:    'aesthetic:oldmoney',
     subTab: 'story',
-    title:  'Pin to Save 📌',
-    desc:   'See the 📌 button near the top? Tap it to save this aesthetic. Pinned aesthetics float to the top of your Explore grid and appear in the Saved section on your Home screen.',
+    title:  'Pin an Aesthetic 📌',
+    desc:   'Tap the 📌 button near the top of any aesthetic to save it. Pinned aesthetics jump to the top of the Explore grid so you can find them instantly, and they also appear in your personalised Saved Aesthetics row on the Home screen.',
   },
 
-  // ── Discover intro ────────────────────────────────────────────────────────
+  // ── Discover: intro ───────────────────────────────────────────────────────
   {
     tab:   'quiz',
-    title: 'Discover — Find Your Style ✦',
-    desc:  'The quiz starts by picking your seasons and the clothing categories you care about. Let\'s do a quick demo — follow the highlighted prompts.',
+    title: 'Discover — Find Your Aesthetic ✦',
+    desc:  'The Discover tab is where StyleLab learns your taste. You\'ll pick your season and preferred clothing categories, then swipe through real outfit items. Every like or skip trains your personal aesthetic profile. Let\'s walk through it.',
   },
 
   // ── Forced season selection ───────────────────────────────────────────────
@@ -66,8 +132,8 @@ export const GUIDE_STEPS = [
     forceScreen: 'seasons',
     forceSeason: 'spring',
     interactive: true,
-    title:       'Pick a Season 🌸',
-    desc:        'Seasons filter the items you\'ll see. Tap Spring (highlighted) to continue the demo.',
+    title:       'Step 1 — Pick a Season 🌸',
+    desc:        'Seasons filter which items you\'ll be shown — winter looks different from summer. Tap Spring (highlighted) to continue the demo.',
   },
 
   // ── Forced category selection ─────────────────────────────────────────────
@@ -76,56 +142,56 @@ export const GUIDE_STEPS = [
     forceScreen:   'categories',
     forceCategory: 'outerwear',
     interactive:   true,
-    title:         'Choose a Category 🧥',
-    desc:          'Categories focus the quiz on the pieces you actually wear. Tap Jackets & Coats (highlighted) to continue.',
+    title:         'Step 2 — Choose Categories 🧥',
+    desc:          'Categories narrow the item pool to clothes you actually wear. You can pick multiple. Tap Jackets & Coats (highlighted) to continue the demo.',
   },
 
-  // ── Discover mechanics ────────────────────────────────────────────────────
+  // ── Discover: swipe mechanics ─────────────────────────────────────────────
   {
     tab:   'quiz',
-    title: 'Swipe Right to Like ❤️',
-    desc:  'You\'re in Discover! Swipe right or tap ❤️ to like an item. This adds it to your Liked tab and counts toward your aesthetic score.',
+    title: 'Swipe Right — Like ❤️',
+    desc:  'Swipe right or tap ❤️ to like an item. Liked items are saved to your Liked tab under My Style and count toward your aesthetic score. The more consistently you like within an aesthetic, the higher it ranks in your profile.',
   },
   {
     tab:   'quiz',
-    title: 'Swipe Left to Skip ✕',
-    desc:  'Swipe left or tap ✕ to skip an item. Skipped items are removed from the queue and don\'t affect your score at all.',
+    title: 'Swipe Left — Skip ✕',
+    desc:  'Swipe left or tap ✕ to pass on an item. Skips don\'t count against your score — they just remove the item from the current queue. Use skips freely; only likes shape your profile.',
   },
   {
     tab:   'quiz',
-    title: 'Save to Wishlist 🤍',
-    desc:  'Tap 🤍 on any card to save it to your Wishlist without affecting the quiz. Great for pieces you love but aren\'t sure fit your aesthetic.',
+    title: 'Save to Wishlist Without Liking 🤍',
+    desc:  'See the 🤍 icon on the card? Tap it to save the item to your Wishlist without it affecting your aesthetic score. Perfect for pieces you love the look of but aren\'t sure match your overall style direction.',
   },
 
   // ── My Style: Liked ───────────────────────────────────────────────────────
   {
-    tab:          'mystyle',
+    tab:           'mystyle',
     myStyleSubTab: 'liked',
-    title: 'My Style — Liked Items ❤️',
-    desc:  'Every item you swiped right on lives in the Liked tab. Tap "Generate my aesthetics" to re-analyse your likes and see which styles they map to. Tap × on any card to remove it.',
+    title:         'My Style — Liked Items ❤️',
+    desc:          'Every item you swiped right on lives here. Tap "Generate my aesthetics" to run a fresh analysis on your current likes — StyleLab scores each aesthetic based on how many of its signature pieces you liked. Tap × on any card to remove it and update your profile.',
   },
 
   // ── My Style: Saved ───────────────────────────────────────────────────────
   {
-    tab:          'mystyle',
+    tab:           'mystyle',
     myStyleSubTab: 'saved',
-    title: 'Saved & Shop 🤍🛍️',
-    desc:  'Items saved with 🤍 collect in the Saved tab — each links to Pinterest so you can find where to buy it. Switch to Shop to see pieces you\'ve queued for purchase from any aesthetic.',
+    title:         'Saved & Shop 🤍 🛍️',
+    desc:          'The Saved tab holds everything you hearted — from Discover cards, aesthetic Items tabs, and daily Fresh Looks. Each item links to Pinterest so you can track down where to buy it. Switch to the Shop sub-tab to see pieces you\'ve specifically queued for purchase, sorted by aesthetic.',
   },
 
   // ── My Style: Boards ─────────────────────────────────────────────────────
   {
-    tab:          'mystyle',
+    tab:           'mystyle',
     myStyleSubTab: 'boards',
-    title: 'Outfit Boards 🗂️',
-    desc:  'Combine your liked and saved pieces into named outfit boards. Tap "+ New Board", pick your pieces, give it a name — your boards save automatically to your account.',
+    title:         'Outfit Boards 🗂️',
+    desc:          'Boards let you combine your liked and saved pieces into named outfit collections — think of them as your personal lookbooks. Tap "+ New Board", select pieces from your library, give the board a name, and save. Boards sync to your account so they\'re available on any device.',
   },
 
   // ── Profile ───────────────────────────────────────────────────────────────
   {
     tab:   'profile',
-    title: 'Profile — All Done! 🎉',
-    desc:  'Set your gender preference and appearance theme here. Your style evolution timeline and full quiz history are tracked here — sign in to save everything across devices.',
+    title: 'Profile — Settings & Evolution 🎉',
+    desc:  'Your Profile lets you set gender preference (Men / Women / Both) to filter item photos across the whole app, toggle between dark and light mode, and view your Style Evolution timeline — a visual history of how your aesthetic profile has shifted across every quiz session. Sign in to back everything up across devices.',
   },
 ]
 

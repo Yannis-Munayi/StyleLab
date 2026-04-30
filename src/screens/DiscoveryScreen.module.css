@@ -1,4 +1,4 @@
-.screen {
+﻿.screen {
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -94,7 +94,7 @@
 .ctaBtn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #FF6B35, #FF8C42);
+  background: linear-gradient(135deg, #E8735A, #D4896A);
   border: none;
   border-radius: 14px;
   color: #fff;
@@ -103,12 +103,12 @@
   font-family: inherit;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.35);
+  box-shadow: 0 4px 16px rgba(232, 115, 90, 0.35);
 }
 
 .ctaBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.45);
+  box-shadow: 0 6px 20px rgba(232, 115, 90, 0.45);
 }
 
 /* ── Filter sheet ── */
@@ -178,14 +178,14 @@
 }
 
 .chipActive {
-  background: rgba(255, 107, 53, 0.15);
-  border-color: rgba(255, 107, 53, 0.4);
-  color: #FF6B35;
+  background: rgba(232, 115, 90, 0.15);
+  border-color: rgba(232, 115, 90, 0.4);
+  color: #E8735A;
 }
 
 .applyBtn {
   padding: 14px;
-  background: linear-gradient(135deg, #FF6B35, #FF8C42);
+  background: linear-gradient(135deg, #E8735A, #D4896A);
   border: none;
   border-radius: 14px;
   color: #fff;

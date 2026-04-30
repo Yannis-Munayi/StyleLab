@@ -1,4 +1,4 @@
-.panel {
+﻿.panel {
   position: fixed;
   inset: 0;
   background: var(--bg);
@@ -124,9 +124,9 @@
 }
 
 .pillActive {
-  background: rgba(255, 107, 53, 0.15);
-  border-color: rgba(255, 107, 53, 0.45);
-  color: #FF6B35;
+  background: rgba(232, 115, 90, 0.15);
+  border-color: rgba(232, 115, 90, 0.45);
+  color: #E8735A;
 }
 
 /* Colour picker */
@@ -167,7 +167,7 @@
 .findBtn {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, #FF6B35, #F7C59F);
+  background: linear-gradient(135deg, #E8735A, #C4A882);
   border: none;
   border-radius: 14px;
   color: #fff;
@@ -251,7 +251,7 @@
 
 .retailerClicks {
   font-size: 10px;
-  color: rgba(255, 107, 53, 0.7);
+  color: rgba(232, 115, 90, 0.7);
   margin: 2px 0 0;
   font-weight: 600;
 }
@@ -259,7 +259,7 @@
 .shopNow {
   font-size: 12px;
   font-weight: 600;
-  color: #FF6B35;
+  color: #E8735A;
   flex-shrink: 0;
 }
 

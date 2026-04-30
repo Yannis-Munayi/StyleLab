@@ -1,4 +1,4 @@
-.row {
+﻿.row {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -18,7 +18,7 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FF6B35, #F7C59F);
+  background: linear-gradient(135deg, #E8735A, #C4A882);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,7 +62,7 @@
 /* ── Sign in button ── */
 .signInBtn {
   padding: 9px 18px;
-  background: linear-gradient(135deg, #FF6B35, #F7C59F);
+  background: linear-gradient(135deg, #E8735A, #C4A882);
   border: none;
   border-radius: 20px;
   color: #fff;

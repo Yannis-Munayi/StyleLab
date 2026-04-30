@@ -1,4 +1,4 @@
-export const STYLES = {
+﻿export const STYLES = {
   // ── Core Lifestyle ──────────────────────────────────────────────────────────
   oldmoney: {
     id: 'oldmoney',
@@ -61,8 +61,8 @@ export const STYLES = {
     name: 'Streetwear',
     tagline: 'Bold. Loud. Culture-driven.',
     description: 'You gravitate toward oversized silhouettes, graphic prints, and pieces rooted in skate, hip-hop, and urban culture. Comfort meets statement.',
-    color: '#FF6B35',
-    gradient: 'linear-gradient(135deg, #1a1a1a 0%, #FF6B35 70%, #F7C59F 100%)',
+    color: '#E8735A',
+    gradient: 'linear-gradient(135deg, #1a1a1a 0%, #E8735A 70%, #C4A882 100%)',
     icon: '🏙️',
     icons: ['Hoodies', 'Cargos', 'Chunky sneakers', 'Graphic tees', 'Beanies'],
     pinterest: 'https://www.pinterest.com/search/pins/?q=mens+streetwear+aesthetic+outfits',

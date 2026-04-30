@@ -16,25 +16,6 @@ function timeAgo(ts) {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-function GuideLauncher({ onStart }) {
-  return (
-    <section>
-      <button className={styles.guideToggle} onClick={onStart}>
-        <div className={styles.guideLaunchInner}>
-          <span className={styles.guideLaunchIcon}>✦</span>
-          <div>
-            <span className={styles.guideLaunchTitle}>Take the app tour</span>
-            <span className={styles.guideLaunchSub}>12-step walkthrough of every tab</span>
-          </div>
-        </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0, opacity: 0.4 }}>
-          <path d="M9 18l6-6-6-6" />
-        </svg>
-      </button>
-    </section>
-  )
-}
 
 const GENDER_OPTIONS = [
   { id: 'men',   label: 'Men' },
@@ -151,7 +132,7 @@ function ThemeToggle() {
   )
 }
 
-export default function ProfileScreen({ onBack, startGuide }) {
+export default function ProfileScreen({ onBack }) {
   const { user, logout }  = useAuth()
   const { state, dispatch } = useApp()
   const gender = state.gender
@@ -217,7 +198,6 @@ export default function ProfileScreen({ onBack, startGuide }) {
         <div className={styles.body}>
           <GenderSelector />
           <ThemeToggle />
-          <GuideLauncher onStart={startGuide} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '40px 0', textAlign: 'center' }}>
             <p style={{ fontSize: 48 }}>👤</p>
             <p className={styles.userName}>Not signed in</p>

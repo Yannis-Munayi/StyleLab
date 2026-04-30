@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { STYLES, getStyleName } from '../data/styles'
 import { CLOTHING_ITEMS } from '../data/categories'
 import { AESTHETIC_QUIZ_ITEMS } from '../data/aestheticItems'
@@ -379,7 +379,7 @@ function AestheticProfile({ setActiveTab, gender }) {
               <div className={styles.aestheticBarTrack}>
                 <div
                   className={styles.aestheticBarFill}
-                  style={{ width: `${pct}%`, background: s.gradient ?? 'linear-gradient(135deg, #FF6B35, #FF8C42)' }}
+                  style={{ width: `${pct}%`, background: s.gradient ?? 'linear-gradient(135deg, #E8735A, #D4896A)' }}
                 />
               </div>
             </button>
@@ -580,7 +580,27 @@ function WardrobeBuilderCTA({ setActiveTab }) {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 
-export default function HomeScreen({ setActiveTab }) {
+function GuideLauncher({ onStart }) {
+  return (
+    <section className={styles.section}>
+      <button className={styles.guideLaunchBtn} onClick={onStart}>
+        <div className={styles.guideLaunchInner}>
+          <span className={styles.guideLaunchIcon}>✦</span>
+          <div>
+            <span className={styles.guideLaunchTitle}>Take the app tour</span>
+            <span className={styles.guideLaunchSub}>26-step walkthrough of every feature</span>
+          </div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0, opacity: 0.4 }}>
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+    </section>
+  )
+}
+
+export default function HomeScreen({ setActiveTab, startGuide }) {
   const { savedAesthetics } = useExplore()
   const { state }           = useApp()
   const gender              = state.gender
@@ -665,6 +685,8 @@ export default function HomeScreen({ setActiveTab }) {
           </div>
           <HorizontalScroll ids={trendingIds} setActiveTab={setActiveTab} gender={gender} />
         </section>
+
+        {startGuide && <GuideLauncher onStart={startGuide} />}
 
         <button className={styles.exploreAllBtn} onClick={() => setActiveTab('explore')}>
           Browse all {Object.keys(STYLES).length} aesthetics →

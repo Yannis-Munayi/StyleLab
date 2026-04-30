@@ -1,4 +1,4 @@
-.wrapper {
+﻿.wrapper {
   min-height: 100dvh;
   display: flex;
   align-items: center;
@@ -39,7 +39,7 @@
 .logoMark {
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, #FF6B35, #F7C59F);
+  background: linear-gradient(135deg, #E8735A, #C4A882);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -122,7 +122,7 @@
 
 .submitBtn {
   margin-top: 4px;
-  background: linear-gradient(135deg, #FF6B35, #F7C59F);
+  background: linear-gradient(135deg, #E8735A, #C4A882);
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -154,7 +154,7 @@
 .switchBtn {
   background: none;
   border: none;
-  color: #FF6B35;
+  color: #E8735A;
   font-size: 14px;
   font-family: inherit;
   cursor: pointer;
@@ -220,8 +220,8 @@
 
 .genderPillActive {
   background: rgba(255,107,53,0.15);
-  border-color: #FF6B35;
-  color: #FF6B35;
+  border-color: #E8735A;
+  color: #E8735A;
 }
 
 /* ── Google Sign-In ── */

@@ -1,4 +1,4 @@
-/* ─── Shared ─── */
+﻿/* ─── Shared ─── */
 .screen {
   display: flex;
   flex-direction: column;
@@ -261,15 +261,15 @@
 
 /* Guide tour forced/locked states */
 .guideForced {
-  background: rgba(255, 107, 53, 0.18) !important;
-  border-color: #FF6B35 !important;
-  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.35);
+  background: rgba(232, 115, 90, 0.18) !important;
+  border-color: #E8735A !important;
+  box-shadow: 0 0 0 2px rgba(232, 115, 90, 0.35);
   animation: guideForced 1.8s ease-in-out infinite;
 }
 
 @keyframes guideForced {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.35); }
-  50%       { box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.12); }
+  0%, 100% { box-shadow: 0 0 0 2px rgba(232, 115, 90, 0.35); }
+  50%       { box-shadow: 0 0 0 6px rgba(232, 115, 90, 0.12); }
 }
 
 .guideLocked {
@@ -282,7 +282,7 @@
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  border: 2px solid #FF6B35;
+  border: 2px solid #E8735A;
   animation: pulseBorder 1.8s ease-in-out infinite;
   pointer-events: none;
 }
@@ -772,7 +772,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FF6B35, #F7C59F);
+  background: linear-gradient(135deg, #E8735A, #C4A882);
   display: flex;
   align-items: center;
   justify-content: center;

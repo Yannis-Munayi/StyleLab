@@ -1,4 +1,4 @@
-/* ── Scene wrapper ── */
+﻿/* ── Scene wrapper ── */
 .scene {
   width: 100%;
   max-width: 420px;
@@ -116,7 +116,7 @@
   cursor: pointer;
 }
 
-.shopBtn:hover { background: rgba(255, 107, 53, 0.65); transform: scale(1.1); }
+.shopBtn:hover { background: rgba(232, 115, 90, 0.65); transform: scale(1.1); }
 
 .wishlistBtn {
   width: 36px;
@@ -135,7 +135,7 @@
 }
 
 .wishlistBtn:hover    { background: rgba(0, 0, 0, 0.65); transform: scale(1.1); }
-.wishlistBtnActive    { color: #FF6B35; background: rgba(255, 107, 53, 0.2); }
+.wishlistBtnActive    { color: #E8735A; background: rgba(232, 115, 90, 0.2); }
 
 /* ── Product info overlay ── */
 .frontInfo {
@@ -244,7 +244,7 @@
 }
 
 .likeBtn {
-  background: #FF6B35;
+  background: #E8735A;
   color: #fff;
   width: 72px;
   height: 72px;

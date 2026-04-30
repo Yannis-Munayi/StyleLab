@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { AppProvider, useApp, SCREENS } from './context/AppContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ShopProvider } from './context/ShopContext'
@@ -81,7 +81,7 @@ function ResumeModal({ progress, total, onContinue, onRestart }) {
             onClick={onContinue}
             style={{
               flex: 1, padding: '13px 0',
-              background: 'linear-gradient(135deg, #FF6B35, #FF8C42)',
+              background: 'linear-gradient(135deg, #E8735A, #D4896A)',
               border: 'none',
               borderRadius: 12, color: '#fff',
               fontSize: 14, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
@@ -254,7 +254,7 @@ function AppShell() {
 
       {/* Main tabs */}
       {showTabs && activeTab === 'home' && (
-        <HomeScreen setActiveTab={handleTabChange} />
+        <HomeScreen setActiveTab={handleTabChange} startGuide={startGuide} />
       )}
       {showTabs && activeTab === 'explore' && (
         <ExploreScreen setActiveTab={handleTabChange} />
@@ -273,7 +273,7 @@ function AppShell() {
         <MyStyleScreen forceSubTab={myStyleSubTab} />
       )}
       {showTabs && activeTab === 'profile'  && (
-        <ProfileScreen onBack={() => handleTabChange('quiz')} startGuide={startGuide} />
+        <ProfileScreen onBack={() => handleTabChange('quiz')} />
       )}
 
       {showTabs && (

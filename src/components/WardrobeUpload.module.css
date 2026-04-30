@@ -1,4 +1,4 @@
-.overlay {
+﻿.overlay {
   position: fixed;
   inset: 0;
   z-index: 300;
@@ -88,7 +88,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  background: rgba(255, 107, 53, 0.12);
+  background: rgba(232, 115, 90, 0.12);
   border-radius: 12px;
 }
 
@@ -155,8 +155,8 @@
 }
 
 .photoZone:hover {
-  border-color: rgba(255, 107, 53, 0.4);
-  background: rgba(255, 107, 53, 0.04);
+  border-color: rgba(232, 115, 90, 0.4);
+  background: rgba(232, 115, 90, 0.04);
 }
 
 .photoPreview {
@@ -185,7 +185,7 @@
 }
 
 .nameInput::placeholder { color: rgba(255, 255, 255, 0.25); }
-.nameInput:focus { border-color: rgba(255, 107, 53, 0.5); }
+.nameInput:focus { border-color: rgba(232, 115, 90, 0.5); }
 
 /* ── Category grid ── */
 .catGrid {
@@ -208,16 +208,16 @@
 }
 
 .catPillActive {
-  background: rgba(255, 107, 53, 0.15);
-  border-color: rgba(255, 107, 53, 0.45);
-  color: #FF6B35;
+  background: rgba(232, 115, 90, 0.15);
+  border-color: rgba(232, 115, 90, 0.45);
+  color: #E8735A;
 }
 
 /* ── Analyze button ── */
 .analyzeBtn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #FF6B35, #F7C59F);
+  background: linear-gradient(135deg, #E8735A, #C4A882);
   border: none;
   border-radius: 14px;
   color: #fff;
@@ -282,9 +282,9 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 107, 53, 0.5);
-  background: rgba(255, 107, 53, 0.1);
-  color: #FF6B35;
+  border: 2px solid rgba(232, 115, 90, 0.5);
+  background: rgba(232, 115, 90, 0.1);
+  color: #E8735A;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -294,7 +294,7 @@
   flex-shrink: 0;
   transition: background 0.15s;
 }
-.checkBtn:hover { background: rgba(255, 107, 53, 0.2); }
+.checkBtn:hover { background: rgba(232, 115, 90, 0.2); }
 
 .detectedBody {
   flex: 1;

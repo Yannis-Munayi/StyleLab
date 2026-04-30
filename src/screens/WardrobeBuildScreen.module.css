@@ -1,4 +1,4 @@
-/* ── Screen shell ── */
+﻿/* ── Screen shell ── */
 .screen {
   min-height: 100dvh;
   background: var(--bg);
@@ -97,14 +97,14 @@
 }
 
 .stepDotActive .stepDotInner {
-  background: #FF6B35;
-  border-color: #FF6B35;
+  background: #E8735A;
+  border-color: #E8735A;
   box-shadow: 0 0 0 4px rgba(255,107,53,0.2);
 }
 
 .stepDotDone .stepDotInner {
   background: rgba(255,107,53,0.4);
-  border-color: #FF6B35;
+  border-color: #E8735A;
 }
 
 .stepDotLabel {
@@ -114,7 +114,7 @@
 }
 
 .stepDotActive .stepDotLabel {
-  color: #FF6B35;
+  color: #E8735A;
 }
 
 /* ── Content area ── */
@@ -170,7 +170,7 @@
 }
 
 .pieceCardSelected {
-  border-color: #FF6B35;
+  border-color: #E8735A;
 }
 
 .pieceCardBg {
@@ -228,7 +228,7 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #FF6B35;
+  background: #E8735A;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -265,13 +265,13 @@
 
 .budgetCardSelected {
   background: rgba(255,107,53,0.12);
-  border-color: #FF6B35;
+  border-color: #E8735A;
 }
 
 .budgetTag {
   font-size: 18px;
   font-weight: 700;
-  color: #FF6B35;
+  color: #E8735A;
   min-width: 42px;
   font-family: 'Playfair Display', serif;
 }
@@ -284,7 +284,7 @@
 }
 
 .budgetCardSelected .budgetLabel {
-  color: #FF8C42;
+  color: #D4896A;
 }
 
 .budgetSub {
@@ -319,7 +319,7 @@
 
 .priorityChipSelected {
   background: rgba(255,107,53,0.12);
-  border-color: #FF6B35;
+  border-color: #E8735A;
 }
 
 .priorityChipDisabled {
@@ -339,13 +339,13 @@
 }
 
 .priorityChipSelected .priorityLabel {
-  color: #FF8C42;
+  color: #D4896A;
 }
 
 .priorityCheck {
   font-size: 13px;
   font-weight: 700;
-  color: #FF6B35;
+  color: #E8735A;
 }
 
 /* ── Nav buttons ── */
@@ -357,7 +357,7 @@
 
 .nextBtn {
   padding: 15px 20px;
-  background: linear-gradient(135deg, #FF6B35, #FF8C42);
+  background: linear-gradient(135deg, #E8735A, #D4896A);
   border: none;
   border-radius: 14px;
   color: #fff;
@@ -391,7 +391,7 @@
   background: rgba(255,107,53,0.06);
   border: 2px dashed rgba(255,107,53,0.45);
   border-radius: 12px;
-  color: #FF8C42;
+  color: #D4896A;
   font-size: 13px;
   font-weight: 600;
   font-family: inherit;
@@ -401,9 +401,9 @@
 }
 
 .notSureBtn:hover {
-  border-color: #FF6B35;
+  border-color: #E8735A;
   background: rgba(255,107,53,0.1);
-  color: #FF6B35;
+  color: #E8735A;
 }
 
 /* ── Results ── */
@@ -429,7 +429,7 @@
   font-family: 'Playfair Display', serif;
   font-size: 52px;
   font-weight: 700;
-  color: #FF6B35;
+  color: #E8735A;
   line-height: 1;
 }
 
@@ -589,7 +589,7 @@
 .productLabel {
   font-size: 11px;
   font-weight: 700;
-  color: #FF8C42;
+  color: #D4896A;
   background: rgba(255,107,53,0.1);
   padding: 3px 8px;
   border-radius: 6px;
@@ -645,7 +645,7 @@
 
 .complementCard:active {
   transform: scale(0.97);
-  border-color: #FF6B35;
+  border-color: #E8735A;
   border-style: solid;
 }
 
@@ -695,7 +695,7 @@
 .complementAdd {
   font-size: 11px;
   font-weight: 700;
-  color: #FF6B35;
+  color: #E8735A;
   background: rgba(0,0,0,0.45);
   padding: 3px 8px;
   border-radius: 6px;

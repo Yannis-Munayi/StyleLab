@@ -1,4 +1,4 @@
-*, *::before, *::after {
+﻿*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -20,9 +20,11 @@
   --text-muted:      rgba(255, 255, 255, 0.45);
   --text-faint:      rgba(255, 255, 255, 0.25);
   /* Accent — unchanged in both themes */
-  --accent:          #FF6B35;
-  --accent-dim:      rgba(255, 107, 53, 0.15);
-  --accent-border:   rgba(255, 107, 53, 0.4);
+  --accent:          #E8735A;
+  --accent-dim:      rgba(232, 115, 90, 0.15);
+  --accent-border:   rgba(232, 115, 90, 0.4);
+  --accent-secondary: #C4A882;
+  --accent-gold:     #D4AF7A;
 }
 
 :root[data-theme="light"] {

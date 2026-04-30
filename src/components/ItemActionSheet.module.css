@@ -1,4 +1,4 @@
-.overlay {
+﻿.overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
@@ -113,12 +113,12 @@
 }
 
 .shopBtn {
-  background: rgba(255, 107, 53, 0.12);
-  border-color: rgba(255, 107, 53, 0.25);
+  background: rgba(232, 115, 90, 0.12);
+  border-color: rgba(232, 115, 90, 0.25);
 }
 
 .shopBtn:hover {
-  background: rgba(255, 107, 53, 0.2);
+  background: rgba(232, 115, 90, 0.2);
 }
 
 .removeBtn {

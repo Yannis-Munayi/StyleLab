@@ -1,4 +1,4 @@
-.screen {
+﻿.screen {
   min-height: 100dvh;
   background: var(--bg);
   padding-bottom: 88px;
@@ -282,7 +282,7 @@
 .filterBtnActive {
   background: rgba(255,107,53,0.12);
   border-color: rgba(255,107,53,0.4);
-  color: #FF6B35;
+  color: #E8735A;
 }
 
 /* ── Pin hint banner ── */

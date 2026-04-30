@@ -1,4 +1,4 @@
-.screen {
+﻿.screen {
   min-height: 100dvh;
   background: var(--bg);
   display: flex;
@@ -38,7 +38,7 @@
 
 .emptyIcon {
   font-size: 48px;
-  color: #FF6B35;
+  color: #E8735A;
 }
 
 .emptyTitle {
@@ -131,7 +131,7 @@
 .generateBtn {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(135deg, #FF6B35, #FF8C42);
+  background: linear-gradient(135deg, #E8735A, #D4896A);
   border: none;
   border-radius: 14px;
   color: #fff;
